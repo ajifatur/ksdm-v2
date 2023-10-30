@@ -31,6 +31,7 @@
                             <tr>
                                 <th>NIP</th>
                                 <th>Nama</th>
+                                <th width="100">Unit</th>
                                 <th width="80">Kategori</th>
                                 <th width="80">Status Kepegawaian</th>
                                 <th width="80">Status Kerja</th>
@@ -42,6 +43,7 @@
                             <tr class="{{ $p->status_kerja->status == 0 ? 'text-danger' : '' }}">
                                 <td><a class="{{ $p->status_kerja->status == 0 ? 'text-danger' : '' }}" href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">{{ $p->nip }}</a></td>
                                 <td>{{ title_name($p->nama, $p->gelar_depan, $p->gelar_belakang) }}</td>
+                                <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
                                 <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td>{{ $p->status_kepegawaian->nama }}</td>
                                 <td>{{ $p->status_kerja->status == 0 ? $p->status_kerja->nama : 'Aktif' }}</td>
