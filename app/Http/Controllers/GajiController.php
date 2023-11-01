@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Excel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -487,6 +488,84 @@ class GajiController extends Controller
 
         // Redirect
         return redirect()->route('admin.gaji.monitoring', ['jenis' => $jenis->id])->with(['message' => 'Berhasil memproses data.']);
+    }
+
+    /**
+     * Perubahan Gaji Induk
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function change(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
+		
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+
+        // Get gaji bulan ini
+        $gaji_bulan_ini = Gaji::where('jenis_id','=',1)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+
+        // Set tanggal sebelumnya
+        $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
+
+        // Get gaji bulan sebelumnya
+        $gaji_bulan_sebelumnya = Gaji::where('jenis_id','=',1)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->pluck('pegawai_id')->toArray();
+
+        // Pegawai masuk
+        $cek_bulan_ini = [];
+        if(count($gaji_bulan_ini) > 0) {
+            foreach($gaji_bulan_ini->pluck('pegawai_id')->toArray() as $t) {
+                if(!in_array($t, $gaji_bulan_sebelumnya))
+                    array_push($cek_bulan_ini, $t);
+            }
+        }
+		$pegawai_on = Pegawai::whereIn('id', $cek_bulan_ini)->get();
+
+        // Pegawai keluar
+        $cek_bulan_sebelumnya = [];
+        if(count($gaji_bulan_sebelumnya) > 0) {
+            foreach($gaji_bulan_sebelumnya as $t) {
+                if(!in_array($t, $gaji_bulan_ini->pluck('pegawai_id')->toArray()))
+                    array_push($cek_bulan_sebelumnya, $t);
+            }
+        }
+		$pegawai_off = Pegawai::whereIn('id', $cek_bulan_sebelumnya)->get();
+		
+		// Perubahan gaji
+		$perubahan_gjpokok = [];
+		$perubahan_tjfungs = [];
+		$perubahan_tjistri = [];
+		$perubahan_tjanak = [];
+		$perubahan_unit = [];
+		foreach($gaji_bulan_ini as $g) {
+			// Get gaji bulan sebelumnya
+			$gs = Gaji::where('jenis_id','=',1)->where('pegawai_id','=',$g->pegawai_id)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
+			if($gs) {
+				if($g->gjpokok != $gs->gjpokok) array_push($perubahan_gjpokok, ['pegawai' => $g->pegawai, 'sebelum' => $gs->gjpokok, 'sesudah' => $g->gjpokok]);
+				if($g->tjfungs != $gs->tjfungs) array_push($perubahan_tjfungs, ['pegawai' => $g->pegawai, 'sebelum' => $gs->tjfungs, 'sesudah' => $g->tjfungs]);
+				if(($g->tjistri / (($g->gjpokok * 10) / 100)) != ($gs->tjistri / (($gs->gjpokok * 10) / 100))) array_push($perubahan_tjistri, ['pegawai' => $g->pegawai, 'sebelum' => ($gs->tjistri / (($gs->gjpokok * 10) / 100)), 'sesudah' => ($g->tjistri / (($g->gjpokok * 10) / 100))]);
+				if(($g->tjanak / (($g->gjpokok * 2) / 100)) != ($gs->tjanak / (($gs->gjpokok * 2) / 100))) array_push($perubahan_tjanak, ['pegawai' => $g->pegawai, 'sebelum' => ($gs->tjanak / (($gs->gjpokok * 2) / 100)), 'sesudah' => ($g->tjanak / (($g->gjpokok * 2) / 100))]);
+				if($g->unit_id != $gs->unit_id) array_push($perubahan_unit, ['pegawai' => $g->pegawai, 'sebelum' => $gs->unit, 'sesudah' => $g->unit]);
+			}
+		}
+		
+        // View
+        return view('admin/gaji/change', [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'gaji_bulan_ini' => $gaji_bulan_ini,
+            'gaji_bulan_sebelumnya' => $gaji_bulan_sebelumnya,
+            'pegawai_on' => $pegawai_on,
+            'pegawai_off' => $pegawai_off,
+            'perubahan_gjpokok' => $perubahan_gjpokok,
+            'perubahan_tjfungs' => $perubahan_tjfungs,
+            'perubahan_tjistri' => $perubahan_tjistri,
+            'perubahan_tjanak' => $perubahan_tjanak,
+            'perubahan_unit' => $perubahan_unit,
+        ]);
     }
 
     // Sum array

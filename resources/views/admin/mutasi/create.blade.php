@@ -242,7 +242,7 @@
             $("#uraian").removeClass("d-none");
             $("#perubahan").addClass("d-none");
         }
-        else if($(this).val() == 9 || $(this).val() == 11 || $(this).val() == 12) {
+        else if($(this).val() == 10 || $(this).val() == 11 || $(this).val() == 12) {
             $("#jabatan-unit").addClass("d-none");
             $("#uraian").addClass("d-none");
             $("#perubahan").removeClass("d-none");
@@ -250,7 +250,7 @@
         else {
             $("#jabatan-unit").addClass("d-none");
             $("#uraian").addClass("d-none");
-            $("#perubahan").removeClass("d-none");
+            $("#perubahan").addClass("d-none");
         }
     });
 
@@ -352,7 +352,6 @@
         }
 
         var html = '';
-        // html += '<div class="lists">';
         html += '<input type="hidden" name="detail_id[]" value="' + id + '">';
         html += '<input type="hidden" name="jabatan_id[]" value="' + jabatan + '">';
         html += '<input type="hidden" name="unit_id[]" value="' + unit + '">';
@@ -365,7 +364,6 @@
         html += '<button class="btn btn-outline-danger btn-delete" title="Hapus"><i class="bi-trash"></i></button>';
         html += '</div>';
         html += '</div>';
-        // html += '</div>';
         
         // Add / update list berdasarkan key
         if(key != '') $("#jabatan-unit .lists[data-id=" + key + "]").html(html);

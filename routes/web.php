@@ -106,6 +106,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/gaji/yearly-recap', 'GajiController@yearlyRecap')->name('admin.gaji.yearly-recap');
     Route::get('/admin/gaji/excel', 'GajiController@excel')->name('admin.gaji.excel');
     Route::post('/admin/gaji/import', 'GajiController@import')->name('admin.gaji.import');
+    Route::get('/admin/gaji/change', 'GajiController@change')->name('admin.gaji.change');
 
     // KGB
     Route::get('/admin/kgb', 'KGBController@index')->name('admin.kgb.index');
@@ -128,7 +129,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/slip-gaji/print/{id}', 'SlipGajiController@print')->name('admin.slip-gaji.print');
 
     // Others
-    Route::get('/admin/pegawai/print', 'PegawaiController@print')->name('admin.pegawai.print');
+    Route::get('/admin/pegawai/print', 'PegawaiController@print')->name('admin.pegawai.print'); // SPTJM
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
