@@ -95,6 +95,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/tunjangan-profesi/print-non-pns', 'TunjanganProfesiController@printNonPNS')->name('admin.tunjangan-profesi.print-non-pns');
     Route::get('/admin/tunjangan-profesi/excel', 'TunjanganProfesiController@excel')->name('admin.tunjangan-profesi.excel');
     Route::get('/admin/tunjangan-profesi/csv/{id}', 'TunjanganProfesiController@csv')->name('admin.tunjangan-profesi.csv');
+    Route::get('/admin/tunjangan-profesi/csv-batch/{id}', 'TunjanganProfesiController@csvBatch')->name('admin.tunjangan-profesi.csv-batch');
     Route::get('/admin/tunjangan-profesi/csv-non-pns', 'TunjanganProfesiController@csvNonPNS')->name('admin.tunjangan-profesi.csv-non-pns');
     Route::get('/admin/tunjangan-profesi/new', 'TunjanganProfesiController@new')->name('admin.tunjangan-profesi.new');
     Route::get('/admin/tunjangan-profesi/change', 'TunjanganProfesiController@change')->name('admin.tunjangan-profesi.change');

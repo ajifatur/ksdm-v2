@@ -506,6 +506,33 @@ class TunjanganProfesiController extends Controller
     }
 
     /**
+     * Export to CSV.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  id
+     * @return \Illuminate\Http\Response
+     */
+    public function csvBatch(Request $request, $id)
+    {
+        // Check the access
+        // has_access(__METHOD__, Auth::user()->role_id);
+
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        // Get jenis
+        $jenis = JenisTunjanganProfesi::findOrFail($id);
+
+        // Get tunjangan profesi
+        $tunjangan = TunjanganProfesi::whereHas('angkatan', function(Builder $query) use ($jenis) {
+            return $query->where('jenis_id','=',$jenis->id);
+        })->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
+
+        // Download
+        return Excel::download(new TunjanganProfesiCSVExport($tunjangan), $jenis->file.'_('.$request->tahun.'_'.\Ajifatur\Helpers\DateTimeExt::month($request->bulan).').csv', \Maatwebsite\Excel\Excel::CSV);
+    }
+
+    /**
      * Export to CSV Non PNS.
      *
      * @param  \Illuminate\Http\Request  $request

@@ -103,7 +103,10 @@
                                 <td align="right">{{ number_format($total['diterimakan']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.tunjangan-profesi.excel', ['jenis' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.tunjangan-profesi.excel', ['jenis' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
+                                        @if(in_array(Request::query('jenis'), [1,2,3]))
+                                        <a href="{{ route('admin.tunjangan-profesi.csv-batch', ['id' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
