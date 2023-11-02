@@ -150,7 +150,7 @@
                             <option value="0" disabled>--Pilih Satker--</option>
                             <!-- <option value="690645" {{ $tahun >= 2023 ? 'selected' : '' }}>690645</option> -->
                             <!-- <option value="677507" {{ $tahun < 2023 ? 'selected' : '' }}>677507</option> -->
-                            <option value="677507">677507</option>
+                            <option value="690645">690645</option>
                         </select>
                     </div>
                     <div>
