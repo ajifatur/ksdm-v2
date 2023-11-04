@@ -109,6 +109,12 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/gaji/import', 'GajiController@import')->name('admin.gaji.import');
     Route::get('/admin/gaji/change', 'GajiController@change')->name('admin.gaji.change');
 
+    // Uang Makan
+    Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
+    Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
+    Route::post('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
+    Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
+
     // KGB
     Route::get('/admin/kgb', 'KGBController@index')->name('admin.kgb.index');
     
