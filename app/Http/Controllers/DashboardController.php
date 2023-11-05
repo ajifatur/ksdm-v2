@@ -12,6 +12,7 @@ use App\Models\RemunInsentif;
 use App\Models\LebihKurang;
 use App\Models\TunjanganProfesi;
 use App\Models\Gaji;
+use App\Models\UangMakan;
 
 class DashboardController extends Controller
 {
@@ -49,6 +50,11 @@ class DashboardController extends Controller
         $gaji_induk_total = Gaji::where('tahun','=',date('Y'))->sum('nominal') - Gaji::where('tahun','=',date('Y'))->sum('potongan');
         $gaji_induk = Gaji::where('bulan','=',(date('n') < 10 ? '0'.date('n') : date('n')))->where('tahun','=',date('Y'))->sum('nominal') - Gaji::where('bulan','=',(date('n') < 10 ? '0'.date('n') : date('n')))->where('tahun','=',date('Y'))->sum('potongan');
 
+        // Sum uang makan
+        $uang_makan_terakhir = UangMakan::latest('tahun')->latest('bulan')->first();
+        $uang_makan_total = UangMakan::where('tahun','=',date('Y'))->sum('bersih');
+        $uang_makan = UangMakan::where('bulan','=',$uang_makan_terakhir->bulan)->where('tahun','=',$uang_makan_terakhir->tahun)->sum('bersih');
+
         // Sum tunjangan kehormatan profesor
         $tunjangan_profesor_total = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
             return $query->where('jenis_id','=',1);
@@ -76,6 +82,9 @@ class DashboardController extends Controller
             'remun_insentif' => $remun_insentif,
             'gaji_induk_total' => $gaji_induk_total,
             'gaji_induk' => $gaji_induk,
+            'uang_makan_terakhir' => $uang_makan_terakhir,
+            'uang_makan_total' => $uang_makan_total,
+            'uang_makan' => $uang_makan,
             'tunjangan_profesor_total' => $tunjangan_profesor_total,
             'tunjangan_profesor' => $tunjangan_profesor,
             'tunjangan_profesi_total' => $tunjangan_profesi_total,

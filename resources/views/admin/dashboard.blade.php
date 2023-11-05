@@ -103,6 +103,25 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col mt-0">
+                        <h5 class="card-title">Uang Makan PNS {{ date('Y') }}</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="stat text-primary">Rp</div>
+                    </div>
+                </div>
+                <h1 class="mt-1 mb-3">{{ number_format($uang_makan_total) }}</h1>
+                <div>
+                    <span class="badge {{ $uang_makan > 0 ? 'badge-primary-light' : 'badge-danger-light' }}"> <i class="mdi mdi-arrow-bottom-right"></i> {{ number_format($uang_makan) }} </span>
+                    <span class="text-muted">pada bulan {{ \Ajifatur\Helpers\DateTimeExt::month((int)$uang_makan_terakhir->bulan) }} {{ $uang_makan_terakhir->tahun }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col mt-0">
                         <h5 class="card-title">Tunjangan Kehormatan Profesor {{ date('Y') }}</h5>
                     </div>
                     <div class="col-auto">

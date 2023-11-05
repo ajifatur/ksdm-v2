@@ -111,8 +111,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/gaji/change', 'GajiController@change')->name('admin.gaji.change');
 
     // Uang Makan
-    Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
+    // Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
     Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
+    Route::get('/admin/uang-makan/recap', 'UangMakanController@recap')->name('admin.uang-makan.recap');
     Route::post('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
     Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
 

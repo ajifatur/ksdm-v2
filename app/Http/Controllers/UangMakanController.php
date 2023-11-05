@@ -21,42 +21,6 @@ use App\Models\PegawaiNonAktif;
 class UangMakanController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
-    {
-        $bulan = $request->query('bulan') ?: date('n');
-        $tahun = $request->query('tahun') ?: date('Y');
-        $id = $request->query('id') ?: 0;
-
-        // Get jenis
-        $jenis = JenisGaji::findOrFail($request->query('jenis'));
-
-        // Get anak satker
-        $as = AnakSatker::find($id);
-
-        // Get anak satker
-        $anak_satker = AnakSatker::all();
-
-        // Get gaji
-        $uang_makan = [];
-        if($id != 0)
-            $uang_makan = Gaji::where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$as->kode)->get();
-
-        // View
-        return view('admin/gaji/index', [
-            'jenis' => $jenis,
-            'anak_satker' => $anak_satker,
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-            'gaji' => $uang_makan,
-        ]);
-    }
-
-    /**
      * Monitoring.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -116,6 +80,39 @@ class UangMakanController extends Controller
     }
 
     /**
+     * Recap.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function recap(Request $request)
+    {
+        $tahun = $request->query('tahun') ?: date('Y');
+
+        // Get uang makan
+        $uang_makan = [];
+        for($i=1; $i<=12; $i++) {
+            array_push($uang_makan, [
+                'bulan' => DateTimeExt::month($i),
+                'pegawai' => UangMakan::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->count(),
+                'nominal' => UangMakan::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->sum('bersih')
+            ]);
+        }
+
+        // Total
+        $total_pegawai = UangMakan::where('tahun','=',$tahun)->count();
+        $total_uang_makan = UangMakan::where('tahun','=',$tahun)->sum('bersih');
+
+        // View
+        return view('admin/uang-makan/recap', [
+            'tahun' => $tahun,
+            'uang_makan' => $uang_makan,
+            'total_pegawai' => $total_pegawai,
+            'total_uang_makan' => $total_uang_makan,
+        ]);
+    }
+
+    /**
      * Export to Excel.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -152,19 +149,35 @@ class UangMakanController extends Controller
                 'uang_makan' => $uang_makan
             ]), 'Uang-Makan '.$anak_satker->nama.' '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
         }
-        else {
-            // Get uang makan
-            $uang_makan = UangMakan::where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
+        elseif(!$anak_satker) {
+            if(in_array($request->kategori, [1,2])) {
+                // Get uang makan
+                $uang_makan = UangMakan::where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
-            if(count($uang_makan) <= 0) {
-                echo "Tidak ada data!";
-                return;
+                if(count($uang_makan) <= 0) {
+                    echo "Tidak ada data!";
+                    return;
+                }
+
+                // Return
+                return Excel::download(new UangMakanExport([
+                    'uang_makan' => $uang_makan,
+                ]), 'Uang-Makan '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
             }
-
-            // Return
-            return Excel::download(new UangMakanExport([
-                'uang_makan' => $uang_makan,
-            ]), 'Uang-Makan '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
+            else {
+                // Get uang makan
+                $uang_makan = UangMakan::where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
+    
+                if(count($uang_makan) <= 0) {
+                    echo "Tidak ada data!";
+                    return;
+                }
+    
+                // Return
+                return Excel::download(new UangMakanExport([
+                    'uang_makan' => $uang_makan,
+                ]), 'Uang-Makan '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).'.xlsx');
+            }
         }
     }
     
