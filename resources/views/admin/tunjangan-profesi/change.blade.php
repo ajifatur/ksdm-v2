@@ -56,8 +56,8 @@
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
                                         <td>{{ strtoupper($p->nama) }}</td>
-                                        <td>{{ $p->jabfung ? $p->jabfung->jabatan->nama : '-' }}</td>
-                                        <td>{{ $p->jabfung ? $p->jabfung->unit->nama : '-' }}</td>
+                                        <td>{{ $p->jabfung ? $p->jabfung->nama : '-' }}</td>
+                                        <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
                                         <td>{{ $p->status_kepegawaian->nama }}</td>
                                         <td>{{ $p->tunjangan_profesi()->first()->angkatan->nama }}</td>
                                         <td>
@@ -72,8 +72,8 @@
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
                                         <td>{{ strtoupper($p->nama) }}</td>
-                                        <td>{{ $p->jabfung ? $p->jabfung->jabatan->nama : '-' }}</td>
-                                        <td>{{ $p->jabfung ? $p->jabfung->unit->nama : '-' }}</td>
+                                        <td>{{ $p->jabfung ? $p->jabfung->nama : '-' }}</td>
+                                        <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
                                         <td>{{ $p->status_kepegawaian->nama }}</td>
                                         <td>{{ $p->tunjangan_profesi()->first()->angkatan->nama }}</td>
                                         <td>

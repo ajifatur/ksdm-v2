@@ -879,30 +879,12 @@ class TunjanganProfesiController extends Controller
         $pegawai_on = [];
         if(count($tunjangan_bulan_ini) > 0) {
             $pegawai_on = Pegawai::whereIn('id', $cek_bulan_ini)->get();
-            foreach($pegawai_on as $key=>$p) {
-                // Get mutasi jabatan
-                $mutasi = $p->mutasi()->where('jenis_id','=',1)->first();
-
-                // Get jabatan fungsional
-                $pegawai_on[$key]->jabfung = $mutasi ? $mutasi->detail()->whereHas('jabatan', function (Builder $query) {
-                    return $query->where('jenis_id','=',1);
-                })->first() : null;
-            }
         }
 
         // Get pegawai off
         $pegawai_off = [];
         if(count($tunjangan_bulan_sebelumnya) > 0) {
             $pegawai_off = Pegawai::whereIn('id', $cek_bulan_sebelumnya)->get();
-            foreach($pegawai_off as $key=>$p) {
-                // Get mutasi jabatan
-                $mutasi = $p->mutasi()->where('jenis_id','=',1)->first();
-
-                // Get jabatan fungsional
-                $pegawai_off[$key]->jabfung = $mutasi ? $mutasi->detail()->whereHas('jabatan', function (Builder $query) {
-                    return $query->where('jenis_id','=',1);
-                })->first() : null;
-            }
         }
 		
         // View

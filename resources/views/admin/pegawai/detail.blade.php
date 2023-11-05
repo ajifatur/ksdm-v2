@@ -40,6 +40,11 @@
                         <button class="nav-link" id="gaji-pns-tab" data-bs-toggle="tab" data-bs-target="#gaji-pns" type="button" role="tab" aria-controls="gaji-pns" aria-selected="false">Gaji PNS</button>
                     </li>
                     @endif
+                    @if(count($pegawai->uang_makan) > 0)
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="uang-makan-pns-tab" data-bs-toggle="tab" data-bs-target="#uang-makan-pns" type="button" role="tab" aria-controls="uang-makan-pns" aria-selected="false">Uang Makan PNS</button>
+                    </li>
+                    @endif
                     @if(count($pegawai->slks) > 0)
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="tanda-jasa-tab" data-bs-toggle="tab" data-bs-target="#tanda-jasa" type="button" role="tab" aria-controls="tanda-jasa" aria-selected="false">Tanda Jasa</button>
@@ -435,6 +440,45 @@
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('potpph')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('potongan')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('nominal') - $pegawai->gaji()->sum('potongan')) }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    @endif
+                    @if(count($pegawai->uang_makan) > 0)
+                    <div class="tab-pane fade" id="uang-makan-pns" role="tabpanel" aria-labelledby="uang-makan-pns-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover table-striped table-bordered">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th width="5">No</th>
+                                        <th>Bulan, Tahun</th>
+                                        <th width="130">Jumlah Hari</th>
+                                        <th width="130">Gaji Kotor</th>
+                                        <th width="130">Potongan</th>
+                                        <th width="130">Gaji Bersih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pegawai->uang_makan as $key=>$um)
+                                    <tr>
+                                        <td>{{ ($key+1) }}</td>
+                                        <td>{{ \Ajifatur\Helpers\DateTimeExt::month((int)$um->bulan) }} {{ $um->tahun }}</td>
+                                        <td align="right">{{ number_format($um->jmlhari) }}</td>
+                                        <td align="right">{{ number_format($um->kotor) }}</td>
+                                        <td align="right">{{ number_format($um->potongan) }}</td>
+                                        <td align="right">{{ number_format($um->bersih) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot class="bg-light fw-bold">
+                                    <tr>
+                                        <td colspan="2" align="center">Total</td>
+                                        <td align="right">{{ number_format($pegawai->uang_makan()->sum('jmlhari')) }}</td>
+                                        <td align="right">{{ number_format($pegawai->uang_makan()->sum('kotor')) }}</td>
+                                        <td align="right">{{ number_format($pegawai->uang_makan()->sum('potongan')) }}</td>
+                                        <td align="right">{{ number_format($pegawai->uang_makan()->sum('bersih')) }}</td>
                                     </tr>
                                 </tfoot>
                             </table>

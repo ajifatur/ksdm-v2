@@ -137,6 +137,14 @@ class Pegawai extends Model
     }
 
     /**
+     * Uang Makan.
+     */
+    public function uang_makan()
+    {
+        return $this->hasMany(UangMakan::class)->orderBy('tahun','desc')->orderBy('bulan','desc');
+    }
+
+    /**
      * Satyalancana Karya Satya.
      */
     public function slks()
