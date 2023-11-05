@@ -100,7 +100,7 @@
                                         <td>{{ strtoupper($p['pegawai']->nama) }}</td>
 										<td>{{ $p['pegawai']->jenis == 1 ? 'Dosen' : 'Tendik' }}
                                         <td>{{ $p['pegawai']->unit ? $p['pegawai']->unit->nama : '-' }}</td>
-                                        <td>Perubahan Status Kawin (Istri)</td>
+                                        <td>Perubahan Status Kawin (Istri / Suami)</td>
 										<td>{{ number_format($p['sebelum'],0,',',',') }}</td>
 										<td>{{ number_format($p['sesudah'],0,',',',') }}</td>
                                     </tr>
