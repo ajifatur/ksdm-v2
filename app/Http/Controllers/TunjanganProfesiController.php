@@ -481,6 +481,51 @@ class TunjanganProfesiController extends Controller
     }
 
     /**
+     * Print SPTJM.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printSPTJM(Request $request)
+    {
+        // Check the access
+        // has_access(method(__METHOD__), Auth::user()->role_id);
+
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+		
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+
+		$angkatan = null; $jenis = null;
+		if($request->query('angkatan') != null) {
+			// Get angkatan
+	        $angkatan = Angkatan::whereIn('jenis_id',[1,2,3])->find($request->query('angkatan'));
+			
+			// Set title
+        	$title = 'SPTJM Tunjangan '.$angkatan->jenis->nama.' - '.$angkatan->nama.' ('.$tahun.' '.DateTimeExt::month($bulan).')';
+		}
+		elseif($request->query('jenis') != null) {
+			// Get jenis tunjangan
+			$jenis = JenisTunjanganProfesi::find($request->query('jenis'));
+			
+			// Set title
+			$title = 'SPTJM Tunjangan '.$jenis->nama.' ('.$tahun.' '.DateTimeExt::month($bulan).')';
+		}
+		
+        // PDF
+        $pdf = \PDF::loadView('admin/tunjangan-profesi/print-sptjm', [
+            'title' => $title,
+            'angkatan' => $angkatan,
+            'jenis' => $jenis,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+        ]);
+        $pdf->setPaper('A4');
+        return $pdf->stream($title.'.pdf');
+    }
+
+    /**
      * Export to CSV.
      *
      * @param  \Illuminate\Http\Request  $request

@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>SPTJM</title>
+    <title>{{ $title }}</title>
     <style>
 		/* Font */
 		@font-face {font-family: 'FiraSans-Regular'; src: url({{ public_path('assets/fonts/Fira_Sans/FiraSans-Regular.ttf') }});}
@@ -20,7 +20,7 @@
         #title {position: absolute; top: 130px; left: 120px; right: 70px; font-family: 'FiraSans-Bold'; font-size: 16px; text-align: center;}
 
         /* Content */
-        #content {position: absolute; top: 180px; left: 120px; right: 70px; line-height: 18px;}
+        #content {position: absolute; top: 200px; left: 120px; right: 70px; line-height: 18px; text-align: justify;}
         #content ol {margin-top: 0px; padding-left: 18px;}
 
         /* Sign */
@@ -53,7 +53,7 @@
         <br>
         menyatakan dengan sesungguhnya bahwa:
         <ol>
-            <li>Perhitungan yang terdapat pada daftar pembayaran Tunjangan Profesi Dosen Guru Besar Bulan Juli 2023 bagi satuan kerja Universitas Negeri Semarang telah dihitung dengan benar.</li>
+            <li>Perhitungan yang terdapat pada daftar pembayaran Tunjangan {{ $angkatan || $jenis ? $angkatan ? $angkatan->jenis->deskripsi : $jenis->deskripsi : '' }} {{ $angkatan ? 'Angkatan '.$angkatan->nama : '' }} Bulan {{ \Ajifatur\Helpers\DateTimeExt::month($bulan) }} {{ $tahun }} bagi satuan kerja Universitas Negeri Semarang telah dihitung dengan benar.</li>
             <li>Apabila di kemudian hari terdapat kelebihan atas pembayaran tunjangan tersebut, kami bersedia untuk menyetor kelebihan tersebut ke Kas Negara.</li>
         </ol>
         Demikian pernyataan ini kami buat dengan sebenar-benarnya.

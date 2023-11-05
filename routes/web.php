@@ -93,6 +93,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/tunjangan-profesi/process', 'TunjanganProfesiController@process')->name('admin.tunjangan-profesi.process');
     Route::get('/admin/tunjangan-profesi/print/{id}', 'TunjanganProfesiController@print')->name('admin.tunjangan-profesi.print');
     Route::get('/admin/tunjangan-profesi/print-non-pns', 'TunjanganProfesiController@printNonPNS')->name('admin.tunjangan-profesi.print-non-pns');
+    Route::get('/admin/tunjangan-profesi/print-sptjm', 'TunjanganProfesiController@printSPTJM')->name('admin.tunjangan-profesi.print-sptjm');
     Route::get('/admin/tunjangan-profesi/excel', 'TunjanganProfesiController@excel')->name('admin.tunjangan-profesi.excel');
     Route::get('/admin/tunjangan-profesi/csv/{id}', 'TunjanganProfesiController@csv')->name('admin.tunjangan-profesi.csv');
     Route::get('/admin/tunjangan-profesi/csv-batch/{id}', 'TunjanganProfesiController@csvBatch')->name('admin.tunjangan-profesi.csv-batch');
@@ -136,7 +137,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/slip-gaji/print/{id}', 'SlipGajiController@print')->name('admin.slip-gaji.print');
 
     // Others
-    Route::get('/admin/pegawai/print', 'PegawaiController@print')->name('admin.pegawai.print'); // SPTJM
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');

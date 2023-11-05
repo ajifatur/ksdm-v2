@@ -60,7 +60,7 @@
                                 <th>Tunjangan</th>
                                 <th>PPh Pasal 21</th>
                                 <th>Diterimakan</th>
-                                <th width="30">Opsi</th>
+                                <th width="50">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,9 +84,11 @@
                                         @if($d['id'] != '')
                                             <a href="{{ route('admin.tunjangan-profesi.print', ['id' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
                                             <a href="{{ route('admin.tunjangan-profesi.csv', ['id' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
+                                            <a href="{{ route('admin.tunjangan-profesi.print-sptjm', ['angkatan' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
                                         @else
                                             <a href="{{ route('admin.tunjangan-profesi.print-non-pns', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
                                             <a href="{{ route('admin.tunjangan-profesi.csv-non-pns', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
+										<a href="{{ route('admin.tunjangan-profesi.print-sptjm', ['jenis' => 4, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
                                         @endif
                                     </div>
                                 </td>
@@ -107,6 +109,9 @@
                                         @if(in_array(Request::query('jenis'), [1,2,3]))
                                         <a href="{{ route('admin.tunjangan-profesi.csv-batch', ['id' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
                                         @endif
+                                        @if(in_array(Request::query('jenis'), [1,2,3,4]))
+										<a href="{{ route('admin.tunjangan-profesi.print-sptjm', ['jenis' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
+										@endif
                                     </div>
                                 </td>
                             </tr>

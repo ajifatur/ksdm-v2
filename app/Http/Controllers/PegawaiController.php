@@ -214,28 +214,6 @@ class PegawaiController extends Controller
 			return redirect()->route('admin.pegawai.detail', ['id' => $pegawai->id])->with(['message' => 'Berhasil mengupdate profil pegawai.']);
         }
     }
-
-    /**
-     * Print PDF.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function print(Request $request)
-    {
-        // Check the access
-        // has_access(method(__METHOD__), Auth::user()->role_id);
-
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        // PDF
-        $pdf = \PDF::loadView('admin/pegawai/print', [
-        ]);
-        // $pdf->setPaper([0, 0 , 612, 935]);
-        $pdf->setPaper('A4');
-        return $pdf->stream('Test.pdf');
-    }
     
     /**
      * Import TMT Golongan
