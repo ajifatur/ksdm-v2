@@ -241,7 +241,7 @@ class SlipGajiController extends Controller
         $pdf = \PDF::loadView('admin/slip-gaji/print', [
             'slip_gaji' => $slip_gaji,
             'bahasa' => $bahasa,
-            'bulan_english' => $month[$slip_gaji->bulan - 1],
+            'bulan_english' => $month[date('n', strtotime($slip_gaji->tanggal)) - 1],
             'mata_uang' => $mata_uang,
             'gaji_induk' => $gaji_induk,
             'tunjangan_profesi' => $tunjangan_profesi,

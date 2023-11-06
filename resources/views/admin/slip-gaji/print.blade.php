@@ -262,7 +262,7 @@
             <tr>
                 <td width="60%"></td>
                 <td width="40%">
-                    Semarang, {{ $bahasa == 'en' ? date('d', strtotime($slip_gaji->tanggal)).' '.$bulan_english.' '.date('Y', strtotime($slip_gaji->tanggal)) : \Ajifatur\Helpers\DateTimeExt::full(date('Y-m-d')) }}
+                    Semarang, {{ $bahasa == 'en' ? date('d', strtotime($slip_gaji->tanggal)).' '.$bulan_english.' '.date('Y', strtotime($slip_gaji->tanggal)) : \Ajifatur\Helpers\DateTimeExt::full(date('Y-m-d', strtotime($slip_gaji->tanggal))) }}
                     <br>
                     {{ $bahasa == 'en' ? 'Expenditure Treasury' : 'Bendahara Pengeluaran' }},
                     <br><br><br><br><br>
