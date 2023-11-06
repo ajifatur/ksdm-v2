@@ -110,6 +110,9 @@ class SlipGajiController extends Controller
     {
         // Get slip gaji
         $slip_gaji = SlipGaji::findOrFail($id);
+
+        // Get tanggal sebelum
+        $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($slip_gaji->tahun.'-'.($slip_gaji->bulan < 10 ? '0'.$slip_gaji->bulan : $slip_gaji->bulan).'-01')));
 			
 		// Get remun gaji
 		$remun_gaji = $slip_gaji->pegawai->remun_gaji()->where('tahun','=',$slip_gaji->tahun)->where('bulan','=',$slip_gaji->bulan)->first();
@@ -117,10 +120,14 @@ class SlipGajiController extends Controller
 		// Get lebih kurang
 		$lebih_kurang = $slip_gaji->pegawai->lebih_kurang()->where('tahun_proses','=',$slip_gaji->tahun)->where('bulan_proses','=',$slip_gaji->bulan)->sum('selisih');
 
+        // Get uang makan
+        $uang_makan = $slip_gaji->pegawai->uang_makan()->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->first();
+
         // View
         return view('admin/slip-gaji/edit', [
             'slip_gaji' => $slip_gaji,
-            'remun_gaji' => ($remun_gaji ? $remun_gaji->remun_gaji : 0) + $lebih_kurang
+            'remun_gaji' => ($remun_gaji ? $remun_gaji->remun_gaji : 0) + $lebih_kurang,
+            'uang_makan' => ($uang_makan ? $uang_makan->bersih : 0)
         ]);
     }
 
@@ -255,12 +262,12 @@ class SlipGajiController extends Controller
     }
 
     /**
-     * Get Remun Gaji.
+     * Get Additional.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function remunGaji(Request $request)
+    public function additional(Request $request)
     {
 		if($request->ajax()) {
 			// Get pegawai
@@ -269,17 +276,28 @@ class SlipGajiController extends Controller
 				return response()->json([
 					'message' => 'Empty data'
 				]);
+
+            // Get tanggal sebelum
+            $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-01')));
 			
 			// Get remun gaji
 			$remun_gaji = $pegawai->remun_gaji()->where('tahun','=',$request->tahun)->where('bulan','=',$request->bulan)->first();
 			
 			// Get lebih kurang
 			$lebih_kurang = $pegawai->lebih_kurang()->where('tahun_proses','=',$request->tahun)->where('bulan_proses','=',$request->bulan)->sum('selisih');
+			
+			// Get uang makan
+			$uang_makan = $pegawai->uang_makan()->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->first();
+
+            // Get total
+            $total = ($remun_gaji ? $remun_gaji->remun_gaji : 0) + $lebih_kurang + ($uang_makan ? $uang_makan->bersih : 0);
 		
 			// Response
 			return response()->json([
 				'pegawai' => $pegawai,
-				'remun_gaji' => number_format(($remun_gaji ? $remun_gaji->remun_gaji : 0) + $lebih_kurang,0,',',',')
+				'remun_gaji' => number_format(($remun_gaji ? $remun_gaji->remun_gaji : 0) + $lebih_kurang,0,',',','),
+				'uang_makan' => number_format(($uang_makan ? $uang_makan->bersih : 0),0,',',','),
+				'total' => number_format($total,0,',',',')
 			]);
 		}
 	}

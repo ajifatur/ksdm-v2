@@ -72,10 +72,14 @@
                             @if($errors->has('additional_allowance'))
                             <div class="small text-danger">{{ $errors->first('additional_allowance') }}</div>
                             @endif
-							<div class="alert alert-warning mt-3" role="alert">
+							<div class="alert alert-warning mt-3 mb-0" role="alert">
 								<div class="alert-message">
 									<div class="fw-bold"><i class="bi-info-circle-fill me-1"></i> Info</div>
-									Remun Gaji a.n. <span id="remun-gaji-pegawai">{{ $slip_gaji->pegawai->nama }}</span> pada bulan tersebut yaitu <strong>Rp <span id="remun-gaji-nominal">{{ number_format($remun_gaji,0,',',',') }}</span></strong>.
+                                    <ol class="mb-0 ps-3">
+                                        <li>Remun Gaji a.n. <span id="remun-gaji-pegawai">{{ $slip_gaji->pegawai->nama }}</span> pada bulan tersebut yaitu <strong>Rp <span id="remun-gaji-nominal">{{ number_format($remun_gaji,0,',',',') }}</span></strong>.</li>
+                                        <li>Uang Makan a.n. <span id="uang-makan-pegawai">{{ $slip_gaji->pegawai->nama }}</span> pada bulan tersebut yaitu <strong>Rp <span id="uang-makan-nominal">{{ number_format($uang_makan,0,',',',') }}</span></strong>.</li>
+                                    </ol>
+                                    <div>Total yaitu <strong>Rp <span id="total-nominal">{{ number_format($remun_gaji + $uang_makan,0,',',',') }}</span></strong>.</div>
 								</div>
 							</div>
                         </div>
@@ -120,12 +124,15 @@
 		if(pegawai != null && tahun != null && bulan != null) {
 			$.ajax({
 				type: "get",
-				url: Spandiv.URL("{{ route('api.slip-gaji.remun-gaji') }}", {pegawai: pegawai, tahun: tahun, bulan: bulan}),
+				url: Spandiv.URL("{{ route('api.slip-gaji.additional') }}", {pegawai: pegawai, tahun: tahun, bulan: bulan}),
 				success: function(response) {
 					if(response.message == undefined) {
 						$(".alert-warning").removeClass("d-none");
 						$("#remun-gaji-pegawai").text(response.pegawai.nama);
 						$("#remun-gaji-nominal").text(response.remun_gaji);
+						$("#uang-makan-pegawai").text(response.pegawai.nama);
+						$("#uang-makan-nominal").text(response.uang_makan);
+						$("#total-nominal").text(response.total);
 					}
 					else
 						$(".alert-warning").addClass("d-none");

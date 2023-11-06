@@ -78,12 +78,22 @@
                             @if($errors->has('additional_allowance'))
                             <div class="small text-danger">{{ $errors->first('additional_allowance') }}</div>
                             @endif
-							<div class="alert alert-warning mt-3 d-none" role="alert">
+							<div class="alert alert-warning mt-3 mb-0 d-none" role="alert">
+								<div class="alert-message">
+									<div class="fw-bold"><i class="bi-info-circle-fill me-1"></i> Info</div>
+                                    <ol class="mb-0 ps-3">
+                                        <li>Remun Gaji a.n. <span id="remun-gaji-pegawai"></span> pada bulan tersebut yaitu <strong>Rp <span id="remun-gaji-nominal"></span></strong>.</li>
+                                        <li>Uang Makan a.n. <span id="uang-makan-pegawai"></span> pada bulan tersebut yaitu <strong>Rp <span id="uang-makan-nominal"></span></strong>.</li>
+                                    </ol>
+                                    <div>Total yaitu <strong>Rp <span id="total-nominal"></span></strong>.</div>
+								</div>
+							</div>
+							<!-- <div class="alert alert-warning mt-3 d-none" role="alert">
 								<div class="alert-message">
 									<div class="fw-bold"><i class="bi-info-circle-fill me-1"></i> Info</div>
 									Remun Gaji a.n. <span id="remun-gaji-pegawai"></span> pada bulan tersebut yaitu <strong>Rp <span id="remun-gaji-nominal"></span></strong>.
 								</div>
-							</div>
+							</div> -->
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -123,6 +133,7 @@
     $(document).on("change", "select[name=pegawai]", function(e) {
         var jabatan = $("select[name=pegawai]").find("option[value=" + $(this).val() + "]").data("jabatan");
         $("input[name=jabatan]").val(jabatan);
+        $(".alert-warning").addClass("d-none");
     });
 	
 	// Change pegawai, tahun and bulan
@@ -133,12 +144,15 @@
 		if(pegawai != null && tahun != null && bulan != null) {
 			$.ajax({
 				type: "get",
-				url: Spandiv.URL("{{ route('api.slip-gaji.remun-gaji') }}", {pegawai: pegawai, tahun: tahun, bulan: bulan}),
+				url: Spandiv.URL("{{ route('api.slip-gaji.additional') }}", {pegawai: pegawai, tahun: tahun, bulan: bulan}),
 				success: function(response) {
 					if(response.message == undefined) {
 						$(".alert-warning").removeClass("d-none");
 						$("#remun-gaji-pegawai").text(response.pegawai.nama);
 						$("#remun-gaji-nominal").text(response.remun_gaji);
+						$("#uang-makan-pegawai").text(response.pegawai.nama);
+						$("#uang-makan-nominal").text(response.uang_makan);
+						$("#total-nominal").text(response.total);
 					}
 					else
 						$(".alert-warning").addClass("d-none");

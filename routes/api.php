@@ -21,7 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // Gaji Pokok
 Route::get('/gaji-pokok', 'GajiPokokController@index')->name('api.gaji-pokok.index');
 
-// Remun Gaji pada Slip Gaji
-Route::get('/slip-gaji/remun-gaji', 'SlipGajiController@remunGaji')->name('api.slip-gaji.remun-gaji');
+// Additional pada Slip Gaji
+Route::get('/slip-gaji/additional', 'SlipGajiController@additional')->name('api.slip-gaji.additional');
 
 \Ajifatur\Helpers\RouteExt::api();
