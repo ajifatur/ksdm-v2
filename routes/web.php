@@ -138,6 +138,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/slip-gaji/print/{id}', 'SlipGajiController@print')->name('admin.slip-gaji.print');
 
     // Others
+    Route::get('/admin/kp/import', 'KGBController@import')->name('admin.kp.import');
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');

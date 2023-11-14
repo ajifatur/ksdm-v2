@@ -111,6 +111,12 @@ function check_mutasi($pegawai, $bulan, $tahun) {
                 <tr bgcolor="{{ $mutasi && check_mutasi($r->pegawai, $bulan, $tahun) ? '#ffdd00' : '' }}">
                     <td align="center">{{ ($key+1) }}</td>
                     <td>{{ strtoupper($r->pegawai->nama) }}<br>{{ $r->pegawai->nip }}</td>
+					@if($r->pegawai->golongan)
+					<td align="center">{{ $r->pegawai->golongan->nama }}</td>
+					@else
+					<td align="center">-</td>
+					@endif
+					{{--
                     @if($r->golru)
                         <td align="center">{{ $r->golru->golongan->nama }}</td>
                     @else
@@ -120,6 +126,7 @@ function check_mutasi($pegawai, $bulan, $tahun) {
                             <td align="center">-</td>
                         @endif
                     @endif
+					--}}
                     <td>{{ $r->jabatan ? $r->jabatan->nama : '-' }}</td>
                     <td>{{ $r->jabatan ? $r->jabatan->sub : '-' }}</td>
                     <td align="center">{{ $r->layer ? $r->layer->nama : '-' }}</td>

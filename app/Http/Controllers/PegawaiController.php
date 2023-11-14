@@ -50,7 +50,8 @@ class PegawaiController extends Controller
 
         foreach($pegawai as $key=>$p) {
             // Get mutasi jabatan
-            $mutasi = $p->mutasi()->where('jenis_id','=',1)->first();
+            // $mutasi = $p->mutasi()->where('jenis_id','=',1)->first();
+			$mutasi = $p->mutasi()->first();
 
             // Get jabatan struktural
             $pegawai[$key]->unit_jabstruk = $mutasi ? $mutasi->detail()->whereHas('jabatan', function (Builder $query) {
