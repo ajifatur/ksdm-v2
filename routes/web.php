@@ -115,6 +115,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
     Route::get('/admin/uang-makan/recap', 'UangMakanController@recap')->name('admin.uang-makan.recap');
     Route::post('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
+    Route::post('/admin/uang-makan/import-old', 'UangMakanController@importOld')->name('admin.uang-makan.import-old');
     Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
 
     // KGB

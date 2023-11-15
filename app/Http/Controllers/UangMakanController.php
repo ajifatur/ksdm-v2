@@ -259,92 +259,96 @@ class UangMakanController extends Controller
         // Redirect
         return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
     }
-
+    
     /**
-     * Perubahan Gaji Induk
+     * Import (Format Lama)
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function change(Request $request)
+    public function importOld(Request $request)
     {
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
-		
-        $bulan = $request->query('bulan') ?: date('n');
-        $tahun = $request->query('tahun') ?: date('Y');
-        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        
+        // Make directory if not exists
+        if(!File::exists(public_path('storage/spreadsheets/um')))
+            File::makeDirectory(public_path('storage/spreadsheets/um'));
 
-        // Get gaji bulan ini
-        $uang_makan_bulan_ini = Gaji::where('jenis_id','=',1)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+        // Get the file
+        $file = $request->file('file');
+        $filename = FileExt::info($file->getClientOriginalName())['nameWithoutExtension'];
+        $extension = FileExt::info($file->getClientOriginalName())['extension'];
+        $new = date('Y-m-d-H-i-s').'_'.$filename.'.'.$extension;
 
-        // Set tanggal sebelumnya
-        $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
+        // Move the file
+		$file->move(public_path('storage/spreadsheets/um'), $new);
 
-        // Get gaji bulan sebelumnya
-        $uang_makan_bulan_sebelumnya = Gaji::where('jenis_id','=',1)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->pluck('pegawai_id')->toArray();
+        // Get array
+		$array = Excel::toArray(new UangMakanImport, public_path('storage/spreadsheets/um/'.$new));
 
-        // Pegawai masuk
-        $cek_bulan_ini = [];
-        if(count($uang_makan_bulan_ini) > 0) {
-            foreach($uang_makan_bulan_ini->pluck('pegawai_id')->toArray() as $t) {
-                if(!in_array($t, $uang_makan_bulan_sebelumnya))
-                    array_push($cek_bulan_ini, $t);
+        $anak_satker = '';
+        $bulan = '';
+        $bulanAngka = '';
+        $tahun = '';
+        if(count($array)>0) {
+            // Check pegawai
+            $cek_pegawai = Pegawai::where('nip','=',$array[0][0][3])->first();
+            if($cek_pegawai) {
+                foreach($array[0] as $key=>$data) {
+                    if($data[0] != null) {
+                        // Get pegawai
+                        $pegawai = Pegawai::where('nip','=',$data[3])->first();
+
+                        // Get tarif
+                        if($data[7] == 15) $tarif = 41000;
+                        elseif($data[7] == 5) $tarif = 37000;
+                        else $tarif = 35000;
+
+                        // Get uang makan
+                        $uang_makan = UangMakan::where('kdanak','=',$request->anak_satker)->where('bulan','=',($request->bulan < 10 ? '0'.$request->bulan : $request->bulan))->where('tahun','=',$request->tahun)->where('nip','=',$data[3])->first();
+                        if(!$uang_makan) $uang_makan = new UangMakan;
+
+                        // Simpan uang makan
+                        $uang_makan->pegawai_id = $pegawai ? $pegawai->id : 0;
+                        $uang_makan->unit_id = $this->kdanak_to_unit($request->anak_satker);
+                        $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
+                        $uang_makan->kdanak = $request->anak_satker;
+                        $uang_makan->bulan = $request->bulan < 10 ? '0'.$request->bulan : $request->bulan;
+                        $uang_makan->tahun = $request->tahun;
+                        $uang_makan->nip = $data[3];
+                        $uang_makan->nama = $data[2];
+                        $uang_makan->jmlhari = $data[6] / $tarif;
+                        $uang_makan->tarif = $tarif;
+                        $uang_makan->pph = $data[7];
+                        $uang_makan->kotor = $data[6];
+                        $uang_makan->potongan = $data[8];
+                        $uang_makan->bersih = $data[6] - $data[8];
+                        $uang_makan->save();
+
+                        // Get anak satker, bulan, tahun
+                        if($key == 0) {
+                            $a = AnakSatker::where('kode','=',$request->anak_satker)->first();
+                            $anak_satker = $a->nama;
+                            $bulan = DateTimeExt::month($request->bulan);
+                            $bulanAngka = $request->bulan;
+                            $tahun = $request->tahun;
+                        }
+                    }
+                }
+            }
+            else {
+                return redirect()->back()->with(['message' => 'Format file Excel tidak sesuai!']);
             }
         }
-		$pegawai_on = Pegawai::whereIn('id', $cek_bulan_ini)->get();
 
-        // Pegawai keluar
-        $cek_bulan_sebelumnya = [];
-        if(count($uang_makan_bulan_sebelumnya) > 0) {
-            foreach($uang_makan_bulan_sebelumnya as $t) {
-                if(!in_array($t, $uang_makan_bulan_ini->pluck('pegawai_id')->toArray()))
-                    array_push($cek_bulan_sebelumnya, $t);
-            }
-        }
-		$pegawai_off = Pegawai::whereIn('id', $cek_bulan_sebelumnya)->get();
-		
-		// Perubahan gaji
-		$perubahan_gjpokok = [];
-		$perubahan_tjfungs = [];
-		$perubahan_tjistri = [];
-		$perubahan_tjanak = [];
-		$perubahan_unit = [];
-		foreach($uang_makan_bulan_ini as $g) {
-			// Get gaji bulan sebelumnya
-			$gs = Gaji::where('jenis_id','=',1)->where('pegawai_id','=',$g->pegawai_id)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
-			if($gs) {
-				if($g->gjpokok != $gs->gjpokok) array_push($perubahan_gjpokok, ['pegawai' => $g->pegawai, 'sebelum' => $gs->gjpokok, 'sesudah' => $g->gjpokok]);
-				if($g->tjfungs != $gs->tjfungs) array_push($perubahan_tjfungs, ['pegawai' => $g->pegawai, 'sebelum' => $gs->tjfungs, 'sesudah' => $g->tjfungs]);
-				if(($g->tjistri / (($g->gjpokok * 10) / 100)) != ($gs->tjistri / (($gs->gjpokok * 10) / 100))) array_push($perubahan_tjistri, ['pegawai' => $g->pegawai, 'sebelum' => ($gs->tjistri / (($gs->gjpokok * 10) / 100)), 'sesudah' => ($g->tjistri / (($g->gjpokok * 10) / 100))]);
-				if(($g->tjanak / (($g->gjpokok * 2) / 100)) != ($gs->tjanak / (($gs->gjpokok * 2) / 100))) array_push($perubahan_tjanak, ['pegawai' => $g->pegawai, 'sebelum' => ($gs->tjanak / (($gs->gjpokok * 2) / 100)), 'sesudah' => ($g->tjanak / (($g->gjpokok * 2) / 100))]);
-				if($g->unit_id != $gs->unit_id) array_push($perubahan_unit, ['pegawai' => $g->pegawai, 'sebelum' => $gs->unit, 'sesudah' => $g->unit]);
-			}
-		}
-		
-        // View
-        return view('admin/gaji/change', [
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-            'gaji_bulan_ini' => $uang_makan_bulan_ini,
-            'gaji_bulan_sebelumnya' => $uang_makan_bulan_sebelumnya,
-            'pegawai_on' => $pegawai_on,
-            'pegawai_off' => $pegawai_off,
-            'perubahan_gjpokok' => $perubahan_gjpokok,
-            'perubahan_tjfungs' => $perubahan_tjfungs,
-            'perubahan_tjistri' => $perubahan_tjistri,
-            'perubahan_tjanak' => $perubahan_tjanak,
-            'perubahan_unit' => $perubahan_unit,
-        ]);
-    }
+        // Rename the file
+		File::move(public_path('storage/spreadsheets/um/'.$new), public_path('storage/spreadsheets/um/'.$anak_satker.'_'.$tahun.'_'.$bulan.'.'.$extension));
 
-    // Sum array
-    public function array_sum_range($array, $first, $last) {
-        $sum = 0;
-        for($i=$first; $i<=$last; $i++) {
-            $sum += $array[$i];
-        }
-        return $sum;
+        // Delete the file
+        File::delete(public_path('storage/spreadsheets/um/'.$new));
+
+        // Redirect
+        return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
     }
 
     public function kdanak_to_unit($kdanak) {
