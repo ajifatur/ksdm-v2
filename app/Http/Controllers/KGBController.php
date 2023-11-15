@@ -12,6 +12,7 @@ use Ajifatur\Helpers\DateTimeExt;
 use App\Imports\MutasiImport;
 use App\Models\Pegawai;
 use App\Models\Mutasi;
+use App\Models\MutasiDetail;
 use App\Models\Perubahan;
 use App\Models\SK;
 use App\Models\JenisMutasi;
@@ -78,9 +79,7 @@ class KGBController extends Controller
         $error = [];
         if(count($array)>0) {
             foreach($array[0] as $data) {
-                if($data[0] != null) {
-                    var_dump('ehe');
-                    
+                if($data[0] != null) {                    
                     // Get pegawai
                     $pegawai = Pegawai::where('nip','=',$data[0])->first();
 
@@ -92,7 +91,7 @@ class KGBController extends Controller
                     $gaji_pokok = GajiPokok::where('golru_id','=',$golru->id)->where('nama','=',$data[8].($mkg < 10 ? '0'.$mkg : $mkg))->first();
 
                     // Simpan mutasi
-                    $mutasi = Mutasi::where('jenis_id','=',$jenis_mutasi->id)->where('tmt','=',DateTimeExt::change($data[5]))->first();
+                    $mutasi = Mutasi::where('pegawai_id','=',$pegawai->id)->where('jenis_id','=',$jenis_mutasi->id)->where('tmt','=',DateTimeExt::change($data[5]))->first();
                     if(!$mutasi) $mutasi = new Mutasi;
                     $mutasi->pegawai_id = $pegawai->id;
                     $mutasi->sk_id = $sk->id;
@@ -149,11 +148,8 @@ class KGBController extends Controller
                     $perubahan->mk_bulan = $data[7];
                     $perubahan->tmt = DateTimeExt::change($data[5]);
                     $perubahan->save();
-
-                    // array_push($error, $uraian);
                 }
             }
         }
-        var_dump($error);
     }
 }
