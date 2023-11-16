@@ -120,6 +120,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // KGB
     Route::get('/admin/kgb', 'KGBController@index')->name('admin.kgb.index');
+    Route::get('/admin/kgb/create/{id}', 'KGBController@create')->name('admin.kgb.create');
+    Route::get('/admin/kgb/store', 'KGBController@store')->name('admin.kgb.store');
+    Route::get('/admin/kgb/print/{id}', 'KGBController@print')->name('admin.kgb.print');
     
     // Satyalancana Karya Satya
     Route::get('/admin/slks', 'SLKSController@index')->name('admin.slks.index');
