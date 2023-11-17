@@ -50,6 +50,11 @@ class KGBController extends Controller
 			$pegawai[$key]->mutasi_sebelum = $p->mutasi()->whereHas('jenis', function(Builder $query) {
 				return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
 			})->where('tmt','<',$tanggal)->first();
+
+            // Get SPKGB
+			$pegawai[$key]->mutasi_spkgb = $p->mutasi()->has('spkgb')->whereHas('jenis', function(Builder $query) {
+				return $query->where('nama','=','KGB');
+			})->where('tmt','=',$tanggal)->first();
 		}
 
         // View
@@ -84,6 +89,9 @@ class KGBController extends Controller
 			return $query->whereIn('golongan_id',[3,4]);
 		})->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->findOrFail($id);
 
+        // Get jenis mutasi
+        $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi Pangkat','KGB','PMK'])->get();
+
         // Get golru
         $golru = Golru::all();
 
@@ -109,11 +117,12 @@ class KGBController extends Controller
 
         // Set gaji pokok baru
         $sk_gaji_pns = SK::where('jenis_id','=',5)->where('status','=',1)->first();
-        $gaji_pokok_baru = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($mutasi->gaji_pokok->nama,0,2).$mk_baru)->first();
+        $gaji_pokok_baru = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($mutasi->gaji_pokok->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first();
 
         // View
         return view('admin/kgb/create', [
             'pegawai' => $pegawai,
+            'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
             'gaji_pokok' => $gaji_pokok,
             'pejabat' => $pejabat,
@@ -148,12 +157,15 @@ class KGBController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'no_sk_baru' => 'required',
-            'gaji_pokok' => $request->mutasi_sebelum_id != 0 ? 'required' : '',
-            'no_sk' => $request->mutasi_sebelum_id != 0 ? 'required' : '',
-            'tanggal_sk' => $request->mutasi_sebelum_id != 0 ? 'required' : '',
-            'mk_tahun' => $request->mutasi_sebelum_id != 0 ? 'required' : '',
-            'mk_bulan' => $request->mutasi_sebelum_id != 0 ? 'required' : '',
-            'pejabat' => $request->mutasi_sebelum_id != 0 ? 'required' : '',
+            'tanggal_sk_baru' => 'required',
+            'jenis_mutasi' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'golru' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'gaji_pokok' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'no_sk' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'tanggal_sk' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'mk_tahun' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'mk_bulan' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
+            'pejabat' => $request->mutasi_sebelum_id == 0 ? 'required' : '',
         ]);
         
         // Check errors
@@ -163,13 +175,45 @@ class KGBController extends Controller
         }
         else {
             // Get gaji pokok
-            if($request->mutasi_sebelum_id != 0)
-                $gaji_pokok = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->find($request->gaji_pokok_baru);
-            else
-                $gaji_pokok = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->find($request->gaji_pokok);
+            $gaji_pokok = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->find($request->gaji_pokok_baru);
+            $gaji_pokok_sebelum = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->find($request->gaji_pokok);
 
-            // Get mutasi sebelum
+            // Get jenis mutasi sebelum
+            $jenis_mutasi_sebelum = JenisMutasi::find($request->jenis_mutasi);
+
+            // Get / simpan mutasi sebelum
             $mutasi_sebelum = Mutasi::find($request->mutasi_sebelum_id);
+            if($request->mutasi_sebelum_id == 0) {
+                $mutasi_sebelum = new Mutasi;
+                $mutasi_sebelum->pegawai_id = $pegawai->id;
+                $mutasi_sebelum->sk_id = 0;
+                $mutasi_sebelum->jenis_id = $jenis_mutasi_sebelum->id;
+                $mutasi_sebelum->status_kepeg_id = $pegawai->status_kepeg_id;
+                $mutasi_sebelum->golru_id = $gaji_pokok_sebelum->golru_id;
+                $mutasi_sebelum->gaji_pokok_id = $gaji_pokok_sebelum->id;
+                $mutasi_sebelum->bulan = date('n', strtotime(DateTimeExt::change($request->tmt_sebelum)));
+                $mutasi_sebelum->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt_sebelum)));
+                $mutasi_sebelum->uraian = $jenis_mutasi_sebelum->nama.' '.$gaji_pokok_sebelum->golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
+                $mutasi_sebelum->tmt = DateTimeExt::change($request->tmt_sebelum);
+                $mutasi_sebelum->remun_penerimaan = 0;
+                $mutasi_sebelum->remun_gaji = 0;
+                $mutasi_sebelum->remun_insentif = 0;
+                $mutasi_sebelum->save();
+            }
+
+            // Simpan perubahan sebelum
+            if($request->mutasi_sebelum_id == 0) {
+                $perubahan_sebelum = new Perubahan;
+                $perubahan_sebelum->mutasi_id = $mutasi_sebelum->id;
+                $perubahan_sebelum->sk_id = $gaji_pokok_sebelum->sk_id;
+                $perubahan_sebelum->pejabat_id = $request->pejabat;
+                $perubahan_sebelum->no_sk = $request->no_sk;
+                $perubahan_sebelum->tanggal_sk = DateTimeExt::change($request->tanggal_sk);
+                $perubahan_sebelum->mk_tahun = $request->mk_tahun;
+                $perubahan_sebelum->mk_bulan = $request->mk_bulan;
+                $perubahan_sebelum->tmt = DateTimeExt::change($request->tmt_sebelum);
+                $perubahan_sebelum->save();
+            }
 
             // Simpan mutasi
             $mutasi = new Mutasi;
@@ -181,7 +225,7 @@ class KGBController extends Controller
             $mutasi->gaji_pokok_id = $gaji_pokok->id;
             $mutasi->bulan = date('n', strtotime($request->tanggal));
             $mutasi->tahun = date('Y', strtotime($request->tanggal));
-            $mutasi->uraian = $jenis_mutasi->nama.' '.$gaji_pokok->golru->nama.' '.($request->mutasi_sebelum_id != 0 ? $request->mk_tahun_baru : $request->mk_tahun).' tahun '.($request->mutasi_sebelum_id != 0 ? 0 : $request->mk_bulan).' bulan';
+            $mutasi->uraian = $jenis_mutasi->nama.' '.$gaji_pokok->golru->nama.' '.$request->mk_tahun_baru.' tahun 0 bulan';
             $mutasi->tmt = $request->tanggal;
             $mutasi->remun_penerimaan = 0;
             $mutasi->remun_gaji = 0;
@@ -204,24 +248,35 @@ class KGBController extends Controller
             }
 
             // Simpan perubahan
-            $perubahan = $mutasi->perubahan;
-            if(!$perubahan) $perubahan = new Perubahan;
+            $perubahan = new Perubahan;
             $perubahan->mutasi_id = $mutasi->id;
             $perubahan->sk_id = $gaji_pokok->sk_id;
-            $perubahan->pejabat_id = $request->mutasi_sebelum_id != 0 ? 4 : $request->pejabat;
+            $perubahan->pejabat_id = 4;
             $perubahan->no_sk = $request->no_sk_baru;
-            $perubahan->tanggal_sk = date('Y-m-d');
-            $perubahan->mk_tahun = $request->mutasi_sebelum_id != 0 ? $request->mk_tahun_baru : $request->mk_tahun;
-            $perubahan->mk_bulan = $request->mutasi_sebelum_id != 0 ? 0 : $request->mk_bulan;
+            $perubahan->tanggal_sk = DateTimeExt::change($request->tanggal_sk_baru);
+            $perubahan->mk_tahun = $request->mk_tahun_baru;
+            $perubahan->mk_bulan = 0;
             $perubahan->tmt = $request->tanggal;
             $perubahan->save();
+
+            // Get penandatangan
+            $ttd = Pegawai::where('nama','=','Moh Khoiruddin')->first();
 
             // Simpan SPKGB
             $spkgb = new SPKGB;
             $spkgb->mutasi_id = $mutasi->id;
-            $spkgb->mutasi_sebelum_id = $mutasi_sebelum ? $mutasi_sebelum->id : 0;
+            $spkgb->mutasi_sebelum_id = $mutasi_sebelum->id;
+            $spkgb->pegawai_id = $pegawai->id;
+            $spkgb->jabfung_id = $pegawai->jabfung_id;
+            $spkgb->jabstruk_id = $pegawai->jabstruk_id;
+            $spkgb->unit_id = $pegawai->unit_id;
+            $spkgb->ttd_id = $ttd->id;
+            $spkgb->nama = $request->nama;
             $spkgb->save();
         }
+
+        // Redirect
+        return redirect()->route('admin.kgb.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal))])->with(['message' => 'Berhasil menambah data.']);
     }
 
     /**
@@ -236,45 +291,42 @@ class KGBController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-        $bulan = $request->query('bulan') ?: date('n');
-        $tahun = $request->query('tahun') ?: date('Y');
-		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
-		$tmt = [];
+        // Get SPKGB
+        $spkgb = SPKGB::has('mutasi')->findOrFail($id);
+
+        // $bulan = $request->query('bulan') ?: date('n');
+        // $tahun = $request->query('tahun') ?: date('Y');
+		// $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+		// $tmt = [];
 		
-		// Get TMT golongan III dan IV
-		for($i = $tahun; $i >= ($tahun - 32); $i-=2) {
-			array_push($tmt, $i.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
-		}
+		// // Get TMT golongan III dan IV
+		// for($i = $tahun; $i >= ($tahun - 32); $i-=2) {
+		// 	array_push($tmt, $i.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
+		// }
 
-        // Get pegawai
-		$pegawai = Pegawai::whereHas('golru', function(Builder $query) {
-			return $query->whereIn('golongan_id',[3,4]);
-		})->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->findOrFail($id);
+        // // Get pegawai
+		// $pegawai = Pegawai::whereHas('golru', function(Builder $query) {
+		// 	return $query->whereIn('golongan_id',[3,4]);
+		// })->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->findOrFail($id);
 
-        // Get mutasi
-        $mutasi = $pegawai->mutasi()->first();
+        // // Get mutasi
+        // $mutasi = $pegawai->mutasi()->first();
 
-        // Get mutasi sebelum
-        $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
-            return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
-        })->where('tmt','<',$tanggal)->first();
+        // // Get mutasi sebelum
+        // $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
+        //     return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
+        // })->where('tmt','<',$tanggal)->first();
 
-        // Set masa kerja baru
-        $mk_baru = $tahun - date('Y', strtotime($pegawai->tmt_golongan));
+        // // Set masa kerja baru
+        // $mk_baru = $tahun - date('Y', strtotime($pegawai->tmt_golongan));
 		
 		// Set title
-		$title = 'KGB 2024-01-01 a.n. '.$pegawai->nama;
+		$title = 'KGB '.$spkgb->mutasi->tmt.' a.n. '.$spkgb->nama;
 		
         // PDF
         $pdf = \PDF::loadView('admin/kgb/print', [
+            'spkgb' => $spkgb,
             'title' => $title,
-            'pegawai' => $pegawai,
-            'mutasi' => $mutasi,
-            'mutasi_sebelum' => $mutasi_sebelum,
-            'mk_baru' => $mk_baru,
-            'tahun' => $tahun,
-            'bulan' => $bulan,
-            'tanggal' => $tanggal,
         ]);
         $pdf->setPaper([0, 0 , 612, 935]);
         return $pdf->stream($title.'.pdf');

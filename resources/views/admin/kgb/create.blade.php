@@ -11,7 +11,7 @@
 	<div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="post" action="#" enctype="multipart/form-data">
+                <form method="post" action="{{ route('admin.kgb.store') }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="pegawai_id" value="{{ $pegawai->id }}">
                     <input type="hidden" name="mutasi_sebelum_id" value="{{ $mutasi_sebelum ? $mutasi_sebelum->id : 0 }}">
@@ -23,13 +23,28 @@
                         <label class="col-lg-2 col-md-3 col-form-label">No. SK <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <input type="text" name="no_sk_baru" class="form-control form-control-sm {{ $errors->has('no_sk_baru') ? 'border-danger' : '' }}" value="{{ old('no_sk_baru') }}" autofocus>
+                            @if($errors->has('no_sk_baru'))
+                            <div class="small text-danger">{{ $errors->first('no_sk_baru') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Tanggal SK <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <div class="input-group">
+                                <input type="text" name="tanggal_sk_baru" class="form-control form-control-sm {{ $errors->has('tanggal_sk_baru') ? 'border-danger' : '' }}" value="{{ date('d/m/Y') }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
+                                <span class="input-group-text"><i class="bi-calendar2"></i></span>
+                            </div>
+                            @if($errors->has('tanggal_sk_baru'))
+                            <div class="small text-danger">{{ $errors->first('tanggal_sk_baru') }}</div>
+                            @endif
                         </div>
                     </div>
                     <hr>
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Nama dan NIP</label>
                         <div class="col-lg-10 col-md-9">
-                            <input type="text" class="form-control form-control-sm" value="{{ $pegawai->nama }} - {{ $pegawai->nip }}" disabled>
+                            <input type="text" class="form-control form-control-sm" value="{{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }} - {{ $pegawai->nip }}" disabled>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -85,6 +100,20 @@
                     </div>
                     @else
                     <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Jenis <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <select name="jenis_mutasi" class="form-select form-select-sm {{ $errors->has('jenis_mutasi') ? 'border-danger' : '' }}">
+                                <option value="" disabled selected>--Pilih--</option>
+                                @foreach($jenis_mutasi as $j)
+                                <option value="{{ $j->id }}" {{ old('jenis') == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
+                                @endforeach
+                            </select>
+                            @if($errors->has('jenis_mutasi'))
+                            <div class="small text-danger">{{ $errors->first('jenis_mutasi') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Golru <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <select name="golru" class="form-select form-select-sm {{ $errors->has('golru') ? 'border-danger' : '' }}">
@@ -130,6 +159,18 @@
                             </div>
                             @if($errors->has('tanggal_sk'))
                             <div class="small text-danger">{{ $errors->first('tanggal_sk') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">TMT <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <div class="input-group">
+                                <input type="text" name="tmt_sebelum" class="form-control form-control-sm {{ $errors->has('tmt_sebelum') ? 'border-danger' : '' }}" value="{{ old('tmt_sebelum') }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
+                                <span class="input-group-text"><i class="bi-calendar2"></i></span>
+                            </div>
+                            @if($errors->has('tmt_sebelum'))
+                            <div class="small text-danger">{{ $errors->first('tmt_sebelum') }}</div>
                             @endif
                         </div>
                     </div>
@@ -236,7 +277,9 @@
     Spandiv.Select2("select[name=pejabat]");
 
     // Tanggal
+    Spandiv.DatePicker("input[name=tanggal_sk_baru]");
     Spandiv.DatePicker("input[name=tanggal_sk]");
+    Spandiv.DatePicker("input[name=tmt_sebelum]");
 </script>
 
 @endsection

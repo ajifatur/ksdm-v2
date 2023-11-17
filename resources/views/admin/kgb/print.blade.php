@@ -9,21 +9,21 @@
         /* Page */
 		@page {margin: 0px;}
 		html {margin: 0px;}
-		body {font-family: 'FiraSans-Regular'; font-size: 14px; line-height: 14px;}
+		body {font-family: 'FiraSans-Regular'; font-size: 15px; line-height: 15px;}
 		.page-break {page-break-after: always;}
 
         /* Header */
-		#header {position: absolute; top: 0px; left: 105px; right: 60px;}
+		#header {position: absolute; top: 0px; left: 85px; right: 50px;}
         #header img {width: 100%;}
 		
 		/* Content */
-		#content {position: absolute; top: 120px; left: 120px; right: 70px; text-align: justify;}
+		#content {position: absolute; top: 120px; left: 100px; right: 50px; text-align: justify;}
 		
 		/* Subject, Date, Address, Identity, CC */
 		#subject tr td {vertical-align: top;}
-		#date {position: absolute; top: 0px; right: 10px;}
+		#date {position: absolute; top: 2px; right: 10px;}
 		#address tr td {vertical-align: top;}
-		#identity tr td {vertical-align: top; line-height: 12px;}
+		#identity tr td {vertical-align: top; line-height: 13px;}
 		#cc ol {padding-left: 18px; margin-bottom: 0px;}
     </style>
 </head>
@@ -34,15 +34,15 @@
             <tr>
                 <td width="50">Nomor</td>
                 <td width="5">:</td>
-                <td>T/90/UN37.4.2/KP.09.03/2023</td>
+                <td>{{ $spkgb->mutasi->perubahan->no_sk }}</td>
             </tr>
             <tr>
                 <td>Perihal</td>
                 <td>:</td>
-                <td>Surat Pemberitahuan Kenaikan<br>Gaji Berkala (SPKGB)<br>a.n. Sdr. {{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }}</td>
+                <td>Surat Pemberitahuan Kenaikan<br>Gaji Berkala (SPKGB)<br>a.n. Sdr. {{ $spkgb->nama }}</td>
             </tr>
         </table>
-		<div id="date">{{ \Ajifatur\Helpers\DateTimeExt::full(date('Y-m-d')) }}</div>
+		<div id="date">{{ \Ajifatur\Helpers\DateTimeExt::full($spkgb->mutasi->perubahan->tanggal_sk) }}</div>
         <br>
         <table id="address">
             <tr>
@@ -63,43 +63,43 @@
 				<td width="5">1.</td>
 				<td colspan="2">Nama</td>
 				<td width="5">:</td>
-				<td>{{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }}</td>
+				<td>{{ $spkgb->nama }}</td>
 			</tr>
 			<tr>
 				<td>2.</td>
 				<td colspan="2">Tempat, tanggal lahir</td>
 				<td>:</td>
-				<td>Gunungkidul, 69 Mei 1997</td>
+				<td>{{ $spkgb->pegawai->tempat_lahir }}, {{ \Ajifatur\Helpers\DateTimeExt::full($spkgb->pegawai->tanggal_lahir) }}</td>
 			</tr>
 			<tr>
 				<td>3.</td>
 				<td colspan="2">NIP</td>
 				<td>:</td>
-				<td>{{ $pegawai->nip }}</td>
+				<td>{{ $spkgb->pegawai->nip }}</td>
 			</tr>
 			<tr>
 				<td>4.</td>
 				<td colspan="2">Pangkat</td>
 				<td>:</td>
-				<td>{{ $mutasi->golru->indonesia }} - {{ $mutasi->golru->nama }}</td>
+				<td>{{ $spkgb->mutasi->golru->indonesia }} - {{ $spkgb->mutasi->golru->nama }}</td>
 			</tr>
 			<tr>
 				<td>5.</td>
 				<td colspan="2">Jabatan</td>
 				<td>:</td>
-				<td>{{ $pegawai->jabfung->nama }} {{ $pegawai->jabstruk ? '('.$pegawai->jabstruk->nama.')' : '' }}</td>
+				<td>{{ $spkgb->jabfung->nama }} {{ $spkgb->jabstruk ? '('.$spkgb->jabstruk->nama.')' : '' }}</td>
 			</tr>
 			<tr>
 				<td>6.</td>
 				<td colspan="2">Unit Kerja</td>
 				<td>:</td>
-				<td>{{ $pegawai->unit->full }}</td>
+				<td>{{ $spkgb->unit->full }}</td>
 			</tr>
 			<tr>
 				<td>7.</td>
 				<td colspan="2">Gaji Pokok Lama</td>
 				<td>:</td>
-				<td>{{ $mutasi_sebelum ? 'Rp '.number_format($mutasi_sebelum->gaji_pokok->gaji_pokok,2,',','.') : '-' }}</td>
+				<td>{{ 'Rp '.number_format($spkgb->mutasi_sebelum->gaji_pokok->gaji_pokok,2,',','.') }}</td>
 			</tr>
 			<tr>
 				<td colspan="5">(atas dasar SK terakhir tentang gaji pokok/pangkat terakhir yang ditetapkan):</td>
@@ -109,28 +109,28 @@
 				<td width="5">a.</td>
 				<td width="120">oleh pejabat</td>
 				<td>:</td>
-				<td>{{ $mutasi_sebelum && $mutasi_sebelum->perubahan ? $mutasi_sebelum->perubahan->pejabat->nama : '-' }}</td>
+				<td>{{ $spkgb->mutasi_sebelum->perubahan->pejabat->nama }}</td>
 			</tr>
 			<tr>
 				<td></td>
 				<td>b.</td>
 				<td>tanggal dan nomor</td>
 				<td>:</td>
-				<td>{{ $mutasi_sebelum && $mutasi_sebelum->perubahan ? \Ajifatur\Helpers\DateTimeExt::full($mutasi_sebelum->perubahan->tanggal_sk) : '-' }}; {{ $mutasi_sebelum && $mutasi_sebelum->perubahan ? $mutasi_sebelum->perubahan->no_sk : '-' }}</td>
+				<td>{{ \Ajifatur\Helpers\DateTimeExt::full($spkgb->mutasi_sebelum->perubahan->tanggal_sk) }}; {{ $spkgb->mutasi_sebelum->perubahan->no_sk }}</td>
 			</tr>
 			<tr>
 				<td></td>
 				<td>c.</td>
 				<td>tanggal berlakunya</td>
 				<td>:</td>
-				<td>{{ $mutasi_sebelum && $mutasi_sebelum->perubahan ? \Ajifatur\Helpers\DateTimeExt::full($mutasi_sebelum->perubahan->tmt) : '-' }}</td>
+				<td>{{ \Ajifatur\Helpers\DateTimeExt::full($spkgb->mutasi_sebelum->perubahan->tmt) }}</td>
 			</tr>
 			<tr>
 				<td></td>
 				<td>d.</td>
 				<td>dalam masa kerja gol.</td>
 				<td>:</td>
-				<td>{{ $mutasi_sebelum && $mutasi_sebelum->perubahan ? $mutasi_sebelum->perubahan->mk_tahun : '-' }} tahun {{ $mutasi_sebelum && $mutasi_sebelum->perubahan ? $mutasi_sebelum->perubahan->mk_bulan : '-' }} bulan</td>
+				<td>{{ $spkgb->mutasi_sebelum->perubahan->mk_tahun }} tahun {{ $spkgb->mutasi_sebelum->perubahan->mk_bulan }} bulan</td>
 			</tr>
 			<tr>
 				<td colspan="5">diberikan kenaikan gaji berkala hingga memperoleh:</td>
@@ -139,25 +139,25 @@
 				<td>8.</td>
 				<td colspan="2">Gaji Pokok Baru</td>
 				<td>:</td>
-				<td>{{ $mutasi ? 'Rp '.number_format($mutasi->gaji_pokok->gaji_pokok,2,',','.') : '-' }}</td>
+				<td>{{ 'Rp '.number_format($spkgb->mutasi->gaji_pokok->gaji_pokok,2,',','.') }}</td>
 			</tr>
 			<tr>
 				<td>9.</td>
 				<td colspan="2">Berdasarkan Masa Kerja</td>
 				<td>:</td>
-				<td>{{ $mk_baru }} tahun 0 bulan</td>
+				<td>{{ $spkgb->mutasi->perubahan->mk_tahun }} tahun 0 bulan</td>
 			</tr>
 			<tr>
 				<td>10.</td>
 				<td colspan="2">Dalam Golongan Ruang</td>
 				<td>:</td>
-				<td>{{ $pegawai->golru->indonesia }} - {{ $pegawai->golru->nama }}</td>
+				<td>{{ $spkgb->mutasi->golru->indonesia }} - {{ $spkgb->mutasi->golru->nama }}</td>
 			</tr>
 			<tr>
 				<td>11.</td>
 				<td colspan="2">Terhitung Mulai Tanggal</td>
 				<td>:</td>
-				<td>{{ \Ajifatur\Helpers\DateTimeExt::full($tanggal) }}</td>
+				<td>{{ \Ajifatur\Helpers\DateTimeExt::full($spkgb->mutasi->tmt) }}</td>
 			</tr>
 		</table>
 		<br>
@@ -173,9 +173,9 @@
 					<br>
 					u.b. Direktur Umum dan SDM,
 					<br><br><br><br><br>
-					Moh Khoiruddin, S.E., M.Si.
+					{{ title_name($spkgb->ttd->nama, $spkgb->ttd->gelar_depan, $spkgb->ttd->gelar_belakang) }}
 					<br>
-					NIP. 197001062008121001
+					NIP. {{ $spkgb->ttd->nip }}
 				</td>
 			</tr>
 		</table>
@@ -183,8 +183,8 @@
 			Tembusan:
 			<ol>
 				<li>Rektor</li>
-				<li>{{ $pegawai->unit->pimpinan }}</li>
-				<li>Sdr. {{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }}</li>
+				<li>{{ $spkgb->unit->pimpinan }}</li>
+				<li>Sdr. {{ $spkgb->nama }}</li>
 			</ol>
 			Universitas Negeri Semarang
 		</div>

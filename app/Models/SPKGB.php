@@ -37,7 +37,7 @@ class SPKGB extends Model
      */
     public function mutasi_sebelum()
     {
-        return $this->belongsTo(Perubahan::class, 'mutasi_sebelum_id');
+        return $this->belongsTo(Mutasi::class, 'mutasi_sebelum_id');
     }
     
     /**
@@ -54,6 +54,14 @@ class SPKGB extends Model
     public function jabfung()
     {
         return $this->belongsTo(GrupJabatan::class, 'jabfung_id');
+    }
+    
+    /**
+     * Jabatan Struktural.
+     */
+    public function jabstruk()
+    {
+        return $this->belongsTo(GrupJabatan::class, 'jabstruk_id');
     }
     
     /**

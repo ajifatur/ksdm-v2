@@ -87,4 +87,12 @@ class Mutasi extends Model
     {
         return $this->hasOne(Perubahan::class);
     }
+
+    /**
+     * SPKGB.
+     */
+    public function spkgb()
+    {
+        return $this->hasOne(SPKGB::class);
+    }
 }

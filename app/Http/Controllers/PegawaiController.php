@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
 use App\Imports\PegawaiImport;
 use App\Models\Pegawai;
@@ -223,30 +224,33 @@ class PegawaiController extends Controller
      */
     public function import(Request $request)
     {
-        /*
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		$array = Excel::toArray(new PegawaiImport, public_path('assets/spreadsheets/TMT_Golongan.xlsx'));
+		$array = Excel::toArray(new PegawaiImport, public_path('storage/TTL.xlsx'));
 
         $error = [];
         if(count($array)>0) {
             foreach($array[0] as $data) {
                 if($data[0] != null) {
-                    $pegawai = Pegawai::where('nip','=',$data[1])->first();
-                    $pegawai->tmt_golongan = $data[2];
-                    $pegawai->save();
+                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+                    if($pegawai) {
+                        $pegawai->tanggal_lahir = DateTimeExt::change($data[1]);
+                        $pegawai->tempat_lahir = $data[2];
+                        $pegawai->save();
+                    }
+                    else array_push($error, $data[0]);
                 }
             }
         }
-        */
+        var_dump($error);
 
-        $pegawai = Pegawai::where('status_kepeg_id','=',1)->where('status_kerja_id','=',1)->where('jenis','=',1)->get();
-        foreach($pegawai as $p) {
-            if($p->tmt_cpns != $p->tmt_golongan) {
-                var_dump($p->id, $p->nama, $p->tmt_cpns, $p->tmt_golongan);
-                echo "<br>";
-            }
-        }
+        // $pegawai = Pegawai::where('status_kepeg_id','=',1)->where('status_kerja_id','=',1)->where('jenis','=',1)->get();
+        // foreach($pegawai as $p) {
+        //     if($p->tmt_cpns != $p->tmt_golongan) {
+        //         var_dump($p->id, $p->nama, $p->tmt_cpns, $p->tmt_golongan);
+        //         echo "<br>";
+        //     }
+        // }
     }
 }

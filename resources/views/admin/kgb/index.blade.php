@@ -75,9 +75,14 @@
 									@endif
 								</td>
 								<td align="center">
-									<div class="btn-group d-none">
-										<a href="#" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
-										<a href="#" class="btn btn-sm btn-danger btn-delete" data-id="#" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
+									<div class="btn-group">
+                                        @if($p->mutasi_spkgb)
+										    <a href="{{ route('admin.kgb.print', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        @else
+										    <a href="{{ route('admin.kgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                        @endif
+										<!-- <a href="#" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a> -->
+										<!-- <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="#" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a> -->
 									</div>
 								</td>
 							</tr>
