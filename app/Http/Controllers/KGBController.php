@@ -34,17 +34,31 @@ class KGBController extends Controller
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+
+        // View
+        return view('admin/kgb/index', [
+            'pegawai' => [
+                'pegawai_gol_iii_iv' => $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal),
+                'pegawai_golru_ii_a_d' => $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal),
+                'pegawai_golru_i_b_d' => $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27], [2,3,4], $tahun, $bulan, $tanggal),
+                'pegawai_golru_i_a' => $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26], [1], $tahun, $bulan, $tanggal),
+            ],
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+        ]);
+    }
+
+    public function get_pegawai($mkg, $golru, $tahun, $bulan, $tanggal) {
+        // Set TMT
 		$tmt = [];
+        foreach($mkg as $m) {
+			array_push($tmt, ($tahun - $m).'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
+        }
 		
-		// Get TMT golongan III dan IV
-		for($i = $tahun; $i >= ($tahun - 32); $i-=2) {
-			array_push($tmt, $i.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
-		}
-		
-		// Get pegawai berdasarkan TMT golongan
-		$pegawai = Pegawai::whereHas('golru', function(Builder $query) {
-			return $query->whereIn('golongan_id',[3,4]);
-		})->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->orderBy('tmt_golongan','asc')->get();
+		// Get pegawai berdasarkan golru
+		$pegawai = Pegawai::whereHas('golru', function(Builder $query) use ($golru) {
+			return $query->whereIn('golru_id',$golru);
+		})->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
 		foreach($pegawai as $key=>$p) {
 			// Get mutasi KP / KGB sebelumnya
 			$pegawai[$key]->mutasi_sebelum = $p->mutasi()->whereHas('jenis', function(Builder $query) {
@@ -57,12 +71,7 @@ class KGBController extends Controller
 			})->where('tmt','=',$tanggal)->first();
 		}
 
-        // View
-        return view('admin/kgb/index', [
-            'pegawai' => $pegawai,
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-        ]);
+        return $pegawai;
     }
 
     /**
@@ -90,7 +99,7 @@ class KGBController extends Controller
 		})->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->findOrFail($id);
 
         // Get jenis mutasi
-        $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi Pangkat','KGB','PMK'])->get();
+        $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
 
         // Get golru
         $golru = Golru::all();
@@ -293,32 +302,6 @@ class KGBController extends Controller
 
         // Get SPKGB
         $spkgb = SPKGB::has('mutasi')->findOrFail($id);
-
-        // $bulan = $request->query('bulan') ?: date('n');
-        // $tahun = $request->query('tahun') ?: date('Y');
-		// $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
-		// $tmt = [];
-		
-		// // Get TMT golongan III dan IV
-		// for($i = $tahun; $i >= ($tahun - 32); $i-=2) {
-		// 	array_push($tmt, $i.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
-		// }
-
-        // // Get pegawai
-		// $pegawai = Pegawai::whereHas('golru', function(Builder $query) {
-		// 	return $query->whereIn('golongan_id',[3,4]);
-		// })->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->findOrFail($id);
-
-        // // Get mutasi
-        // $mutasi = $pegawai->mutasi()->first();
-
-        // // Get mutasi sebelum
-        // $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
-        //     return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
-        // })->where('tmt','<',$tanggal)->first();
-
-        // // Set masa kerja baru
-        // $mk_baru = $tahun - date('Y', strtotime($pegawai->tmt_golongan));
 		
 		// Set title
 		$title = 'KGB '.$spkgb->mutasi->tmt.' a.n. '.$spkgb->nama;

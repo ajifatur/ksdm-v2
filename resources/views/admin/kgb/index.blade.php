@@ -55,37 +55,38 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($pegawai as $p)
-							<tr>
-								<td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
-                                <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
-								<td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
-								<td>{{ $p->golru ? $p->golru->nama : '-' }}
-								<td>
-									<span class="d-none">{{ $p->tmt_golongan }}</span>
-									{{ $tahun - date('Y', strtotime($p->tmt_golongan)) }} tahun 0 bulan
-								</td>
-								<td>
-									@if($p->mutasi_sebelum)
-										{{ $p->mutasi_sebelum->jenis->nama }} {{ $p->mutasi_sebelum ? $p->mutasi_sebelum->golru->nama : '' }}
-										<br>
-										{{ $p->mutasi_sebelum->perubahan ? '('.$p->mutasi_sebelum->perubahan->mk_tahun.' tahun '.$p->mutasi_sebelum->perubahan->mk_bulan.' bulan)' : '' }}
-									@else
-										-
-									@endif
-								</td>
-								<td align="center">
-									<div class="btn-group">
-                                        @if($p->mutasi_spkgb)
-										    <a href="{{ route('admin.kgb.print', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
+                            @foreach($pegawai as $peg)
+                                @foreach($peg as $p)
+                                <tr>
+                                    <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
+                                    <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
+                                    <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
+                                    <td>{{ $p->golru ? $p->golru->nama : '-' }}
+                                    <td>
+                                        <span class="d-none">{{ $p->tmt_golongan }}</span>
+                                        {{ $tahun - date('Y', strtotime($p->tmt_golongan)) }} tahun 0 bulan
+                                    </td>
+                                    <td>
+                                        @if($p->mutasi_sebelum)
+                                            {{ $p->mutasi_sebelum->jenis->nama }} {{ $p->mutasi_sebelum ? $p->mutasi_sebelum->golru->nama : '' }}
+                                            <br>
+                                            {{ $p->mutasi_sebelum->perubahan ? '('.$p->mutasi_sebelum->perubahan->mk_tahun.' tahun '.$p->mutasi_sebelum->perubahan->mk_bulan.' bulan)' : '' }}
                                         @else
-										    <a href="{{ route('admin.kgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                            -
                                         @endif
-										<!-- <a href="#" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a> -->
-										<!-- <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="#" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a> -->
-									</div>
-								</td>
-							</tr>
+                                    </td>
+                                    <td align="center">
+                                        <div class="btn-group">
+                                            @if($p->mutasi_spkgb)
+                                                <a href="{{ route('admin.kgb.print', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
+                                            @else
+                                                <a href="{{ route('admin.kgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                            @endif
+                                            <!-- <a href="#" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a> -->
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
                             @endforeach
                         </tbody>
                     </table>
