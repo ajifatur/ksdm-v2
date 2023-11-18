@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "ajifatur/faturhelper",
-            "version": "v4.1.8",
+            "version": "v4.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ajifatur/faturhelper.git",
-                "reference": "a3a6c7d8867ddac362b8eba57dc98ab5d3ce9145"
+                "reference": "ea5ebc04cd286c8aeff35120143681749fff12de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ajifatur/faturhelper/zipball/a3a6c7d8867ddac362b8eba57dc98ab5d3ce9145",
-                "reference": "a3a6c7d8867ddac362b8eba57dc98ab5d3ce9145",
+                "url": "https://api.github.com/repos/ajifatur/faturhelper/zipball/ea5ebc04cd286c8aeff35120143681749fff12de",
+                "reference": "ea5ebc04cd286c8aeff35120143681749fff12de",
                 "shasum": ""
             },
             "require": {
@@ -46,9 +46,9 @@
             "description": "Project that contains some helpers/functions/methods to help my work easier",
             "support": {
                 "issues": "https://github.com/ajifatur/faturhelper/issues",
-                "source": "https://github.com/ajifatur/faturhelper/tree/v4.1.8"
+                "source": "https://github.com/ajifatur/faturhelper/tree/v4.1.9"
             },
-            "time": "2023-11-01T01:34:18+00:00"
+            "time": "2023-11-18T01:22:14+00:00"
         },
         {
             "name": "asm89/stack-cors",
