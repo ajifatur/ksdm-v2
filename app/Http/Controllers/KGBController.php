@@ -304,7 +304,7 @@ class KGBController extends Controller
         $spkgb = SPKGB::has('mutasi')->findOrFail($id);
 		
 		// Set title
-		$title = 'KGB '.$spkgb->mutasi->tmt.' a.n. '.$spkgb->nama;
+		$title = 'SPKGB '.$spkgb->mutasi->tmt.' a.n. '.$spkgb->nama;
 		
         // PDF
         $pdf = \PDF::loadView('admin/kgb/print', [

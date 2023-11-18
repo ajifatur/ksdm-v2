@@ -227,22 +227,30 @@ class PegawaiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		$array = Excel::toArray(new PegawaiImport, public_path('storage/TMT Golongan Tendik.xlsx'));
-
-        $error = [];
-        if(count($array)>0) {
-            foreach($array[0] as $data) {
-                if($data[0] != null) {
-                    $pegawai = Pegawai::where('nip','=',$data[0])->where('status_kerja_id','=',1)->first();
-                    if($pegawai) {
-                        $pegawai->tmt_golongan = DateTimeExt::change($data[2]);
-                        $pegawai->save();
-                    }
-                    else array_push($error, $data[0].' - '.$data[1]);
-                }
-            }
+        // Get pegawai
+        $pegawai = Pegawai::where('jenis','=',2)->where('status_kerja_id','=',1)->get();
+        foreach($pegawai as $p) {
+            $peg = Pegawai::find($p->id);
+            $peg->nama = ucwords(strtolower($p->nama));
+            $peg->save();
         }
-        var_dump($error);
+
+		// $array = Excel::toArray(new PegawaiImport, public_path('storage/TMT Golongan Tendik.xlsx'));
+
+        // $error = [];
+        // if(count($array)>0) {
+        //     foreach($array[0] as $data) {
+        //         if($data[0] != null) {
+        //             $pegawai = Pegawai::where('nip','=',$data[0])->where('status_kerja_id','=',1)->first();
+        //             if($pegawai) {
+        //                 $pegawai->tmt_golongan = DateTimeExt::change($data[2]);
+        //                 $pegawai->save();
+        //             }
+        //             else array_push($error, $data[0].' - '.$data[1]);
+        //         }
+        //     }
+        // }
+        // var_dump($error);
 
         // $array = Excel::toArray(new PegawaiImport, public_path('storage/TTL.xlsx'));
 

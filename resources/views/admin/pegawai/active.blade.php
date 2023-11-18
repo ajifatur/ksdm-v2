@@ -38,7 +38,7 @@
                             @foreach($pegawai as $p)
                             <tr>
                                 <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
-                                <td>{{ strtoupper($p->nama) }}</td>
+                                <td>{{ $p->nama }}</td>
                                 <td>{{ $p->gelar_depan }}</td>
                                 <td>{{ $p->gelar_belakang }}</td>
                                 <td>{{ $p->golru ? $p->golru->nama : '-' }}</td>

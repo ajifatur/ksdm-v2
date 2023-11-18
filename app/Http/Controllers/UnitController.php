@@ -22,7 +22,7 @@ class UnitController extends Controller
         // has_access(__METHOD__, Auth::user()->role_id);
 
         // Get unit
-        $unit = Unit::where('nama','!=','-')->orderBy('num_order','asc')->get();
+        $unit = Unit::where('nama','!=','-')->orderBy('end_date','asc')->orderBy('num_order','asc')->get();
 		
 		// View
 		return view('admin/unit/index', [

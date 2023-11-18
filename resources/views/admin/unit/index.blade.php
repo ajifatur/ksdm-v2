@@ -21,9 +21,11 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Unit</th>
+                                <th>Nama</th>
+                                <th>Nama Lengkap</th>
                                 <th>Keterangan</th>
                                 <th>Layer</th>
+                                <th>Pimpinan</th>
                                 <th width="100">TMT Non Aktif</th>
                             </tr>
                         </thead>
@@ -31,8 +33,10 @@
                             @foreach($unit as $u)
                             <tr>
                                 <td>{{ $u->nama }}</td>
+                                <td>{{ $u->full }}</td>
                                 <td>{{ $u->pusat == 1 ? 'Pusat' : '-' }}</td>
                                 <td>{{ $u->layer->nama }}</td>
+                                <td>{{ $u->pimpinan }}</td>
                                 <td>
                                     <span class="d-none">{{ $u->end_date }}</span>
                                     {{ $u->end_date != null ? date('d/m/Y', strtotime($u->end_date)) : '' }}
