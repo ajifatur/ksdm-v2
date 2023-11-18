@@ -646,18 +646,32 @@ class TunjanganProfesiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
+        // // Get tunjangan kehormatan profesor
+        // $tunjangan = TunjanganProfesi::whereHas('angkatan', function(Builder $query) {
+        //     return $query->where('jenis_id','=',1);
+        // })->whereIn('bulan',[1,2,3,4,5])->where('tahun','=',2023)->get();
+        // foreach($tunjangan as $t) {
+        //     // Update
+        //     if($t->diterimakan > $t->tunjangan) {
+        //         $tunj = TunjanganProfesi::find($t->id);
+        //         $tunj->tunjangan = 2 * $t->tunjangan;
+        //         $tunj->save();
+        //     }
+        // }
+        // return;
+
         // Set jenis, bulan, tahun
-        $jenis = 3;
+        $jenis = 1;
         $bulan = 6;
         $tahun = 2023;
 
         // Set file
         if($jenis == 1)
-		    $array = Excel::toArray(new TunjanganProfesiImport, public_path('assets/spreadsheets/Serdos Kehormatan Profesor.xlsx'));
+		    $array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos Kehormatan Profesor.xlsx'));
         elseif($jenis == 2)
-    		$array = Excel::toArray(new TunjanganProfesiImport, public_path('assets/spreadsheets/Serdos GB.xlsx'));
+    		$array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos GB.xlsx'));
         elseif($jenis == 3)
-    		$array = Excel::toArray(new TunjanganProfesiImport, public_path('assets/spreadsheets/Serdos Non GB.xlsx'));
+    		$array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos Non GB.xlsx'));
 
         $error = [];
         if(count($array)>0) {
@@ -700,8 +714,8 @@ class TunjanganProfesiController extends Controller
                             $tunjangan->tahun = $tahun;
                             if($jenis == 1 || $jenis == 2) {
                                 $tunjangan->golongan_id = 4;
-                                $tunjangan->tunjangan = $data[6];
-                                $tunjangan->pph = mround((15/100) * $data[6], 1);
+                                $tunjangan->tunjangan = $jenis == 1 ? 2 * $data[6] : $data[6];
+                                $tunjangan->pph = mround((15/100) * $tunjangan->tunjangan, 1);
                             }
                             elseif($jenis == 3) {
                                 $pph = ($pegawai->golongan_id == 4) ? 15 : 5;
