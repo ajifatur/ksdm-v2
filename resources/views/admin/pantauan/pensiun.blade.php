@@ -16,6 +16,7 @@
                         <thead class="bg-light">
                             <tr>
                                 <th>Nama / NIP</th>
+                                <th width="80">Jenis</th>
                                 <th>Jabatan</th>
                                 <th>Unit</th>
                                 <th width="100">TMT Pensiun</th>
@@ -25,6 +26,7 @@
                             @foreach($pegawai as $p)
                             <tr>
                                 <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
+                                <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td>{{ $p->jabfung->nama }}</td>
                                 <td>{{ $p->unit->nama }}</td>
                                 <td>
