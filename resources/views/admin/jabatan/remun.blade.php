@@ -69,7 +69,7 @@
     // Change the select
     $(document).on("change", ".card-header select", function() {
 		var sk = $("select[name=sk]").val();
-        window.location.href = Spandiv.URL("{{ route('admin.jabatan.index') }}", {sk: sk});
+        window.location.href = Spandiv.URL("{{ route('admin.jabatan.remun') }}", {sk: sk});
     });
 </script>
 
