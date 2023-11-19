@@ -41,33 +41,6 @@ class JabatanController extends Controller
         $grup = GrupJabatan::whereHas('jabatan', function (Builder $query) use ($sk, $jenis) {
             return $query->where('sk_id','=',$sk->id)->where('jenis_id','=',$jenis);
         })->get();
-
-        // if($jenis == 2) {
-        //     // Get pegawai
-        //     $pegawai = Pegawai::whereHas('status_kerja', function (Builder $query) {
-        //         return $query->where('status','=',1);
-        //     })->get();
-
-        //     foreach($grup as $key=>$g) {
-        //         // Get mutasi
-        //         $mutasi = Mutasi::whereHas('pegawai', function (Builder $query) {
-        //             return $query->where('status_kerja_id','=',1);
-        //         })->whereHas('detail', function(Builder $query) use ($g, $jenis) {
-        //             return $query->whereHas('jabatan', function (Builder $query) use ($g, $jenis) {
-        //                 return $query->where('grup_id','=',$g->id)->where('jenis_id','=',$jenis);
-        //             });
-        //         })->orderBy('tahun')->orderBy('bulan')->groupBy('pegawai_id')->get();
-        //         $grup[$key]->mutasi = $mutasi;
-
-        //         // Get pegawai
-        //         $pegawai = [];
-        //         foreach($mutasi as $m) {
-        //             if(!in_array($m->pegawai, $pegawai))
-        //                 array_push($pegawai, $m->pegawai);
-        //         }
-        //         $grup[$key]->pegawai = $pegawai;
-        //     }
-        // }
 		
 		// View
 		return view('admin/jabatan/index', [
@@ -142,6 +115,31 @@ class JabatanController extends Controller
                 $jabatan->save();
             }
         }
+    }
+
+    /**
+     * Import BUP
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function bup(Request $request)
+    {
+		$array = Excel::toArray(new JabatanImport, public_path('storage/BUP.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[0] != null) {
+                    // Get grup jabatan
+                    $jabatan = GrupJabatan::where('nama','=',$data[0])->first();
+                    if(!$jabatan) array_push($error, $data[0]);
+
+                    $jabatan->bup = $data[2];
+                    $jabatan->save();
+                }
+            }
+        }
+        var_dump($error);
     }
 
     /**

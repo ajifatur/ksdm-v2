@@ -85,6 +85,40 @@ class PantauanController extends Controller
     }
 
     /**
+     * Pensiun PNS
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function pensiun(Request $request)
+    {
+        // Get pegawai
+        $pegawai = Pegawai::where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+		foreach($pegawai as $key=>$p) {
+            // Set TMT pensiun
+            $bulan_pensiun = date('n', strtotime($p->tanggal_lahir)) + 1;
+
+            if($bulan_pensiun > 12) {
+                $bulan_pensiun = $bulan_pensiun - 12;
+                $tahun_pensiun = date('Y', strtotime($p->tanggal_lahir)) + $p->jabfung->bup + 1;
+            }
+            else {
+                $tahun_pensiun = date('Y', strtotime($p->tanggal_lahir)) + $p->jabfung->bup;
+            }
+
+            $pegawai[$key]->tmt_pensiun = $tahun_pensiun.'-'.($bulan_pensiun < 10 ? '0'.$bulan_pensiun : $bulan_pensiun).'-01';
+		}
+
+        // Sort
+        $pegawai = $pegawai->sortBy('tmt_pensiun');
+
+        // View
+        return view('admin/pantauan/pensiun', [
+            'pegawai' => $pegawai
+        ]);
+    }
+
+    /**
      * Status Kepegawaian
      *
      * @param  \Illuminate\Http\Request  $request
