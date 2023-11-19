@@ -23,6 +23,7 @@ use App\Models\Mutasi;
 use App\Models\MutasiDetail;
 use App\Models\SK;
 use App\Models\StatusKepegawaian;
+use App\Models\Referensi;
 
 class RemunGajiController extends Controller
 {
@@ -832,5 +833,141 @@ class RemunGajiController extends Controller
             'pegawai_keluar' => $keterangan_pegawai_keluar,
             'keterangan' => $keterangan,
         ];
+    }
+
+    public function importMei(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Remun_Gaji_Mei.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[0] != null) {
+                    // Get pegawai
+                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+
+                    // Get remun bulan april
+                    $remun_april = RemunGaji::where('pegawai_id','=',$pegawai->id)->where('bulan','=',4)->first();
+
+                    // Jika tidak mutasi
+                    if($data[11] != 1) {
+                        // Simpan ke remun bulan mei
+                        $remun_mei = RemunGaji::where('pegawai_id','=',$pegawai->id)->where('bulan','=',5)->first();
+                        if(!$remun_mei) $remun_mei = new RemunGaji;
+                        $remun_mei->pegawai_id = $remun_april->pegawai_id;
+                        $remun_mei->status_kepeg_id = $remun_april->status_kepeg_id;
+                        $remun_mei->golru_id = $remun_april->golru_id;
+                        $remun_mei->jabatan_dasar_id = $remun_april->jabatan_dasar_id;
+                        $remun_mei->jabatan_id = $remun_april->jabatan_id;
+                        $remun_mei->unit_id = $remun_april->unit_id;
+                        $remun_mei->layer_id = $remun_april->layer_id;
+                        $remun_mei->bulan = 5;
+                        $remun_mei->tahun = $remun_april->tahun;
+                        $remun_mei->kategori = $remun_april->kategori;
+                        $remun_mei->remun_penerimaan = $remun_april->remun_penerimaan;
+                        $remun_mei->remun_gaji = $remun_april->remun_gaji;
+                        $remun_mei->remun_insentif = $remun_april->remun_insentif;
+                        $remun_mei->save();
+                    }
+                    // Jika mutasi
+                    else {
+                        // Get jabatan
+                        $jabatan = Jabatan::where('sk_id','=',7)->where('nama','=',$data[7])->where('sub','=',$data[8])->first();
+
+                        // Get unit
+                        $unit = Unit::where('nama','=',$data[2])->first();
+
+                        // Get referensi
+                        $referensi = Referensi::where('sk_id','=',7)->where('jabatan_dasar_id','=',$jabatan->jabatan_dasar_id)->where('layer_id','=',$unit->layer_id)->first();
+
+                        if($data[5] != 'Calon Pegawai Tetap') {
+                            if($data[7] == 'Profesor/Guru Besar')
+                                $tmt = '2023-02-01';
+                            else
+                                $tmt = '2023-04-01';
+
+                            // Simpan ke remun bulan mei
+                            $remun_mei = RemunGaji::where('pegawai_id','=',$pegawai->id)->where('bulan','=',5)->first();
+                            if(!$remun_mei) $remun_mei = new RemunGaji;
+                            $remun_mei->pegawai_id = $remun_april->pegawai_id;
+                            $remun_mei->status_kepeg_id = $remun_april->status_kepeg_id;
+                            $remun_mei->golru_id = $remun_april->golru_id;
+                            $remun_mei->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
+                            $remun_mei->jabatan_id = $jabatan->id;
+                            $remun_mei->unit_id = $remun_april->unit_id;
+                            $remun_mei->layer_id = $remun_april->layer_id;
+                            $remun_mei->bulan = 5;
+                            $remun_mei->tahun = $remun_april->tahun;
+                            $remun_mei->kategori = $remun_april->kategori;
+                            $remun_mei->remun_penerimaan = $referensi->remun_standar;
+                            $remun_mei->remun_gaji = $referensi->remun_gaji;
+                            $remun_mei->remun_insentif = $referensi->remun_insentif;
+                            $remun_mei->save();
+
+                            // Simpan mutasi
+                            $mutasi = Mutasi::where('pegawai_id','=',$pegawai->id)->where('bulan','=',5)->first();
+                            if(!$mutasi) $mutasi = new Mutasi;
+                            $mutasi->pegawai_id = $pegawai->id;
+                            $mutasi->sk_id = 7;
+                            $mutasi->jenis_id = 1;
+                            $mutasi->status_kepeg_id = 1;
+                            $mutasi->golru_id = null;
+                            $mutasi->gaji_pokok_id = null;
+                            $mutasi->bulan = 5;
+                            $mutasi->tahun = 2023;
+                            $mutasi->uraian = 'Perubahan Mei 2023';
+                            $mutasi->tmt = $tmt;
+                            $mutasi->remun_penerimaan = $referensi->remun_standar;
+                            $mutasi->remun_gaji = $referensi->remun_gaji;
+                            $mutasi->remun_insentif = $referensi->remun_insentif;
+                            $mutasi->save();
+
+                            // Simpan mutasi detail
+                            $mutasi_detail = $mutasi->detail()->first();
+                            if(!$mutasi_detail) $mutasi_detail = new MutasiDetail;
+                            $mutasi_detail->mutasi_id = $mutasi->id;
+                            $mutasi_detail->jabatan_id = $jabatan->id;
+                            $mutasi_detail->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
+                            $mutasi_detail->unit_id = $remun_april->unit_id;
+                            $mutasi_detail->layer_id = $remun_april->layer_id;
+                            $mutasi_detail->status = 1;
+                            $mutasi_detail->save();
+                        }
+                        else {
+                            // Get pegawai baru
+                            $pegawai_baru = Pegawai::where('nama','=',$data[1])->where('status_kepeg_id','=',4)->first();
+
+                            // Simpan ke remun bulan mei
+                            if($pegawai_baru)
+                                $remun_mei = RemunGaji::where('pegawai_id','=',$pegawai_baru->id)->where('bulan','=',5)->first();
+                            else {
+                                $remun_mei = new RemunGaji;
+                                array_push($error, $data[1]);
+                            }
+
+                            if(!$remun_mei) $remun_mei = new RemunGaji;
+                            $remun_mei->pegawai_id = $pegawai_baru ? $pegawai_baru->id : 0;
+                            $remun_mei->status_kepeg_id = 4;
+                            $remun_mei->golru_id = null;
+                            $remun_mei->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
+                            $remun_mei->jabatan_id = $jabatan->id;
+                            $remun_mei->unit_id = $remun_april->unit_id;
+                            $remun_mei->layer_id = $remun_april->layer_id;
+                            $remun_mei->bulan = 5;
+                            $remun_mei->tahun = $remun_april->tahun;
+                            $remun_mei->kategori = $remun_april->kategori;
+                            $remun_mei->remun_penerimaan = mround((80 / 100) * $referensi->remun_standar, 1);
+                            $remun_mei->remun_gaji = mround((80 / 100) * $referensi->remun_gaji, 1);
+                            $remun_mei->remun_insentif = mround((80 / 100) * $referensi->remun_insentif, 1);
+                            $remun_mei->save();
+                        }
+                    }
+                }
+            }
+        }
+        var_dump($error);
     }
 }

@@ -146,6 +146,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/pantauan/status-kepegawaian', 'PantauanController@statusKepegawaian')->name('admin.pantauan.status-kepegawaian');
 
     // Others
+    // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.kp.import-mei');
     // Route::get('/admin/kp/import', 'KGBController@import')->name('admin.kp.import');
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
