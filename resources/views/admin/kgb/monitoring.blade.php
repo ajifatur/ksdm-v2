@@ -32,14 +32,14 @@
                         <thead class="bg-light">
                             <tr>
                                 <th>Bulan</th>
-                                <th>Jumlah</th>
+                                <th>Jumlah Diproses</th>
                                 <th width="50">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($data as $d)
                             <tr>
-                                <td>{{ $d['nama'] }}</td>
+                                <td><span class="d-none">{{ $d['bulan'] < 10 ? '0'.$d['bulan'] : $d['bulan'] }}</span>{{ $d['nama'] }}</td>
                                 <td align="right">{{ $d['spkgb'] }}</td>
                                 <td align="center">
                                     <div class="btn-group">

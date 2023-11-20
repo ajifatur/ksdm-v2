@@ -482,7 +482,7 @@ class KGBController extends Controller
             'tahun' => $tahun,
             'tanggal' => $tanggal,
         ]);
-        $pdf->setPaper('A4');
+        $pdf->setPaper([0, 0 , 612, 935]);
         return $pdf->stream($title.'.pdf');
     }
 

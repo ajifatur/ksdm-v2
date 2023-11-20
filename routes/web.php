@@ -155,7 +155,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // Others
     // Route::get('/admin/jabatan/bup', 'JabatanController@bup')->name('admin.jabatan.bup');
-    // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.kp.import-mei');
+    // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
     // Route::get('/admin/kp/import', 'KGBController@import')->name('admin.kp.import');
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');

@@ -76,7 +76,7 @@ class ReferensiController extends Controller
         // Get SK
         $sk = SK::find(7);
 
-		$array = Excel::toArray(new ReferensiImport, public_path('assets/spreadsheets/Referensi_2_April.xlsx'));
+		$array = Excel::toArray(new ReferensiImport, public_path('storage/Referensi_2_April.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {

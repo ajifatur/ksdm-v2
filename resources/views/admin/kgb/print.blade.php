@@ -161,7 +161,7 @@
 			</tr>
 		</table>
 		<br>
-		Diharap sesuai dengan Peraturan Pemerintah Nomor 15 Tahun 2019, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+		Sesuai dengan Peraturan Pemerintah Nomor 15 Tahun 2019, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
 		<br><br><br>
 		<table id="sign" width="100%">
 			<tr>
