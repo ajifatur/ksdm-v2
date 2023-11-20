@@ -86,17 +86,9 @@ class KGBController extends Controller
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
-		$tmt = [];
-		
-		// Get TMT golongan III dan IV
-		for($i = $tahun; $i >= ($tahun - 32); $i-=2) {
-			array_push($tmt, $i.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
-		}
 
         // Get pegawai
-		$pegawai = Pegawai::whereHas('golru', function(Builder $query) {
-			return $query->whereIn('golongan_id',[3,4]);
-		})->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->whereIn('tmt_golongan',$tmt)->findOrFail($id);
+		$pegawai = Pegawai::findOrFail($id);
 
         // Get jenis mutasi
         $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
@@ -289,6 +281,114 @@ class KGBController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Request $request, $id)
+    {
+        // Get SPKGB
+        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) {
+            return $query->has('perubahan');
+        })->findOrFail($id);
+
+        // Get jenis mutasi
+        $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
+
+        // Get golru
+        $golru = Golru::all();
+
+        // Get gaji pokok
+        if($spkgb->pegawai->status_kepeg_id == 1 || $spkgb->pegawai->status_kepeg_id == 2)
+            $gaji_pokok = Golru::find($spkgb->pegawai->golru_id)->gaji_pokok;
+        else
+            $gaji_pokok = [];
+
+        // Get pejabat
+        $pejabat = Pejabat::orderBy('num_order','asc')->get();
+
+        // View
+        return view('admin/kgb/edit', [
+            'spkgb' => $spkgb,
+            'jenis_mutasi' => $jenis_mutasi,
+            'golru' => $golru,
+            'gaji_pokok' => $gaji_pokok,
+            'pejabat' => $pejabat,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request)
+    {
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'no_sk_baru' => 'required',
+            'tanggal_sk_baru' => 'required',
+            'jenis_mutasi' => 'required',
+            'golru' => 'required',
+            'gaji_pokok' => 'required',
+            'no_sk' => 'required',
+            'tanggal_sk' => 'required',
+            'mk_tahun' => 'required',
+            'mk_bulan' => 'required',
+            'pejabat' => 'required',
+        ]);
+        
+        // Check errors
+        if($validator->fails()) {
+            // Back to form page with validation error messages
+            return redirect()->back()->withErrors($validator->errors())->withInput();
+        }
+        else {
+            // Get SPKGB
+            $spkgb = SPKGB::findOrFail($request->id);
+
+            // Get gaji pokok
+            $gaji_pokok = GajiPokok::find($request->gaji_pokok);
+
+            // Get jenis mutasi
+            $jenis_mutasi = JenisMutasi::find($request->jenis_mutasi);
+
+            // Update mutasi sebelum
+            $mutasi_sebelum = $spkgb->mutasi_sebelum;
+            $mutasi_sebelum->jenis_id = $jenis_mutasi->id;
+            $mutasi_sebelum->golru_id = $gaji_pokok->golru_id;
+            $mutasi_sebelum->gaji_pokok_id = $gaji_pokok->id;
+            $mutasi_sebelum->bulan = date('n', strtotime(DateTimeExt::change($request->tmt_sebelum)));
+            $mutasi_sebelum->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt_sebelum)));
+            $mutasi_sebelum->uraian = $jenis_mutasi->nama.' '.$gaji_pokok->golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
+            $mutasi_sebelum->tmt = DateTimeExt::change($request->tmt_sebelum);
+            $mutasi_sebelum->save();
+
+            // Update perubahan sebelum
+            $perubahan_sebelum = $mutasi_sebelum->perubahan;
+            $perubahan_sebelum->pejabat_id = $request->pejabat;
+            $perubahan_sebelum->no_sk = $request->no_sk;
+            $perubahan_sebelum->tanggal_sk = DateTimeExt::change($request->tanggal_sk);
+            $perubahan_sebelum->mk_tahun = $request->mk_tahun;
+            $perubahan_sebelum->mk_bulan = $request->mk_bulan;
+            $perubahan_sebelum->tmt = DateTimeExt::change($request->tmt_sebelum);
+            $perubahan_sebelum->save();
+
+            // Update perubahan
+            $perubahan = $spkgb->mutasi->perubahan;
+            $perubahan->no_sk = $request->no_sk_baru;
+            $perubahan->tanggal_sk = DateTimeExt::change($request->tanggal_sk_baru);
+            $perubahan->save();
+        }
+
+        // Redirect
+        return redirect()->route('admin.kgb.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt))])->with(['message' => 'Berhasil mengupdate data.']);
+    }
+
+    /**
      * Monitoring.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -297,7 +397,6 @@ class KGBController extends Controller
     public function monitoring(Request $request)
     {
         $tahun = $request->query('tahun') ?: date('Y');
-
         $data = [];
         $total = 0;
         for($i=1; $i<=12; $i++) {
@@ -384,6 +483,41 @@ class KGBController extends Controller
             'tanggal' => $tanggal,
         ]);
         $pdf->setPaper('A4');
+        return $pdf->stream($title.'.pdf');
+    }
+
+    /**
+     * Print Batch PDF.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printBatch(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+
+        // Get SPKGB
+        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($tanggal) {
+            return $query->has('perubahan')->where('tmt','=',$tanggal);
+        })->orderBy('unit_id','asc')->get();
+
+        // Set title
+        $title = 'Batch SPKGB '.$tahun.' '.DateTimeExt::month($bulan);
+		
+        // PDF
+        $pdf = \PDF::loadView('admin/kgb/print-batch', [
+            'spkgb' => $spkgb,
+            'title' => $title,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'tanggal' => $tanggal,
+        ]);
+        $pdf->setPaper([0, 0 , 612, 935]);
         return $pdf->stream($title.'.pdf');
     }
     

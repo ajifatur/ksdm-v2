@@ -33,6 +33,8 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/pegawai/detail/{id}', 'PegawaiController@detail')->name('admin.pegawai.detail');
     Route::get('/admin/pegawai/edit/{id}', 'PegawaiController@edit')->name('admin.pegawai.edit');
     Route::post('/admin/pegawai/update', 'PegawaiController@update')->name('admin.pegawai.update');
+    Route::get('/admin/pegawai/edit-tmt-golongan/{id}', 'PegawaiController@editTMTGolongan')->name('admin.pegawai.edit-tmt-golongan');
+    Route::post('/admin/pegawai/update-tmt-golongan', 'PegawaiController@updateTMTGolongan')->name('admin.pegawai.update-tmt-golongan');
 
     // Mutasi
     Route::get('/admin/mutasi', 'MutasiController@index')->name('admin.mutasi.index');
@@ -123,8 +125,11 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/kgb/monitoring', 'KGBController@monitoring')->name('admin.kgb.monitoring');
     Route::get('/admin/kgb/create/{id}', 'KGBController@create')->name('admin.kgb.create');
     Route::post('/admin/kgb/store', 'KGBController@store')->name('admin.kgb.store');
+    Route::get('/admin/kgb/edit/{id}', 'KGBController@edit')->name('admin.kgb.edit');
+    Route::post('/admin/kgb/update', 'KGBController@update')->name('admin.kgb.update');
     Route::get('/admin/kgb/print/{id}', 'KGBController@print')->name('admin.kgb.print');
     Route::get('/admin/kgb/print-recap', 'KGBController@printRecap')->name('admin.kgb.print-recap');
+    Route::get('/admin/kgb/print-batch', 'KGBController@printBatch')->name('admin.kgb.print-batch');
     
     // Satyalancana Karya Satya
     Route::get('/admin/slks', 'SLKSController@index')->name('admin.slks.index');

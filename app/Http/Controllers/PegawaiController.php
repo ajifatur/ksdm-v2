@@ -270,4 +270,51 @@ class PegawaiController extends Controller
         // }
         // var_dump($error);
     }
+
+    /**
+     * Edit TMT Golongan.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editTMTGolongan($id)
+    {
+        // Get pegawai
+        $pegawai = Pegawai::findOrFail($id);
+
+        // View
+        return view('admin/pegawai/edit-tmt-golongan', [
+            'pegawai' => $pegawai,
+        ]);
+	}
+
+    /**
+     * Update.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateTMTGolongan(Request $request)
+    {
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'tmt_golongan' => 'required',
+        ]);
+        
+        // Check errors
+        if($validator->fails()) {
+            // Back to form page with validation error messages
+            return redirect()->back()->withErrors($validator->errors())->withInput();
+        }
+        else {
+            // Update pegawai
+            $pegawai = Pegawai::find($request->id);
+            $pegawai->tmt_golongan = DateTimeExt::change($request->tmt_golongan);
+            $pegawai->save();
+
+            // Redirect
+			return redirect()->route('admin.pantauan.mkg')->with(['message' => 'Berhasil mengupdate TMT Golongan pegawai.']);
+        }
+    }
 }

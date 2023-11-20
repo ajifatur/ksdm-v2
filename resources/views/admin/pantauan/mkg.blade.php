@@ -11,6 +11,12 @@
 	<div class="col-12">
 		<div class="card">
             <div class="card-body">
+                @if(Session::get('message'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert-message">{{ Session::get('message') }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
                 <div class="alert alert-warning fade show" role="alert">
                     <div class="alert-message">
                         <div class="fw-bold"><i class="bi-info-circle-fill me-1"></i> Info</div>
@@ -28,6 +34,7 @@
                                 <th width="80">MKG Bulan</th>
                                 <th>Mutasi Terakhir</th>
                                 <th width="100">Cek TMT Golongan</th>
+                                <th width="30">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -51,6 +58,11 @@
                                     @endif
                                 </td>
                                 <td><span class="{{ $p->cek != 'Benar' ? 'text-danger' : 'text-success' }}">{{ $p->cek }}</span></td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.pegawai.edit-tmt-golongan', ['id' => $p->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit TMT Golongan"><i class="bi-pencil"></i></a>
+                                    </div>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>

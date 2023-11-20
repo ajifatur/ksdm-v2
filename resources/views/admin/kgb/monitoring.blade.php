@@ -44,7 +44,8 @@
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.kgb.index', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
-                                        <a href="{{ route('admin.kgb.print-recap', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.kgb.print-recap', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak Rekap PDF" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.kgb.print-batch', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak Batch PDF" target="_blank"><i class="bi-list"></i></a>
                                     </div>
                                 </td>
                             </tr>
