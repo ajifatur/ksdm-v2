@@ -118,11 +118,13 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/uang-makan/import-old', 'UangMakanController@importOld')->name('admin.uang-makan.import-old');
     Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
 
-    // KGB
+    // SPKGB
     Route::get('/admin/kgb', 'KGBController@index')->name('admin.kgb.index');
+    Route::get('/admin/kgb/monitoring', 'KGBController@monitoring')->name('admin.kgb.monitoring');
     Route::get('/admin/kgb/create/{id}', 'KGBController@create')->name('admin.kgb.create');
     Route::post('/admin/kgb/store', 'KGBController@store')->name('admin.kgb.store');
     Route::get('/admin/kgb/print/{id}', 'KGBController@print')->name('admin.kgb.print');
+    Route::get('/admin/kgb/print-recap', 'KGBController@printRecap')->name('admin.kgb.print-recap');
     
     // Satyalancana Karya Satya
     Route::get('/admin/slks', 'SLKSController@index')->name('admin.slks.index');

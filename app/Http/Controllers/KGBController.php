@@ -289,6 +289,43 @@ class KGBController extends Controller
     }
 
     /**
+     * Monitoring.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function monitoring(Request $request)
+    {
+        $tahun = $request->query('tahun') ?: date('Y');
+
+        $data = [];
+        $total = 0;
+        for($i=1; $i<=12; $i++) {
+            // Get SPKGB
+            $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
+                return $query->has('perubahan')->where('bulan','=',$i)->where('tahun','=',$tahun);
+            })->count();
+
+            // Increment total
+            $total += $spkgb;
+
+            // Push to array
+            array_push($data, [
+                'bulan' => $i,
+                'nama' => DateTimeExt::month($i),
+                'spkgb' => $spkgb
+            ]);
+        }
+
+        // View
+        return view('admin/kgb/monitoring', [
+            'tahun' => $tahun,
+            'data' => $data,
+            'total' => $total
+        ]);
+    }
+
+    /**
      * Print PDF.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -312,6 +349,41 @@ class KGBController extends Controller
             'title' => $title,
         ]);
         $pdf->setPaper([0, 0 , 612, 935]);
+        return $pdf->stream($title.'.pdf');
+    }
+
+    /**
+     * Print Rekap PDF.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printRecap(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+
+        // Get SPKGB
+        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($tanggal) {
+            return $query->has('perubahan')->where('tmt','=',$tanggal);
+        })->orderBy('unit_id','asc')->get();
+
+        // Set title
+        $title = 'Rekap SPKGB '.$tahun.' '.DateTimeExt::month($bulan);
+		
+        // PDF
+        $pdf = \PDF::loadView('admin/kgb/print-recap', [
+            'spkgb' => $spkgb,
+            'title' => $title,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'tanggal' => $tanggal,
+        ]);
+        $pdf->setPaper('A4');
         return $pdf->stream($title.'.pdf');
     }
     
