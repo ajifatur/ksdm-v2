@@ -39,7 +39,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Mutasi
     Route::get('/admin/mutasi', 'MutasiController@index')->name('admin.mutasi.index');
     Route::get('/admin/mutasi/new', 'MutasiController@new')->name('admin.mutasi.new');
-    Route::get('/admin/mutasi/kp', 'MutasiController@kp')->name('admin.mutasi.kp');
     Route::get('/admin/mutasi/kgb', 'MutasiController@kgb')->name('admin.mutasi.kgb');
     Route::get('/admin/mutasi/{id}/create', 'MutasiController@create')->name('admin.mutasi.create');
     Route::post('/admin/mutasi/store', 'MutasiController@store')->name('admin.mutasi.store');
@@ -119,6 +118,10 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
     Route::post('/admin/uang-makan/import-old', 'UangMakanController@importOld')->name('admin.uang-makan.import-old');
     Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
+
+    // KP
+    Route::get('/admin/mutasi/kp', 'KPController@index')->name('admin.kp.index');
+    Route::get('/admin/mutasi/kp/monitoring', 'KPController@monitoring')->name('admin.kp.monitoring');
 
     // SPKGB
     Route::get('/admin/kgb', 'KGBController@index')->name('admin.kgb.index');

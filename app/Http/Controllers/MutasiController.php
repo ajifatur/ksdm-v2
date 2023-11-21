@@ -74,25 +74,6 @@ class MutasiController extends Controller
     }
 
     /**
-     * Mutasi KP.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function kp(Request $request)
-    {
-        // Get mutasi
-        $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-            return $query->where('nama','=','Mutasi Pangkat');
-        })->orderBy('tmt','desc')->get();
-
-        // View
-        return view('admin/mutasi/kp', [
-            'mutasi' => $mutasi
-        ]);
-    }
-
-    /**
      * Mutasi KGB.
      *
      * @param  \Illuminate\Http\Request  $request

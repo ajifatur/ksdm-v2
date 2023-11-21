@@ -1,15 +1,24 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Mutasi Pangkat')
+@section('title', 'List Mutasi Pangkat')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Mutasi Pangkat</h1>
+    <h1 class="h3 mb-2 mb-sm-0">List Mutasi Pangkat</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
+            <div class="card-header d-sm-flex justify-content-end align-items-center">
+                <select name="tmt" class="form-select form-select-sm">
+                    <option value="" disabled>--Pilih SK--</option>
+                    @foreach($tmt as $t)
+					<option value="{{ $t }}" {{ Request::query('tmt') == $t ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::full($t) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <hr class="my-0">
             <div class="card-body">
                 @if(Session::get('message'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -77,6 +86,15 @@
 	
     // Button Delete
     Spandiv.ButtonDelete(".btn-delete", ".form-delete");
+	
+    // Select2
+    Spandiv.Select2("select[name=tmt]");
+    
+    // Change the select
+    $(document).on("change", ".card-header select", function() {
+		var tmt = $("select[name=tmt]").val();
+        window.location.href = Spandiv.URL("{{ route('admin.kp.index') }}", {tmt: tmt});
+    });
 </script>
 
 @endsection

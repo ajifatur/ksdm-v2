@@ -82,7 +82,7 @@
 				<td>4.</td>
 				<td colspan="2">Pangkat</td>
 				<td>:</td>
-				<td>{{ $s->mutasi->golru->indonesia }} - {{ $s->mutasi->golru->nama }}</td>
+				<td>{{ $s->mutasi->golru->indonesia }}, {{ $s->mutasi->golru->nama }}</td>
 			</tr>
 			<tr>
 				<td>5.</td>
@@ -152,7 +152,7 @@
 				<td>10.</td>
 				<td colspan="2">Dalam Golongan Ruang</td>
 				<td>:</td>
-				<td>{{ $s->mutasi->golru->indonesia }} - {{ $s->mutasi->golru->nama }}</td>
+				<td>{{ $s->mutasi->golru->nama }}</td>
 			</tr>
 			<tr>
 				<td>11.</td>
