@@ -74,6 +74,16 @@ class KGBController extends Controller
 			$pegawai[$key]->mutasi_spkgb = $p->mutasi()->has('spkgb')->whereHas('jenis', function(Builder $query) {
 				return $query->where('nama','=','KGB');
 			})->where('tmt','=',$tanggal)->first();
+
+            // Get gaji pokok lama
+            $pegawai[$key]->gaji_pokok_lama = $p->mutasi()->where('tmt','<',$tanggal)->first() ? $p->mutasi()->where('tmt','<',$tanggal)->first()->gaji_pokok : $p->mutasi()->first()->gaji_pokok;
+
+            // Set masa kerja baru
+            $mk_baru = $tahun - date('Y', strtotime($p->tmt_golongan));
+    
+            // Set gaji pokok baru
+            $sk_gaji_pns = SK::where('jenis_id','=',5)->where('status','=',1)->first();
+            $pegawai[$key]->gaji_pokok_baru = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($pegawai[$key]->gaji_pokok_lama->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first();
 		}
 
         return $pegawai;

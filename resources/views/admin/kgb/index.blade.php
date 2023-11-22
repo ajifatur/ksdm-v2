@@ -45,13 +45,18 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Nama / NIP</th>
-                                <th>Jenis</th>
-                                <th>Unit</th>
-                                <th>Golru</th>
-                                <th>Masa Kerja</th>
-                                <th>Mutasi Sebelum</th>
-								<th width="30">Opsi</th>
+                                <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">Jenis</th>
+                                <th rowspan="2">Unit</th>
+                                <th rowspan="2">Golru</th>
+                                <th rowspan="2">Masa Kerja</th>
+                                <th rowspan="2">Mutasi Sebelum</th>
+                                <th colspan="2">Gaji Pokok (Rp)</th>
+								<th rowspan="2" width="30">Opsi</th>
+                            </tr>
+                            <tr>
+                                <th width="80">Lama</th>
+                                <th width="80">Baru</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,6 +80,8 @@
                                             -
                                         @endif
                                     </td>
+                                    <td align="right">{{ number_format($p->gaji_pokok_lama->gaji_pokok) }}</td>
+                                    <td align="right">{{ number_format($p->gaji_pokok_baru->gaji_pokok) }}</td>
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($p->mutasi_spkgb)
@@ -83,7 +90,6 @@
                                             @else
                                                 <a href="{{ route('admin.kgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
                                             @endif
-                                            <!-- <a href="#" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a> -->
                                         </div>
                                     </td>
                                 </tr>
