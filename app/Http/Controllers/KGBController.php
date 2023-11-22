@@ -35,6 +35,11 @@ class KGBController extends Controller
         $tahun = $request->query('tahun') ?: date('Y');
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
+        // Set 2 bulan berikutnya
+        $tanggal = date('Y-m-d', strtotime("+2 month", strtotime($tanggal)));
+        $bulan = date('n', strtotime($tanggal));
+        $tahun = date('Y', strtotime($tanggal));
+
         // View
         return view('admin/kgb/index', [
             'pegawai' => [

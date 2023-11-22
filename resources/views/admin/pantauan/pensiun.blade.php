@@ -15,7 +15,8 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 <th width="80">Jenis</th>
                                 <th>Jabatan</th>
                                 <th>Unit</th>
@@ -25,7 +26,8 @@
                         <tbody>
                             @foreach($pegawai as $p)
                             <tr>
-                                <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
+                                <td>`{{ $p->nip }}</td>
+                                <td>{{ title_name($p->nama, $p->gelar_depan, $p->gelar_belakang) }}</td>
                                 <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td>{{ $p->jabfung->nama }}</td>
                                 <td>{{ $p->unit->nama }}</td>
@@ -51,7 +53,8 @@
     // DataTable
     Spandiv.DataTable("#datatable", {
         orderAll: true,
-        fixedHeader: true
+        fixedHeader: true,
+        buttons: true
     });
 </script>
 

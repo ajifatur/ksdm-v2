@@ -142,21 +142,29 @@
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Masa Kerja Tahun, Bulan <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            <div class="input-group">
-                                <select name="mk_tahun" class="form-select form-select-sm {{ $errors->has('mk_tahun') ? 'border-danger' : '' }}">
-                                    <option value="" disabled selected>--Pilih Masa Kerja Tahun--</option>
-                                    @for($i=0; $i<=50; $i++)
-                                    <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan->mk_tahun == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                    @endfor
-                                </select>
-                                <span class="input-group-text">Tahun</span>
-                                <select name="mk_bulan" class="form-select form-select-sm {{ $errors->has('mk_bulan') ? 'border-danger' : '' }}">
-                                    <option value="" disabled selected>--Pilih Masa Kerja Bulan--</option>
-                                    @for($i=0; $i<=11; $i++)
-                                    <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan->mk_bulan == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                    @endfor
-                                </select>
-                                <span class="input-group-text">Bulan</span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <select name="mk_tahun" class="form-select form-select-sm {{ $errors->has('mk_tahun') ? 'border-danger' : '' }}">
+                                            <option value="" disabled selected>--Pilih Masa Kerja Tahun--</option>
+                                            @for($i=0; $i<=50; $i++)
+                                            <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan->mk_tahun == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                        <span class="input-group-text">Tahun</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <select name="mk_bulan" class="form-select form-select-sm {{ $errors->has('mk_bulan') ? 'border-danger' : '' }}">
+                                            <option value="" disabled selected>--Pilih Masa Kerja Bulan--</option>
+                                            @for($i=0; $i<=11; $i++)
+                                            <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan->mk_bulan == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                        <span class="input-group-text">Bulan</span>
+                                    </div>
+                                </div>
                             </div>
                             @if($errors->has('mk_bulan') || $errors->has('mk_tahun'))
                             <div class="small text-danger">{{ $errors->first('mk_bulan') }}</div>
@@ -234,13 +242,14 @@
         })
     });
 
-    // Gaji Pokok
+    // Select2
+    Spandiv.Select2("select[name=jenis_mutasi]");
     Spandiv.Select2("select[name=gaji_pokok]");
-
-    // Pejabat
     Spandiv.Select2("select[name=pejabat]");
+    Spandiv.Select2("select[name=mk_tahun]");
+    Spandiv.Select2("select[name=mk_bulan]");
 
-    // Tanggal
+    // DatePicker
     Spandiv.DatePicker("input[name=tanggal_sk_baru]");
     Spandiv.DatePicker("input[name=tanggal_sk]");
     Spandiv.DatePicker("input[name=tmt_sebelum]");
