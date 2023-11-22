@@ -80,8 +80,8 @@
                                             -
                                         @endif
                                     </td>
-                                    <td align="right">{{ number_format($p->gaji_pokok_lama->gaji_pokok) }}</td>
-                                    <td align="right">{{ number_format($p->gaji_pokok_baru->gaji_pokok) }}</td>
+                                    <td align="right">{{ $p->gaji_pokok_lama ? number_format($p->gaji_pokok_lama->gaji_pokok) : '-' }}</td>
+                                    <td align="right">{{ $p->gaji_pokok_baru ? number_format($p->gaji_pokok_baru->gaji_pokok) : '-' }}</td>
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($p->mutasi_spkgb)

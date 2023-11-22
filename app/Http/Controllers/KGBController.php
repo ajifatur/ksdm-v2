@@ -33,12 +33,14 @@ class KGBController extends Controller
     {
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
-		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
-        // Set 2 bulan berikutnya
-        $tanggal = date('Y-m-d', strtotime("+2 month", strtotime($tanggal)));
-        $bulan = date('n', strtotime($tanggal));
-        $tahun = date('Y', strtotime($tanggal));
+        if($request->query('bulan') == null && $request->query('tahun') == null) {
+            // Set 2 bulan berikutnya
+            $tanggal = date('Y-m-d', strtotime("+2 month", strtotime($tanggal)));
+            $bulan = date('n', strtotime($tanggal));
+            $tahun = date('Y', strtotime($tanggal));
+        }
 
         // View
         return view('admin/kgb/index', [
@@ -83,7 +85,7 @@ class KGBController extends Controller
     
             // Set gaji pokok baru
             $sk_gaji_pns = SK::where('jenis_id','=',5)->where('status','=',1)->first();
-            $pegawai[$key]->gaji_pokok_baru = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($pegawai[$key]->gaji_pokok_lama->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first();
+            $pegawai[$key]->gaji_pokok_baru = $pegawai[$key]->gaji_pokok_lama ? GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($pegawai[$key]->gaji_pokok_lama->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first() : null;
 		}
 
         return $pegawai;
