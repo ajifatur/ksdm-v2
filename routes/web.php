@@ -86,8 +86,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // Tunjangan Profesi
     Route::get('/admin/tunjangan-profesi', 'TunjanganProfesiController@index')->name('admin.tunjangan-profesi.index');
-    Route::get('/admin/tunjangan-profesi/create', 'TunjanganProfesiController@create')->name('admin.tunjangan-profesi.create');
-    Route::post('/admin/tunjangan-profesi/store', 'TunjanganProfesiController@store')->name('admin.tunjangan-profesi.store');
     Route::post('/admin/tunjangan-profesi/delete', 'TunjanganProfesiController@delete')->name('admin.tunjangan-profesi.delete');
     Route::get('/admin/tunjangan-profesi/monitoring', 'TunjanganProfesiController@monitoring')->name('admin.tunjangan-profesi.monitoring');
     Route::get('/admin/tunjangan-profesi/process', 'TunjanganProfesiController@process')->name('admin.tunjangan-profesi.process');
@@ -101,6 +99,18 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/tunjangan-profesi/csv-non-pns', 'TunjanganProfesiController@csvNonPNS')->name('admin.tunjangan-profesi.csv-non-pns');
     Route::get('/admin/tunjangan-profesi/new', 'TunjanganProfesiController@new')->name('admin.tunjangan-profesi.new');
     Route::get('/admin/tunjangan-profesi/change', 'TunjanganProfesiController@change')->name('admin.tunjangan-profesi.change');
+	
+	// Tunjangan Profesi (Unit)
+    Route::get('/admin/tunjangan-profesi/unit/monitoring', 'TunjanganProfesiUnitController@monitoring')->name('admin.tunjangan-profesi.unit.monitoring');
+    Route::get('/admin/tunjangan-profesi/unit/excel/{id}', 'TunjanganProfesiUnitController@excel')->name('admin.tunjangan-profesi.unit.excel');
+	
+	// Tunjangan Profesi (Mutasi)
+    Route::get('/admin/tunjangan-profesi/mutasi', 'MutasiSerdosController@index')->name('admin.tunjangan-profesi.mutasi.index');
+    Route::get('/admin/tunjangan-profesi/mutasi/create', 'MutasiSerdosController@create')->name('admin.tunjangan-profesi.mutasi.create');
+    Route::post('/admin/tunjangan-profesi/mutasi/store', 'MutasiSerdosController@store')->name('admin.tunjangan-profesi.mutasi.store');
+    Route::get('/admin/tunjangan-profesi/mutasi/edit/{id}', 'MutasiSerdosController@edit')->name('admin.tunjangan-profesi.mutasi.edit');
+    Route::post('/admin/tunjangan-profesi/mutasi/update', 'MutasiSerdosController@update')->name('admin.tunjangan-profesi.mutasi.update');
+    Route::post('/admin/tunjangan-profesi/mutasi/delete', 'MutasiSerdosController@delete')->name('admin.tunjangan-profesi.mutasi.delete');
 
     // Gaji Induk
     Route::get('/admin/gaji', 'GajiController@index')->name('admin.gaji.index');

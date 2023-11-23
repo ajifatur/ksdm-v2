@@ -24,6 +24,7 @@ use App\Models\PengaktifanSerdos;
 use App\Models\Mutasi;
 use App\Models\SK;
 use App\Models\Proses;
+use App\Models\Unit;
 
 class TunjanganProfesiController extends Controller
 {
@@ -58,81 +59,7 @@ class TunjanganProfesiController extends Controller
             'jenis' => $jenis
         ]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-        // Get pegawai sudah mendapat tunjangan profesi
-        $pegawai_aktif = TunjanganProfesi::pluck('pegawai_id')->toArray();
-
-        // Get pegawai
-        $pegawai = Pegawai::where('jenis','=',1)->whereHas('status_kerja', function (Builder $query) {
-            return $query->where('status','=',1);
-        })->whereIn('status_kepeg_id',[1,2])->whereNotIn('id',$pegawai_aktif)->get();
-
-        // Get angkatan
-        $angkatan = [];
-        for($i=1; $i<=3; $i++) {
-            $angkatan[$i]['data'] = Angkatan::where('jenis','=',$i)->orderBy('nama','asc')->get();
-        }
-
-        // View
-        return view('admin/tunjangan-profesi/create', [
-            'pegawai' => $pegawai,
-            'angkatan' => $angkatan
-        ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        // Validation
-        $validator = Validator::make($request->all(), [
-            'pegawai' => 'required',
-            'angkatan' => 'required',
-            'nama' => 'required',
-            'nomor_rekening' => 'required',
-            'nama_rekening' => 'required',
-            'gaji_pokok' => 'required',
-            'tmt' => 'required',
-        ]);
-        
-        // Check errors
-        if($validator->fails()) {
-            // Back to form page with validation error messages
-            return redirect()->back()->withErrors($validator->errors())->withInput();
-        }
-        else {
-            // Simpan pengaktifan serdos
-            $pengaktifan_serdos = new PengaktifanSerdos;
-            $pengaktifan_serdos->pegawai_id = $request->pegawai;
-            $pengaktifan_serdos->angkatan_id = $request->angkatan;
-            $pengaktifan_serdos->gaji_pokok_id = $request->gaji_pokok;
-            $pengaktifan_serdos->nama = $request->nama;
-            $pengaktifan_serdos->nomor_rekening = $request->nomor_rekening;
-            $pengaktifan_serdos->nama_rekening = $request->nama_rekening;
-            $pengaktifan_serdos->tmt = DateTimeExt::change($request->tmt);
-            $pengaktifan_serdos->bulan_proses = 0;
-            $pengaktifan_serdos->tahun_proses = 0;
-            $pengaktifan_serdos->save();
-
-            // Redirect
-            return redirect()->route('admin.tunjangan-profesi.create')->with(['message' => 'Berhasil menambah data.']);
-        }
-    }
-
+	
     /**
      * Remove the specified resource from storage.
      *
@@ -263,6 +190,72 @@ class TunjanganProfesiController extends Controller
             'tahun' => $tahun,
             'jenis' => $jenis,
             'jenis_tunjangan' => $jenis_tunjangan,
+            'data' => $data,
+            'total' => $total,
+        ]);
+    }
+
+    /**
+     * Monitoring Berdasarkan Unit.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function monitoringUnit(Request $request)
+    {
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-10'; // Maks tanggal 10
+
+        // Get unit
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('pusat','=',0)->whereNotIn('nama',['-','Sekolah Pascasarjana','Pascasarjana'])->orderBy('num_order','asc')->get();
+
+        $data = [];
+        foreach($unit as $u) {
+			$tunjangan_profesi = [];
+			
+			// Get jenis
+			$jenis = JenisTunjanganProfesi::all();
+			foreach($jenis as $j) {
+				// Get tunjangan
+				$tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
+					return $query->where('jenis_id','=',$j->id);
+				})->where('unit_id','=',$u->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->get();
+				
+				// Push to array
+				$tunjangan_profesi[strtolower(str_replace('-','_',$j->file))] = [
+					'pegawai' => $tunjangan->count(),
+					'diterimakan' => $tunjangan->sum('diterimakan'),
+				];
+			}
+			
+			// Push to array
+			array_push($data, [
+				'unit' => $u,
+				'tunjangan_profesi' => $tunjangan_profesi
+			]);
+		}
+		
+		$total = [];
+		foreach($jenis as $j) {
+			// Get tunjangan
+			$tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
+				return $query->where('jenis_id','=',$j->id);
+			})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->sum('diterimakan');
+
+			// Push to array
+			array_push($total, $tunjangan);
+		}
+
+        // View
+        return view('admin/tunjangan-profesi/monitoring-unit', [
+            'unit' => $unit,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
             'data' => $data,
             'total' => $total,
         ]);
