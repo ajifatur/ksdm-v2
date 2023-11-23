@@ -83,7 +83,7 @@
                                             <span class="d-none">{{ $p->tmt_non_aktif }}</span>
                                             {{ $p->tmt_non_aktif != null ? date('d/m/Y', strtotime($p->tmt_non_aktif)) : '-' }}
                                         </td>
-                                        <td class="d-none">{{ $p->tmt_non_aktif != null ? date('d/m/Y', strtotime($p->tmt_non_aktif)) : '-' }}</td>
+                                        <td class="d-none">{{ $mutasi_serdos ? date('d/m/Y', strtotime($mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p->tmt_non_aktif)) }}</td>
                                         <td>{{ $mutasi_serdos ? $mutasi_serdos->jenis->nama : $p->status_kerja->nama }}</td>
                                     </tr>
                                 @endforeach
