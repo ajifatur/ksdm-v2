@@ -69,6 +69,9 @@
                                     </tr>
                                 @endforeach
                                 @foreach($pegawai_off as $p)
+                                    <?php
+                                        $mutasi_serdos = \App\Models\MutasiSerdos::where('pegawai_id','=',$p->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+                                    ?>
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
                                         <td>{{ strtoupper($p->nama) }}</td>
@@ -81,7 +84,7 @@
                                             {{ $p->tmt_non_aktif != null ? date('d/m/Y', strtotime($p->tmt_non_aktif)) : '-' }}
                                         </td>
                                         <td class="d-none">{{ $p->tmt_non_aktif != null ? date('d/m/Y', strtotime($p->tmt_non_aktif)) : '-' }}</td>
-                                        <td>{{ $p->status_kerja->nama }}</td>
+                                        <td>{{ $mutasi_serdos ? $mutasi_serdos->jenis->nama : $p->status_kerja->nama }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

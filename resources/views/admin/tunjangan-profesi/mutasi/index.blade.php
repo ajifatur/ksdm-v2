@@ -27,6 +27,7 @@
                                 <th>Angkatan</th>
                                 <th>Jenis</th>
                                 <th width="80">Status Serdos</th>
+                                <th width="80">TMT</th>
                                 <th width="30">Opsi</th>
                             </tr>
                         </thead>
@@ -38,6 +39,10 @@
                                 <td>{{ $m->angkatan->nama }}</td>
                                 <td>{{ $m->jenis->nama }}</td>
                                 <td>{{ $m->jenis->status == 1 ? 'Aktif' : 'Nonaktif' }}</td>
+                                <td>
+                                    <span class="d-none">{{ $m->tmt }}</span>
+                                    {{ date('d/m/Y', strtotime($m->tmt)) }}
+                                </td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.tunjangan-profesi.mutasi.edit', ['id' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>

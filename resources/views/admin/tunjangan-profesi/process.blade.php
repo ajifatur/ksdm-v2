@@ -93,12 +93,25 @@
                         <div class="col-lg-10 col-md-9">
                             <select name="tahun" class="form-select form-select-sm {{ $errors->has('tahun') ? 'border-danger' : '' }}" required>
                                 <option value="" disabled selected>--Pilih--</option>
-                                @for($y=2023; $y>=2023; $y--)
+                                @for($y=2024; $y>=2023; $y--)
                                 <option value="{{ $y }}" {{ old('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
                             </select>
                             @if($errors->has('tahun'))
                             <div class="small text-danger">{{ $errors->first('tahun') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Gaji Pokok<span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <select name="kategori" class="form-select form-select-sm {{ $errors->has('kategori') ? 'border-danger' : '' }}" required>
+                                <option value="" disabled selected>--Pilih--</option>
+                                <option value="1" {{ old('kategori') == '1' ? 'selected' : '' }}>Disesuaikan dengan gaji pokok terbaru</option>
+                                <option value="2" {{ old('kategori') == '2' ? 'selected' : '' }}>Disamakan dengan bulan sebelumnya</option>
+                            </select>
+                            @if($errors->has('kategori'))
+                            <div class="small text-danger">{{ $errors->first('kategori') }}</div>
                             @endif
                         </div>
                     </div>

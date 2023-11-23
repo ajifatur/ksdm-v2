@@ -41,12 +41,14 @@ class MutasiSerdosController extends Controller
     public function create()
     {
         // Get pegawai sudah mendapat tunjangan profesi
-        $pegawai_aktif = TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray();
+        $pegawai_aktif = TunjanganProfesi::whereHas('pegawai', function(Builder $query) {
+            return $query->where('status_kerja_id','=',1);
+        })->groupBy('pegawai_id')->get();
 
-        // Get pegawai
-        $pegawai = Pegawai::where('jenis','=',1)->whereHas('status_kerja', function (Builder $query) {
+        // Get pegawai nonaktif
+        $pegawai_non_aktif = Pegawai::where('jenis','=',1)->whereHas('status_kerja', function (Builder $query) {
             return $query->where('status','=',1);
-        })->whereIn('status_kepeg_id',[1,2])->whereNotIn('id',$pegawai_aktif)->get();
+        })->whereIn('status_kepeg_id',[1,2])->whereNotIn('id',$pegawai_aktif->pluck('pegawai_id')->toArray())->get();
 
         // Get angkatan
         $angkatan = [];
@@ -59,7 +61,8 @@ class MutasiSerdosController extends Controller
 
         // View
         return view('admin/tunjangan-profesi/mutasi/create', [
-            'pegawai' => $pegawai,
+            'pegawai_aktif' => $pegawai_aktif,
+            'pegawai_non_aktif' => $pegawai_non_aktif,
             'angkatan' => $angkatan,
             'jenis' => $jenis,
         ]);
@@ -75,13 +78,14 @@ class MutasiSerdosController extends Controller
     {
         // Validation
         $validator = Validator::make($request->all(), [
-            'pegawai' => 'required',
-            'gaji_pokok' => 'required',
-            'nama_supplier' => 'required',
-            'nomor_rekening' => 'required',
-            'nama_rekening' => 'required',
-            'angkatan' => 'required',
             'jenis' => 'required',
+            'pegawai' => $request->status == 1 ? 'required' : '',
+            'pegawai_aktif' => $request->status == 0 ? 'required' : '',
+            'gaji_pokok' => $request->status == 1 ? 'required' : '',
+            'nama_supplier' => $request->status == 1 ? 'required' : '',
+            'nomor_rekening' => $request->status == 1 ? 'required' : '',
+            'nama_rekening' => $request->status == 1 ? 'required' : '',
+            'angkatan' => $request->status == 1 ? 'required' : '',
             'tmt' => 'required',
         ]);
         
@@ -91,16 +95,21 @@ class MutasiSerdosController extends Controller
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
         else {
+            // Get tunjangan
+            if($request->status == 0) {
+                $tunjangan = TunjanganProfesi::where('pegawai_id','=',$request->pegawai_aktif)->latest('tahun')->latest('bulan')->first();
+            }
+
             // Simpan mutasi
             $mutasi_serdos = new MutasiSerdos;
-            $mutasi_serdos->pegawai_id = $request->pegawai;
+            $mutasi_serdos->pegawai_id = $request->status == 0 ? $request->pegawai_aktif : $request->pegawai;
             $mutasi_serdos->jenis_id = $request->jenis;
-            $mutasi_serdos->angkatan_id = $request->angkatan;
-            $mutasi_serdos->unit_id = $request->unit_id;
-            $mutasi_serdos->gaji_pokok_id = $request->gaji_pokok;
-            $mutasi_serdos->nama_supplier = $request->nama_supplier;
-            $mutasi_serdos->nomor_rekening = $request->nomor_rekening;
-            $mutasi_serdos->nama_rekening = $request->nama_rekening;
+            $mutasi_serdos->angkatan_id = $request->status == 0 ? $tunjangan->angkatan_id : $request->angkatan;
+            $mutasi_serdos->unit_id = $request->status == 0 ? $tunjangan->unit_id : $request->unit_id;
+            $mutasi_serdos->gaji_pokok_id = $request->status == 0 ? 0 : $request->gaji_pokok;
+            $mutasi_serdos->nama_supplier = $request->status == 0 ? $tunjangan->nama : $request->nama_supplier;
+            $mutasi_serdos->nomor_rekening = $request->status == 0 ? $tunjangan->nomor_rekening : $request->nomor_rekening;
+            $mutasi_serdos->nama_rekening = $request->status == 0 ? $tunjangan->nama_rekening : $request->nama_rekening;
             $mutasi_serdos->tmt = DateTimeExt::change($request->tmt);
             $mutasi_serdos->bulan = 0;
             $mutasi_serdos->tahun = 0;
@@ -149,11 +158,11 @@ class MutasiSerdosController extends Controller
     {
         // Validation
         $validator = Validator::make($request->all(), [
-            'nama_supplier' => 'required',
-            'nomor_rekening' => 'required',
-            'nama_rekening' => 'required',
-            'angkatan' => 'required',
             'jenis' => 'required',
+            'nama_supplier' => $request->status == 1 ? 'required' : '',
+            'nomor_rekening' => $request->status == 1 ? 'required' : '',
+            'nama_rekening' => $request->status == 1 ? 'required' : '',
+            'angkatan' => $request->status == 1 ? 'required' : '',
             'tmt' => 'required',
         ]);
         
@@ -166,10 +175,10 @@ class MutasiSerdosController extends Controller
             // Simpan mutasi
             $mutasi_serdos = MutasiSerdos::find($request->id);
             $mutasi_serdos->jenis_id = $request->jenis;
-            $mutasi_serdos->angkatan_id = $request->angkatan;
-            $mutasi_serdos->nama_supplier = $request->nama_supplier;
-            $mutasi_serdos->nomor_rekening = $request->nomor_rekening;
-            $mutasi_serdos->nama_rekening = $request->nama_rekening;
+            $mutasi_serdos->angkatan_id = $request->status == 1 ? $request->angkatan : $mutasi_serdos->angkatan_id;
+            $mutasi_serdos->nama_supplier = $request->status == 1 ? $request->nama_supplier : $mutasi_serdos->nama_supplier;
+            $mutasi_serdos->nomor_rekening = $request->status == 1 ? $request->nomor_rekening : $mutasi_serdos->nomor_rekening;
+            $mutasi_serdos->nama_rekening = $request->status == 1 ? $request->nama_rekening : $mutasi_serdos->nama_rekening;
             $mutasi_serdos->tmt = DateTimeExt::change($request->tmt);
             $mutasi_serdos->save();
 

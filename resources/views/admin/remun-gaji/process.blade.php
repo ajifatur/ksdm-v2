@@ -130,7 +130,8 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable", {
-        orderAll: true
+        orderAll: true,
+        pageLength: -1
     });
 
 // Button Proses
