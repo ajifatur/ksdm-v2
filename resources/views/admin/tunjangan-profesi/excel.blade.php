@@ -12,6 +12,7 @@
             <th align="center" width="10"><b>BULAN</b></th>
             <th align="center" width="10"><b>TAHUN</b></th>
             <th align="center" width="20"><b>JENIS</b></th>
+            <th align="center" width="20"><b>UNIT</b></th>
 
         </tr>
     </thead>
@@ -29,6 +30,7 @@
                 <td>{{ $d->bulan }}</td>
                 <td>{{ $d->tahun }}</td>
                 <td>{{ $d->angkatan->jenis->nama }}</td>
+                <td>{{ $d->unit->nama }}</td>
             </tr>
         @endforeach
     </tbody>
