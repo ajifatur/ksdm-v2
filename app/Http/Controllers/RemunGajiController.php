@@ -291,7 +291,11 @@ class RemunGajiController extends Controller
         $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
         // Get unit
-        $unit = Unit::where('end_date','>=',$tanggal)->orWhere('end_date','=',null)->where('nama','!=','-')->orderBy('pusat','asc')->orderBy('num_order','asc')->get();
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('nama','!=','-')->orderBy('pusat','asc')->orderBy('num_order','asc')->get();
 
         $data = [];
         $isPusat = 0;
@@ -302,7 +306,11 @@ class RemunGajiController extends Controller
                 // Append pusat
                 if($isPusat == 0 && $u->pusat == 1) {
                     // Get unit pusat
-                    $unit_pusat = Unit::where('end_date','>=',$tanggal)->orWhere('end_date','=',null)->where('pusat','=',1)->pluck('id')->toArray();
+                    $unit_pusat = Unit::where(function($query) use ($tanggal) {
+                        $query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+                    })->where(function($query) use ($tanggal) {
+                        $query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+                    })->where('pusat','=',1)->pluck('id')->toArray();
     
                     // Count remun gaji
                     $remun_gaji = RemunGaji::whereIn('unit_id',$unit_pusat)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$i)->get();
@@ -582,7 +590,11 @@ class RemunGajiController extends Controller
             $unit = Unit::where('id','=',$request->query('unit'))->where('pusat','=',0)->pluck('id')->toArray();
 
         // Get unit list
-        $unit_list = Unit::where('end_date','>=',$tanggal)->orWhere('end_date','=',null)->where('nama','!=','-')->where('pusat','=',0)->orderBy('num_order','asc')->get();
+        $unit_list = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('pusat','=',0)->where('nama','!=','-')->orderBy('num_order','asc')->get();
 
         // Get remun bulan ini
         $remun_gaji_bulan_ini['dosen']['pns_IV'] = RemunGaji::whereHas('pegawai', function(Builder $query) {

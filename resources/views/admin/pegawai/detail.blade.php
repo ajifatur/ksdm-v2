@@ -395,7 +395,7 @@
                                     <tr>
                                         <th rowspan="2" width="5">No</th>
                                         <th rowspan="2">Bulan, Tahun</th>
-                                        <th rowspan="2">Anak Satker, Unit</th>
+                                        <th rowspan="2">Anak Satker,<br>Unit</th>
                                         <th colspan="4">Penghasilan</th>
                                         <th colspan="3">Potongan</th>
                                         <th rowspan="2" width="130">Gaji Bersih</th>
