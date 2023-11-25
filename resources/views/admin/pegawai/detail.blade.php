@@ -395,6 +395,7 @@
                                     <tr>
                                         <th rowspan="2" width="5">No</th>
                                         <th rowspan="2">Bulan, Tahun</th>
+                                        <th rowspan="2">Anak Satker, Unit</th>
                                         <th colspan="4">Penghasilan</th>
                                         <th colspan="3">Potongan</th>
                                         <th rowspan="2" width="130">Gaji Bersih</th>
@@ -418,6 +419,12 @@
                                             <br>
                                             <span class="text-success">({{ $g->jenis_gaji->nama }})</span>
                                         </td>
+										<td>
+											<?php $anak_satker = \App\Models\AnakSatker::where('kode','=',$g->kdanak)->first(); ?>
+											{{ $anak_satker ? $anak_satker->nama.' ('.$anak_satker->kode.')' : '' }}
+											<br>
+											{{ $g->unit ? $g->unit->nama : '-' }}
+										</td>
                                         <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
                                         <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjstruk) }}<br>{{ number_format($g->tjupns) }}</td>
                                         <td align="right">{{ number_format($g->tjberas) }}<br>{{ number_format($g->tjpph) }}<br>{{ number_format($g->pembul) }}</td>
