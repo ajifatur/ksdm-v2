@@ -7,8 +7,6 @@ use Excel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
 use App\Exports\GajiExport;
@@ -255,41 +253,47 @@ class GajiController extends Controller
         $anak_satker = AnakSatker::find($request->query('id'));
 
         // Set kategori
-        $kategori = $request->kategori == 1 || $request->kategori == 2 ? $request->kategori == 1 ? 'Dosen' : 'Tendik' : '';
+        $kategori = ($request->query('kategori') == 1 || $request->query('kategori') == 2) ? $request->query('kategori') == 1 ? 'Dosen' : 'Tendik' : '';
     
         // Get kategori gaji
         $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'tjdaerah', 'tjpencil', 'tjlain', 'tjkompen', 'pembul', 'tjberas', 'tjpph', 'potpfkbul', 'potpfk2', 'potpfk10', 'potpph', 'potswrum', 'potkelbtj', 'potlain', 'pottabrum', 'bpjs', 'bpjs2'];
 
-        if($anak_satker) {
+        // Jika anak satker dan kategori diketahui
+        if($anak_satker && $kategori != '') {
             // Get gaji
             $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
-            if(count($gaji) <= 0) {
-                echo "Tidak ada data!";
-                return;
-            }
-
-            // Return
-            return Excel::download(new GajiExport([
-                'gaji' => $gaji,
-                'kategori_gaji' => $kategori_gaji,
-            ]), $jenis->kode.' '.$anak_satker->nama.' '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
+            // Set nama file
+            $filename = $jenis->kode.' '.$anak_satker->nama.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
         }
-        else {
+        // Jika anak satker tidak diketahui dan kategori diketahui
+        elseif(!$anak_satker && $kategori != '') {
             // Get gaji
             $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
-            if(count($gaji) <= 0) {
-                echo "Tidak ada data!";
-                return;
-            }
-
-            // Return
-            return Excel::download(new GajiExport([
-                'gaji' => $gaji,
-                'kategori_gaji' => $kategori_gaji,
-            ]), $jenis->kode.' '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
+            // Set nama file
+            $filename = $jenis->kode.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
         }
+        // Jika anak satker dan kategori tidak diketahui
+        else {
+            // Get gaji
+            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
+
+            // Set nama file
+            $filename = $jenis->kode.' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx';
+        }
+
+        if(count($gaji) <= 0) {
+            echo "Tidak ada data!";
+            return;
+        }
+
+        // Return
+        return Excel::download(new GajiExport([
+            'gaji' => $gaji,
+            'kategori' => $kategori,
+            'kategori_gaji' => $kategori_gaji,
+        ]), $filename);
     }
     
     /**
@@ -306,8 +310,8 @@ class GajiController extends Controller
         $jenis = JenisGaji::findOrFail($request->jenis);
         
         // Make directory if not exists
-        if(!File::exists(public_path('assets/spreadsheets/gaji')))
-            File::makeDirectory(public_path('assets/spreadsheets/gaji'));
+        if(!File::exists(public_path('storage/spreadsheets/gaji')))
+            File::makeDirectory(public_path('storage/spreadsheets/gaji'));
 
         // Get the file
         $file = $request->file('file');
@@ -316,10 +320,10 @@ class GajiController extends Controller
         $new = date('Y-m-d-H-i-s').'_'.$filename.'.'.$extension;
 
         // Move the file
-		$file->move(public_path('assets/spreadsheets/gaji'), $new);
+		$file->move(public_path('storage/spreadsheets/gaji'), $new);
 
         // Get array
-		$array = Excel::toArray(new GajiImport, public_path('assets/spreadsheets/gaji/'.$new));
+		$array = Excel::toArray(new GajiImport, public_path('storage/spreadsheets/gaji/'.$new));
 
         $anak_satker = '';
         $bulan = '';
@@ -481,10 +485,10 @@ class GajiController extends Controller
         }
 
         // Rename the file
-		File::move(public_path('assets/spreadsheets/gaji/'.$new), public_path('assets/spreadsheets/gaji/'.$jenis->nama.'_'.$anak_satker.'_'.$tahun.'_'.$bulan.'.'.$extension));
+		File::move(public_path('storage/spreadsheets/gaji/'.$new), public_path('storage/spreadsheets/gaji/'.$jenis->nama.'_'.$anak_satker.'_'.$tahun.'_'.$bulan.'.'.$extension));
 
         // Delete the file
-        File::delete(public_path('assets/spreadsheets/gaji/'.$new));
+        File::delete(public_path('storage/spreadsheets/gaji/'.$new));
 
         // Redirect
         return redirect()->route('admin.gaji.monitoring', ['jenis' => $jenis->id])->with(['message' => 'Berhasil memproses data.']);

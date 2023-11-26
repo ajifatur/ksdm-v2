@@ -3,6 +3,11 @@
         <tr>
             <th align="center" width="20"><b>nip</b></th>
             <th align="center" width="40"><b>nama</b></th>
+            @if($data['kategori'] == '')
+            <th align="center" width="15"><b>jenis</b></th>
+            <th align="center" width="20"><b>anak satker</b></th>
+            <th align="center" width="20"><b>unit</b></th>
+            @endif
             @foreach($data['kategori_gaji'] as $j)
             <th align="center" width="10"><b>{{ $j }}</b></th>
             @endforeach
@@ -16,6 +21,12 @@
             <tr>
                 <td>{{ $g->nip }}</td>
                 <td>{{ $g->nama }}</td>
+                @if($data['kategori'] == '')
+                <td>{{ $g->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
+                <?php $anak_satker = \App\Models\AnakSatker::where('kode','=',$g->kdanak)->first(); ?>
+                <td>{{ $anak_satker ? $anak_satker->kode.' - '.$anak_satker->nama : '-' }}</td>
+                <td>{{ $g->unit ? $g->unit->nama : '-' }}</td>
+                @endif
                 @foreach($data['kategori_gaji'] as $j)
                 <td>{{ $g->{$j} }}</td>
                 @endforeach
@@ -24,6 +35,11 @@
 		<tr>
 			<td></td>
 			<td></td>
+            @if($data['kategori'] == '')
+			<td></td>
+			<td></td>
+			<td></td>
+            @endif
             @foreach($data['kategori_gaji'] as $j)
 			<td style="font-weight: bold;">{{ $data['gaji']->sum($j) }}</td>
             @endforeach

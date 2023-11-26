@@ -114,6 +114,7 @@
 
 <style>
     #datatable tr th {text-align: center;}
+    div.dt-buttons .dt-button {border: 2px solid #bebebe!important;}
 </style>
 
 @endsection

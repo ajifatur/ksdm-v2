@@ -1,38 +1,23 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'List SPKGB')
+@section('title', 'List Mutasi KGB')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">List SPKGB</h1>
+    <h1 class="h3 mb-2 mb-sm-0">List Mutasi KGB</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
-            <form method="get" action="">
-                <div class="card-header d-sm-flex justify-content-center align-items-center">
-                    <div>
-                        <select name="bulan" class="form-select form-select-sm">
-                            <option value="0" disabled>--Pilih Bulan--</option>
-                            @for($m=1; $m<=12; $m++)
-                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($m) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
-                        <select name="tahun" class="form-select form-select-sm">
-                            <option value="0" disabled>--Pilih Tahun--</option>
-                            @for($y=(date('Y')+1); $y>=2023; $y--)
-                            <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
-                        <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter me-1"></i> Filter</button>
-                    </div>
-                </div>
-            </form>
+            <div class="card-header d-sm-flex justify-content-end align-items-center">
+                <select name="tmt" class="form-select form-select-sm">
+                    <option value="" disabled>--Pilih SK--</option>
+                    @foreach($tmt as $t)
+					<option value="{{ $t }}" {{ Request::query('tmt') == $t ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::full($t) }}</option>
+                    @endforeach
+                </select>
+            </div>
             <hr class="my-0">
             <div class="card-body">
                 @if(Session::get('message'))
@@ -45,55 +30,37 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="2">Nama / NIP</th>
-                                <th rowspan="2">Jenis</th>
-                                <th rowspan="2">Unit</th>
-                                <th rowspan="2">Golru</th>
-                                <th rowspan="2">Masa Kerja</th>
-                                <th rowspan="2">Mutasi Sebelum</th>
-                                <th colspan="2">Gaji Pokok (Rp)</th>
-								<th rowspan="2" width="30">Opsi</th>
-                            </tr>
-                            <tr>
-                                <th width="80">Lama</th>
-                                <th width="80">Baru</th>
+                                <th>Nama / NIP</th>
+                                <th>Golru</th>
+                                <th>MKG</th>
+                                <th>MK Tahun</th>
+                                <th>MK Bulan</th>
+                                <th>TMT</th>
+								<th width="30">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($pegawai as $peg)
-                                @foreach($peg as $p)
-                                <tr>
-                                    <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
-                                    <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
-                                    <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
-                                    <td>{{ $p->golru ? $p->golru->nama : '-' }}
-                                    <td>
-                                        <span class="d-none">{{ $p->tmt_golongan }}</span>
-                                        {{ $tahun - date('Y', strtotime($p->tmt_golongan)) }} tahun 0 bulan
-                                    </td>
-                                    <td>
-                                        @if($p->mutasi_sebelum)
-                                            {{ $p->mutasi_sebelum->jenis->nama }} {{ $p->mutasi_sebelum ? $p->mutasi_sebelum->golru->nama : '' }}
-                                            <br>
-                                            {{ $p->mutasi_sebelum->perubahan ? '('.$p->mutasi_sebelum->perubahan->mk_tahun.' tahun '.$p->mutasi_sebelum->perubahan->mk_bulan.' bulan)' : '' }}
-                                        @else
-                                            -
+                            @foreach($mutasi as $m)
+                            <tr>
+                                <td>{{ strtoupper($m->pegawai->nama) }}<br>{{ $m->pegawai->nip }}</td>
+                                <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
+                                <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
+                                <td>{{ $m->perubahan ? $m->perubahan->mk_tahun : '' }}</td>
+                                <td>{{ $m->perubahan ? $m->perubahan->mk_bulan : '' }}</td>
+                                <td>
+                                    <span class="d-none">{{ $m->tmt }}</span>
+                                    {{ date('d/m/Y', strtotime($m->tmt)) }}
+                                </td>
+								<td align="center">
+									<div class="btn-group">
+                                        @if($m->spkgb)
+										<a href="{{ route('admin.spkgb.print.single', ['id' => $m->spkgb->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
                                         @endif
-                                    </td>
-                                    <td align="right">{{ $p->gaji_pokok_lama ? number_format($p->gaji_pokok_lama->gaji_pokok) : '-' }}</td>
-                                    <td align="right">{{ $p->gaji_pokok_baru ? number_format($p->gaji_pokok_baru->gaji_pokok) : '-' }}</td>
-                                    <td align="center">
-                                        <div class="btn-group">
-                                            @if($p->mutasi_spkgb)
-                                                <a href="{{ route('admin.kgb.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
-                                                <a href="{{ route('admin.kgb.print', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
-                                            @else
-                                                <a href="{{ route('admin.kgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
+										<a href="{{ route('admin.mutasi.edit', ['id' => $m->pegawai_id, 'mutasi_id' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+										<a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $m->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
+									</div>
+								</td>
+                            </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -102,6 +69,12 @@
 		</div>
 	</div>
 </div>
+
+<form class="form-delete d-none" method="post" action="{{ route('admin.mutasi.delete') }}">
+    @csrf
+    <input type="hidden" name="id">
+    <input type="hidden" name="redirect" value="{{ Request::url() }}">
+</form>
 
 @endsection
 
@@ -112,6 +85,18 @@
     Spandiv.DataTable("#datatable", {
         orderAll: true,
         fixedHeader: true
+    });
+	
+    // Button Delete
+    Spandiv.ButtonDelete(".btn-delete", ".form-delete");
+	
+    // Select2
+    Spandiv.Select2("select[name=tmt]");
+    
+    // Change the select
+    $(document).on("change", ".card-header select", function() {
+		var tmt = $("select[name=tmt]").val();
+        window.location.href = Spandiv.URL("{{ route('admin.kgb.index') }}", {tmt: tmt});
     });
 </script>
 

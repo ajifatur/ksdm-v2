@@ -74,18 +74,18 @@
                                 <td align="center">
                                     <div class="btn-group">
                                         @if($u->nama != 'Sekolah Pascasarjana')
-                                        <a href="{{ route('admin.remun-insentif.excel', ['kategori' => 1, 'unit' => $u->id, 'status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.remun-insentif.excel.single', ['kategori' => 1, 'unit' => $u->id, 'status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                         @endif
-                                        <a href="{{ route('admin.remun-insentif.excel', ['kategori' => 2, 'unit' => $u->id, 'status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.remun-insentif.excel.single', ['kategori' => 2, 'unit' => $u->id, 'status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">
                                     @if(count($u->pensiunmd) > 0)
                                         <div class="btn-group">
                                             @if($u->nama != 'Sekolah Pascasarjana')
-                                            <a href="{{ route('admin.remun-insentif.excel', ['kategori' => 1, 'unit' => $u->id, 'status' => 0, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.excel.single', ['kategori' => 1, 'unit' => $u->id, 'status' => 0, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                             @endif
-                                            <a href="{{ route('admin.remun-insentif.excel', ['kategori' => 2, 'unit' => $u->id, 'status' => 0, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.excel.single', ['kategori' => 2, 'unit' => $u->id, 'status' => 0, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                         </div>
                                     @else
                                         -
@@ -124,13 +124,13 @@
                                 <td align="right">{{ number_format($remun_insentif_pusat + $potongan_pusat) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.remun-insentif.excel-pusat', ['status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.remun-insentif.excel.pusat', ['status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">
                                     @if(count($pensiunmd_pusat) > 0)
                                         <div class="btn-group">
-                                            <a href="{{ route('admin.remun-insentif.excel-pusat', ['status' => 0, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.excel.pusat', ['status' => 0, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                         </div>
                                     @else
                                         -
@@ -159,7 +159,11 @@
                                 <td align="right">{{ number_format($total_remun_insentif) }}</td>
                                 <td align="right">{{ number_format(abs($total_potongan)) }}</td>
                                 <td align="right">{{ number_format($total_dibayarkan) }}</td>
-                                <td colspan="3"></td>
+                                <td colspan="3" align="center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.excel.recap', ['triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>

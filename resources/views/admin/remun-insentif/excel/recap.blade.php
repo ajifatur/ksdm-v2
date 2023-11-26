@@ -18,10 +18,6 @@
     </thead>
     <tbody>
         @foreach($data as $d)
-            <?php
-                $lebih_kurang = \App\Models\LebihKurang::where('pegawai_id','=',$d->pegawai->id)->where('bulan_proses','=',Request::query('bulan'))->where('tahun_proses','=',Request::query('tahun'))->where('triwulan_proses','=',0)->get();
-                $dibayarkan = $d->remun_gaji + $lebih_kurang->sum('selisih');
-            ?>
             <tr>
                 <td>{{ $d->pegawai->nip }}</td>
                 <td>{{ strtoupper($d->pegawai->nama) }}</td>
@@ -41,8 +37,8 @@
                 <td>{{ $d->kategori == 1 ? 'Dosen' : 'Tendik' }}</td>
                 <td>{{ $d->jabatan ? $d->jabatan->nama : '-' }}</td>
                 <td>{{ $d->jabatan ? $d->jabatan->sub : '-' }}</td>
-                <td>{{ $d->remun_gaji }}</td>
-                <td>{{ $dibayarkan }}</td>
+                <td>{{ $d->remun_insentif }}</td>
+                <td>{{ $d->remun_insentif }}</td>
             </tr>
         @endforeach
     </tbody>

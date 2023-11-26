@@ -39,12 +39,19 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Mutasi
     Route::get('/admin/mutasi', 'MutasiController@index')->name('admin.mutasi.index');
     Route::get('/admin/mutasi/new', 'MutasiController@new')->name('admin.mutasi.new');
-    Route::get('/admin/mutasi/kgb', 'MutasiController@kgb')->name('admin.mutasi.kgb');
     Route::get('/admin/mutasi/{id}/create', 'MutasiController@create')->name('admin.mutasi.create');
     Route::post('/admin/mutasi/store', 'MutasiController@store')->name('admin.mutasi.store');
     Route::get('/admin/mutasi/{id}/edit/{mutasi_id}', 'MutasiController@edit')->name('admin.mutasi.edit');
     Route::post('/admin/mutasi/update', 'MutasiController@update')->name('admin.mutasi.update');
     Route::post('/admin/mutasi/delete', 'MutasiController@delete')->name('admin.mutasi.delete');
+
+    // KP
+    Route::get('/admin/mutasi/kp', 'KPController@index')->name('admin.kp.index');
+    Route::get('/admin/mutasi/kp/monitoring', 'KPController@monitoring')->name('admin.kp.monitoring');
+
+    // KGB
+    Route::get('/admin/mutasi/kgb', 'KGBController@index')->name('admin.kgb.index');
+    Route::get('/admin/mutasi/kgb/monitoring', 'KGBController@monitoring')->name('admin.kgb.monitoring');
 
     // Remun Gaji
     Route::get('/admin/remun-gaji', 'RemunGajiController@index')->name('admin.remun-gaji.index');
@@ -56,6 +63,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/remun-gaji/excel-pusat', 'RemunGajiController@excelPusat')->name('admin.remun-gaji.excel-pusat');
     Route::get('/admin/remun-gaji/recap/excel', 'RemunGajiController@excelRekap')->name('admin.remun-gaji.recap.excel');
     Route::get('/admin/remun-gaji/change', 'RemunGajiController@change')->name('admin.remun-gaji.change');
+    Route::get('/admin/remun-gaji/change/all', 'RemunGajiController@changeAll')->name('admin.remun-gaji.change.all');
 
     // Lebih Kurang
     Route::post('/admin/lebih-kurang/update', 'LebihKurangController@update')->name('admin.lebih-kurang.update');
@@ -64,9 +72,10 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Remun Insentif
     Route::get('/admin/remun-insentif', 'RemunInsentifController@index')->name('admin.remun-insentif.index');
     Route::get('/admin/remun-insentif/monitoring', 'RemunInsentifController@monitoring')->name('admin.remun-insentif.monitoring');
-    Route::get('/admin/remun-insentif/excel', 'RemunInsentifController@excel')->name('admin.remun-insentif.excel');
-    Route::get('/admin/remun-insentif/excel-pusat', 'RemunInsentifController@excelPusat')->name('admin.remun-insentif.excel-pusat');
     Route::get('/admin/remun-insentif/print-potongan', 'RemunInsentifController@printPotongan')->name('admin.remun-insentif.print-potongan');
+    Route::get('/admin/remun-insentif/excel/single', 'RemunInsentifExportController@single')->name('admin.remun-insentif.excel.single');
+    Route::get('/admin/remun-insentif/excel/pusat', 'RemunInsentifExportController@pusat')->name('admin.remun-insentif.excel.pusat');
+    Route::get('/admin/remun-insentif/excel/recap', 'RemunInsentifExportController@recap')->name('admin.remun-insentif.excel.recap');
 	
     // Referensi
     Route::get('/admin/referensi', 'ReferensiController@index')->name('admin.referensi.index');
@@ -129,20 +138,16 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/uang-makan/import-old', 'UangMakanController@importOld')->name('admin.uang-makan.import-old');
     Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
 
-    // KP
-    Route::get('/admin/mutasi/kp', 'KPController@index')->name('admin.kp.index');
-    Route::get('/admin/mutasi/kp/monitoring', 'KPController@monitoring')->name('admin.kp.monitoring');
-
     // SPKGB
-    Route::get('/admin/kgb', 'KGBController@index')->name('admin.kgb.index');
-    Route::get('/admin/kgb/monitoring', 'KGBController@monitoring')->name('admin.kgb.monitoring');
-    Route::get('/admin/kgb/create/{id}', 'KGBController@create')->name('admin.kgb.create');
-    Route::post('/admin/kgb/store', 'KGBController@store')->name('admin.kgb.store');
-    Route::get('/admin/kgb/edit/{id}', 'KGBController@edit')->name('admin.kgb.edit');
-    Route::post('/admin/kgb/update', 'KGBController@update')->name('admin.kgb.update');
-    Route::get('/admin/kgb/print/{id}', 'KGBController@print')->name('admin.kgb.print');
-    Route::get('/admin/kgb/print-recap', 'KGBController@printRecap')->name('admin.kgb.print-recap');
-    Route::get('/admin/kgb/print-batch', 'KGBController@printBatch')->name('admin.kgb.print-batch');
+    Route::get('/admin/spkgb', 'SPKGBController@index')->name('admin.spkgb.index');
+    Route::get('/admin/spkgb/monitoring', 'SPKGBController@monitoring')->name('admin.spkgb.monitoring');
+    Route::get('/admin/spkgb/create/{id}', 'SPKGBController@create')->name('admin.spkgb.create');
+    Route::post('/admin/spkgb/store', 'SPKGBController@store')->name('admin.spkgb.store');
+    Route::get('/admin/spkgb/edit/{id}', 'SPKGBController@edit')->name('admin.spkgb.edit');
+    Route::post('/admin/spkgb/update', 'SPKGBController@update')->name('admin.spkgb.update');
+    Route::get('/admin/spkgb/print/single/{id}', 'SPKGBPrintController@single')->name('admin.spkgb.print.single');
+    Route::get('/admin/spkgb/print/recap', 'SPKGBPrintController@recap')->name('admin.spkgb.print.recap');
+    Route::get('/admin/spkgb/print/batch', 'SPKGBPrintController@batch')->name('admin.spkgb.print.batch');
     
     // Satyalancana Karya Satya
     Route::get('/admin/slks', 'SLKSController@index')->name('admin.slks.index');
@@ -169,7 +174,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Others
     // Route::get('/admin/jabatan/bup', 'JabatanController@bup')->name('admin.jabatan.bup');
     // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
-    // Route::get('/admin/kp/import', 'KGBController@import')->name('admin.kp.import');
+    // Route::get('/admin/kp/import', 'SPKGBController@import')->name('admin.kp.import');
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');

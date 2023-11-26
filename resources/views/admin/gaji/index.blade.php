@@ -57,6 +57,7 @@
                             <tr>
                                 <th rowspan="2" width="5">No</th>
                                 <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">Jenis</th>
                                 <th colspan="4">Penghasilan</th>
                                 <th colspan="3">Potongan</th>
                                 <th rowspan="2" width="80">Gaji Bersih</th>
@@ -76,6 +77,7 @@
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
                                 <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->nip }}</td>
+                                <td>{{ $g->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
                                 <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjstruk) }}<br>{{ number_format($g->tjupns) }}</td>
                                 <td align="right">{{ number_format($g->tjberas) }}<br>{{ number_format($g->tjpph) }}<br>{{ number_format($g->pembul) }}</td>
@@ -89,7 +91,7 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="5" align="center">Total</td>
+                                <td colspan="6" align="center">Total</td>
                                 <td align="right">{{ number_format($gaji->sum('nominal')) }}</td>
                                 <td colspan="2"></td>
                                 <td align="right">{{ number_format($gaji->sum('potongan')) }}</td>

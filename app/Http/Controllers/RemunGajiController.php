@@ -735,6 +735,37 @@ class RemunGajiController extends Controller
     }
 
     /**
+     * Perubahan.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function changeAll(Request $request)
+    {
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
+
+        // Get remun gaji
+        $remun_gaji_bulan_ini = RemunGaji::has('pegawai')->where('bulan','=',$bulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray();
+        $remun_gaji_bulan_sebelumnya = RemunGaji::has('pegawai')->where('bulan','=',date('n',strtotime($tanggal_sebelum)))->where('tahun','=',date('Y',strtotime($tanggal_sebelum)))->pluck('pegawai_id')->toArray();
+
+        // Compare        
+        $compare = $this->compare($remun_gaji_bulan_sebelumnya, $remun_gaji_bulan_ini, $bulan, $tahun);
+		
+        // View
+        return view('admin/remun-gaji/change-all', [
+            'remun_gaji_bulan_ini' => $remun_gaji_bulan_ini,
+            'remun_gaji_bulan_sebelumnya' => $remun_gaji_bulan_sebelumnya,
+            'compare' => $compare,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'tanggal' => $tanggal
+        ]);
+    }
+
+    /**
      * Compare.
      *
      * @param  $sebelum

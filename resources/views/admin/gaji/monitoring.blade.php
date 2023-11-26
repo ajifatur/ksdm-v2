@@ -119,6 +119,7 @@
                                     <div class="btn-group">
                                         <a href="{{ route('admin.gaji.excel', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                         <a href="{{ route('admin.gaji.excel', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.excel', ['bulan' => $bulan, 'jenis' => $jenis->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
                                     </div>
                                     @endif
                                 </td>

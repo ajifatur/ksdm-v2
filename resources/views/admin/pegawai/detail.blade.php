@@ -344,6 +344,7 @@
                                         <th>Bulan, Tahun</th>
                                         <th>Jenis</th>
                                         <th>Angkatan</th>
+                                        <th>Unit</th>
                                         <th>Tunjangan</th>
                                         <th>PPh</th>
                                         <th>Diterimakan</th>
@@ -357,6 +358,7 @@
                                         <td>{{ \Ajifatur\Helpers\DateTimeExt::month($t->bulan) }} {{ $t->tahun }}</td>
                                         <td>{{ $t->angkatan->jenis->nama }}</td>
                                         <td>{{ $t->angkatan->nama }}</td>
+                                        <td>{{ $t->unit->nama }}</td>
                                         <td align="right">{{ number_format($t->tunjangan) }}</td>
                                         <td align="right">{{ number_format($t->pph) }}</td>
                                         <td align="right">{{ number_format($t->diterimakan) }}</td>
@@ -370,7 +372,7 @@
                                 </tbody>
                                 <tfoot class="bg-light fw-bold">
                                     <tr>
-                                        <td colspan="4" align="center">Total</td>
+                                        <td colspan="5" align="center">Total</td>
                                         <td align="right">{{ number_format($pegawai->tunjangan_profesi()->sum('tunjangan')) }}</td>
                                         <td align="right">{{ number_format($pegawai->tunjangan_profesi()->sum('pph')) }}</td>
                                         <td align="right">{{ number_format($pegawai->tunjangan_profesi()->sum('diterimakan')) }}</td>
