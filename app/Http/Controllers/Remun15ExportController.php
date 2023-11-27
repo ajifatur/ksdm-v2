@@ -75,28 +75,21 @@ class Remun15ExportController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
         
-        $status = $request->query('status');
+        $triwulan = 15;
+        $tahun = $request->query('tahun');
 
         // Get unit
         $unit = Unit::where('pusat','=',1)->orderBy('num_order_remun','asc')->get();
         
         // Get remun insentif
         $remun_insentif = [];
-        if($status == 1) {
-            foreach($unit as $u) {
-                $ri = RemunInsentif::where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
-                array_push($remun_insentif, $ri);
-            }
-        }
-        else {
-            foreach($unit as $u) {
-                $ri = RemunInsentif::where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
-                array_push($remun_insentif, $ri);
-            }
+        foreach($unit as $u) {
+            $ri = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+            array_push($remun_insentif, $ri);
         }
 
         // Return
-        return Excel::download(new Remun15PusatExport($remun_insentif), 'Remun-15 Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
+        return Excel::download(new Remun15PusatExport($remun_insentif), 'Remun-15 Pusat.xlsx');
     }
 
     /**
