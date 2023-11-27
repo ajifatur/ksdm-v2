@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Exports\RemunInsentifExport;
+use App\Exports\Remun15Export;
 use App\Exports\RemunInsentifPusatExport;
 use App\Exports\RemunInsentifRecapExport;
 use App\Models\RemunInsentif;
@@ -69,7 +69,7 @@ class Remun15ExportController extends Controller
         }
 
         // Return
-        return Excel::download(new RemunInsentifExport($remun_insentif), 'Remun-15 '.$get_unit->nama.' '.$get_kategori.' ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
+        return Excel::download(new Remun15Export($remun_insentif), 'Remun-15 '.$get_unit->nama.' '.$get_kategori.' ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
     }
 
     /**
