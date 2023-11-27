@@ -49,23 +49,15 @@ class Remun15ExportController extends Controller
         // Get remun insentif
         if($status == 1) {
             if($kategori == 1)
-                $remun_insentif = RemunInsentif::whereHas('pegawai', function(Builder $query) {
-                    return $query->whereNotIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$unit)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
+                $remun_insentif = RemunInsentif::where('unit_id','=',$unit)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
             elseif($kategori == 2)
-                $remun_insentif = RemunInsentif::whereHas('pegawai', function(Builder $query) {
-                    return $query->whereNotIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$unit)->where('kategori','=',2)->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
+                $remun_insentif = RemunInsentif::where('unit_id','=',$unit)->where('kategori','=',2)->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
         }
         else {
             if($kategori == 1)
-                $remun_insentif = RemunInsentif::whereHas('pegawai', function(Builder $query) {
-                    return $query->whereIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$unit)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
+                $remun_insentif = RemunInsentif::where('unit_id','=',$unit)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
             elseif($kategori == 2)
-                $remun_insentif = RemunInsentif::whereHas('pegawai', function(Builder $query) {
-                    return $query->whereIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$unit)->where('kategori','=',2)->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
+                $remun_insentif = RemunInsentif::where('unit_id','=',$unit)->where('kategori','=',2)->where('remun_insentif','>',0)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('num_order','asc')->get();
         }
 
         // Return
@@ -92,17 +84,13 @@ class Remun15ExportController extends Controller
         $remun_insentif = [];
         if($status == 1) {
             foreach($unit as $u) {
-                $ri = RemunInsentif::whereHas('pegawai', function(Builder $query) {
-                    return $query->whereNotIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                $ri = RemunInsentif::where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
                 array_push($remun_insentif, $ri);
             }
         }
         else {
             foreach($unit as $u) {
-                $ri = RemunInsentif::whereHas('pegawai', function(Builder $query) {
-                    return $query->whereIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                $ri = RemunInsentif::where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
                 array_push($remun_insentif, $ri);
             }
         }
