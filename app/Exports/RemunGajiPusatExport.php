@@ -48,7 +48,7 @@ class RemunGajiPusatExport extends StringValueBinder implements WithCustomValueB
     public function view(): View
     {
     	// View
-    	return view('admin/remun-gaji/excel-pusat', [
+    	return view('admin/remun-gaji/export/pusat', [
     		'data' => $this->data
     	]);
     }

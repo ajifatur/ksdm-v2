@@ -48,7 +48,7 @@
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.mutasi.index', ['bulan' => $p->bulan, 'tahun' => $p->tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Lihat Mutasi"><i class="bi-eye"></i></a>
-                                        <a href="{{ route('admin.remun-gaji.recap.excel', ['bulan' => $p->bulan, 'tahun' => $p->tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Rekap Excel"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.remun-gaji.export.recap', ['bulan' => $p->bulan, 'tahun' => $p->tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Rekap Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>

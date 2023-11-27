@@ -59,11 +59,11 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/remun-gaji/process', 'RemunGajiController@process')->name('admin.remun-gaji.process');
     Route::get('/admin/remun-gaji/monitoring', 'RemunGajiController@monitoring')->name('admin.remun-gaji.monitoring');
     Route::get('/admin/remun-gaji/print', 'RemunGajiController@print')->name('admin.remun-gaji.print');
-    Route::get('/admin/remun-gaji/excel', 'RemunGajiController@excel')->name('admin.remun-gaji.excel');
-    Route::get('/admin/remun-gaji/excel-pusat', 'RemunGajiController@excelPusat')->name('admin.remun-gaji.excel-pusat');
-    Route::get('/admin/remun-gaji/recap/excel', 'RemunGajiController@excelRekap')->name('admin.remun-gaji.recap.excel');
     Route::get('/admin/remun-gaji/change', 'RemunGajiController@change')->name('admin.remun-gaji.change');
     Route::get('/admin/remun-gaji/change/all', 'RemunGajiController@changeAll')->name('admin.remun-gaji.change.all');
+    Route::get('/admin/remun-gaji/export/single', 'RemunGajiExportController@single')->name('admin.remun-gaji.export.single');
+    Route::get('/admin/remun-gaji/export/pusat', 'RemunGajiExportController@pusat')->name('admin.remun-gaji.export.pusat');
+    Route::get('/admin/remun-gaji/export/recap', 'RemunGajiExportController@recap')->name('admin.remun-gaji.export.recap');
 
     // Lebih Kurang
     Route::post('/admin/lebih-kurang/update', 'LebihKurangController@update')->name('admin.lebih-kurang.update');
@@ -73,9 +73,17 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/remun-insentif', 'RemunInsentifController@index')->name('admin.remun-insentif.index');
     Route::get('/admin/remun-insentif/monitoring', 'RemunInsentifController@monitoring')->name('admin.remun-insentif.monitoring');
     Route::get('/admin/remun-insentif/print-potongan', 'RemunInsentifController@printPotongan')->name('admin.remun-insentif.print-potongan');
-    Route::get('/admin/remun-insentif/excel/single', 'RemunInsentifExportController@single')->name('admin.remun-insentif.excel.single');
-    Route::get('/admin/remun-insentif/excel/pusat', 'RemunInsentifExportController@pusat')->name('admin.remun-insentif.excel.pusat');
-    Route::get('/admin/remun-insentif/excel/recap', 'RemunInsentifExportController@recap')->name('admin.remun-insentif.excel.recap');
+    Route::get('/admin/remun-insentif/export/single', 'RemunInsentifExportController@single')->name('admin.remun-insentif.export.single');
+    Route::get('/admin/remun-insentif/export/pusat', 'RemunInsentifExportController@pusat')->name('admin.remun-insentif.export.pusat');
+    Route::get('/admin/remun-insentif/export/recap', 'RemunInsentifExportController@recap')->name('admin.remun-insentif.export.recap');
+
+    // Remun 15
+    Route::get('/admin/remun-15', 'Remun15Controller@index')->name('admin.remun-15.index');
+    Route::get('/admin/remun-15/monitoring', 'Remun15Controller@monitoring')->name('admin.remun-15.monitoring');
+    Route::get('/admin/remun-15/print-potongan', 'Remun15Controller@printPotongan')->name('admin.remun-15.print-potongan');
+    Route::get('/admin/remun-15/export/single', 'Remun15ExportController@single')->name('admin.remun-15.export.single');
+    Route::get('/admin/remun-15/export/pusat', 'Remun15ExportController@pusat')->name('admin.remun-15.export.pusat');
+    Route::get('/admin/remun-15/export/recap', 'Remun15ExportController@recap')->name('admin.remun-15.export.recap');
 	
     // Referensi
     Route::get('/admin/referensi', 'ReferensiController@index')->name('admin.referensi.index');
@@ -179,6 +187,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
     // Route::get('/admin/remun-insentif/import', 'RemunInsentifController@import')->name('admin.remun-insentif.import');
+    Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
     // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
     // Route::get('/admin/jabatan/import', 'JabatanController@import')->name('admin.jabatan.import');

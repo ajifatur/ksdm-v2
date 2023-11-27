@@ -74,25 +74,6 @@ class MutasiController extends Controller
     }
 
     /**
-     * Mutasi KGB.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function kgb(Request $request)
-    {
-        // Get mutasi
-        $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-            return $query->where('nama','=','KGB');
-        })->orderBy('tmt','desc')->get();
-
-        // View
-        return view('admin/mutasi/kgb', [
-            'mutasi' => $mutasi
-        ]);
-    }
-
-    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response

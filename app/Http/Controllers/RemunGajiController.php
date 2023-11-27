@@ -7,9 +7,6 @@ use Excel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Exports\RemunGajiExport;
-use App\Exports\RemunGajiPusatExport;
-use App\Exports\RemunGajiRekapExport;
 use App\Imports\RemunGajiImport;
 use App\Models\RemunGaji;
 use App\Models\Unit;
@@ -54,7 +51,11 @@ class RemunGajiController extends Controller
         }
 
         // Get unit
-        $unit = Unit::where('end_date','>=',$tanggal)->orWhere('end_date','=',null)->where('nama','!=','-')->orderBy('num_order','asc')->get();
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('nama','!=','-')->orderBy('num_order','asc')->get();
 
         // Get SK
         $sk = SK::where('jenis_id','=',1)->where('status','=',1)->first();
@@ -433,97 +434,6 @@ class RemunGajiController extends Controller
             }
         }
         var_dump($error);
-    }
-
-    /**
-     * Export to Excel.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function excel(Request $request)
-    {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        $kategori = $request->query('kategori');
-        $unit = $request->query('unit');
-        $bulan = $request->query('bulan');
-        $tahun = $request->query('tahun');
-
-        // Get unit
-        $get_unit = Unit::findOrFail($unit);
-
-        // Get kategori
-        $get_kategori = $kategori == 1 ? 'Dosen' : 'Tendik';
-
-        // Remun Gaji
-        $remun_gaji = RemunGaji::where('unit_id','=',$unit)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
-
-        // Return
-        return Excel::download(new RemunGajiExport($remun_gaji), 'Remun Gaji '.$get_unit->nama.' '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).').xlsx');
-    }
-
-    /**
-     * Export to Excel.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function excelPusat(Request $request)
-    {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        $kategori = $request->query('kategori');
-        $bulan = $request->query('bulan');
-        $tahun = $request->query('tahun');
-
-        // Get kategori
-        $get_kategori = $kategori == 1 ? 'Dosen' : 'Tendik';
-
-        // Get unit
-        $unit = Unit::where('pusat','=',1)->orderBy('num_order_remun','asc')->get();
-        
-        // Get remun gaji
-        $remun_gaji = [];
-        foreach($unit as $u) {
-            $rg = RemunGaji::where('unit_id','=',$u->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
-            array_push($remun_gaji, $rg);
-        }
-
-        // Return
-        return Excel::download(new RemunGajiPusatExport($remun_gaji), 'Remun Gaji Pusat '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).').xlsx');
-    }
-
-    /**
-     * Export Rekap.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function excelRekap(Request $request)
-    {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        $bulan = $request->query('bulan');
-        $tahun = $request->query('tahun');
-
-        // Remun Gaji
-        $remun_gaji = RemunGaji::where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
-
-        // Return
-        return Excel::download(new RemunGajiRekapExport($remun_gaji), 'Rekap Remun Gaji ('.$tahun.' '.DateTimeExt::month($bulan).').xlsx');
     }
 
     /**

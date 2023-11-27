@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Exports\RemunInsentifExport;
-use App\Exports\RemunInsentifRecapExport;
 use App\Exports\RemunInsentifPusatExport;
+use App\Exports\RemunInsentifRecapExport;
 use App\Models\RemunInsentif;
 use App\Models\LebihKurang;
 use App\Models\Pegawai;
@@ -21,7 +21,7 @@ use App\Models\Jabatan;
 use App\Models\Unit;
 use App\Models\StatusKepegawaian;
 
-class RemunInsentifExportController extends Controller
+class Remun15ExportController extends Controller
 {
     /**
      * Single.
@@ -37,7 +37,7 @@ class RemunInsentifExportController extends Controller
         $kategori = $request->query('kategori');
         $unit = $request->query('unit');
         $status = $request->query('status');
-        $triwulan = $request->query('triwulan');
+        $triwulan = 15;
         $tahun = $request->query('tahun');
 
         // Get unit
@@ -69,7 +69,7 @@ class RemunInsentifExportController extends Controller
         }
 
         // Return
-        return Excel::download(new RemunInsentifExport($remun_insentif), 'Remun Insentif Triwulan '.$request->query('triwulan').' '.$get_unit->nama.' '.$get_kategori.' ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
+        return Excel::download(new RemunInsentifExport($remun_insentif), 'Remun-15 '.$get_unit->nama.' '.$get_kategori.' ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
     }
 
     /**
@@ -108,7 +108,7 @@ class RemunInsentifExportController extends Controller
         }
 
         // Return
-        return Excel::download(new RemunInsentifPusatExport($remun_insentif), 'Remun Insentif '.$request->query('triwulan').' Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
+        return Excel::download(new RemunInsentifPusatExport($remun_insentif), 'Remun-15 Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
     }
 
     /**
@@ -123,12 +123,12 @@ class RemunInsentifExportController extends Controller
 		ini_set("max_execution_time", "-1");
 
         $tahun = $request->query('tahun');
-        $triwulan = $request->query('triwulan');
+        $triwulan = 15;
 
         // Remun Insentif
         $remun_insentif = RemunInsentif::where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('remun_insentif','desc')->get();
 
         // Return
-        return Excel::download(new RemunInsentifRecapExport($remun_insentif), 'Rekap Remun Insentif ('.$tahun.' Triwulan '.$triwulan.').xlsx');
+        return Excel::download(new RemunInsentifRecapExport($remun_insentif), 'Rekap Remun-15 ('.$tahun.').xlsx');
     }
 }

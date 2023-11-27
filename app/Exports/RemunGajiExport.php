@@ -48,7 +48,7 @@ class RemunGajiExport extends StringValueBinder implements WithCustomValueBinder
     public function view(): View
     {
     	// View
-    	return view('admin/remun-gaji/excel', [
+    	return view('admin/remun-gaji/export/single', [
     		'data' => $this->data
     	]);
     }

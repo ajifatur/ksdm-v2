@@ -48,7 +48,7 @@ class RemunInsentifPusatExport extends StringValueBinder implements WithCustomVa
     public function view(): View
     {
     	// View
-    	return view('admin/remun-insentif/excel/pusat', [
+    	return view('admin/remun-insentif/export/pusat', [
     		'data' => $this->data
     	]);
     }

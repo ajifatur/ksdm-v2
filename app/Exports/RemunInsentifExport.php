@@ -48,7 +48,7 @@ class RemunInsentifExport extends StringValueBinder implements WithCustomValueBi
     public function view(): View
     {
     	// View
-    	return view('admin/remun-insentif/excel/single', [
+    	return view('admin/remun-insentif/export/single', [
     		'data' => $this->data
     	]);
     }

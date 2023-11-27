@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class RemunGajiRekapExport extends StringValueBinder implements WithCustomValueBinder, FromView
+class RemunInsentifRecapExport extends StringValueBinder implements WithCustomValueBinder, FromView
 {
 	use Exportable;
 
@@ -48,7 +48,7 @@ class RemunGajiRekapExport extends StringValueBinder implements WithCustomValueB
     public function view(): View
     {
     	// View
-    	return view('admin/remun-gaji/excel-rekap', [
+    	return view('admin/remun-insentif/export/recap', [
     		'data' => $this->data
     	]);
     }

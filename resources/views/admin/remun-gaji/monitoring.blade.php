@@ -104,16 +104,16 @@
                                     @if(is_object($d['unit']))
                                         @if($d['unit']->pusat == 0)
                                             <div class="btn-group">
-                                                <a href="{{ route('admin.remun-gaji.excel', ['kategori' => 1, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                                <a href="{{ route('admin.remun-gaji.excel', ['kategori' => 2, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                                <a href="{{ route('admin.remun-gaji.export.single', ['kategori' => 1, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                                <a href="{{ route('admin.remun-gaji.export.single', ['kategori' => 2, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                             </div>
                                         @else
                                             -
                                         @endif
                                     @else
                                         <div class="btn-group">
-                                            <a href="{{ route('admin.remun-gaji.excel-pusat', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
-                                            <a href="{{ route('admin.remun-gaji.excel-pusat', ['kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
+                                            <a href="{{ route('admin.remun-gaji.export.pusat', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
+                                            <a href="{{ route('admin.remun-gaji.export.pusat', ['kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
                                         </div>
                                     @endif
                                 </td>
