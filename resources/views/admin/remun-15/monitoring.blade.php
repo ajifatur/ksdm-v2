@@ -34,16 +34,12 @@
                                 <th rowspan="2">Unit</th>
                                 <th colspan="2">Pegawai</th>
                                 <th rowspan="2" width="90">Remun ke-15</th>
-                                <th rowspan="2" width="90">Potongan</th>
                                 <th rowspan="2" width="90">Dibayarkan</th>
-                                <th colspan="2">Excel Simkeu</th>
-                                <th rowspan="2" width="30">Potongan PDF</th>
+                                <th rowspan="2" width="30">Excel Simkeu</th>
                             </tr>
                             <tr>
                                 <th width="60">Aktif</th>
                                 <th width="60">Pensiun / MD</th>
-                                <th width="30">Aktif</th>
-                                <th width="30">Pensiun / MD</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,7 +57,6 @@
                                     @endif
                                 </td>
                                 <td align="right">{{ number_format($u->remun_insentif) }}</td>
-                                <td align="right">{{ number_format(abs($u->potongan)) }}</td>
                                 <td align="right">{{ number_format($u->dibayarkan) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
@@ -70,32 +65,6 @@
                                         @endif
                                         <a href="{{ route('admin.remun-15.export.single', ['kategori' => 2, 'unit' => $u->id, 'status' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
-                                </td>
-                                <td align="center">
-                                    @if(count($u->pensiunmd) > 0)
-                                        <div class="btn-group">
-                                            @if($u->nama != 'Sekolah Pascasarjana')
-                                            <a href="{{ route('admin.remun-15.export.single', ['kategori' => 1, 'unit' => $u->id, 'status' => 0, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                            @endif
-                                            <a href="{{ route('admin.remun-15.export.single', ['kategori' => 2, 'unit' => $u->id, 'status' => 0, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td align="center">
-                                    @if($u->potongan != 0)
-                                        <div class="btn-group">
-                                            @if($u->potonganDosen > 0)
-                                            <a href="{{ route('admin.remun-15.print-potongan', ['kategori' => 1, 'unit' => $u->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Dosen"><i class="bi-file-pdf"></i></a>
-                                            @endif
-                                            @if($u->potonganTendik > 0)
-                                            <a href="{{ route('admin.remun-15.print-potongan', ['kategori' => 2, 'unit' => $u->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Tendik"><i class="bi-file-pdf"></i></a>
-                                            @endif
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -112,35 +81,11 @@
                                     @endif
                                 </td>
                                 <td align="right">{{ number_format($remun_insentif_pusat) }}</td>
-                                <td align="right">{{ number_format(abs($potongan_pusat)) }}</td>
                                 <td align="right">{{ number_format($remun_insentif_pusat + $potongan_pusat) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.remun-15.export.pusat', ['status' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
-                                </td>
-                                <td align="center">
-                                    @if(count($pensiunmd_pusat) > 0)
-                                        <div class="btn-group">
-                                            <a href="{{ route('admin.remun-15.export.pusat', ['status' => 0, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td align="center">
-                                    @if($potongan_pusat != 0)
-                                        <div class="btn-group">
-                                            @if($potongan_pegawai_pusat['dosen'] > 0)
-                                            <a href="{{ route('admin.remun-15.print-potongan', ['kategori' => 1, 'pusat' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Dosen"><i class="bi-file-pdf"></i></a>
-                                            @endif
-                                            @if($potongan_pegawai_pusat['tendik'] > 0)
-                                            <a href="{{ route('admin.remun-15.print-potongan', ['kategori' => 2, 'pusat' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Tendik"><i class="bi-file-pdf"></i></a>
-                                            @endif
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
                                 </td>
                             </tr>
                         </tbody>
@@ -149,9 +94,8 @@
                                 <td>Total</td>
                                 <td colspan="2" align="center">{{ number_format($total_pegawai) }}</td>
                                 <td align="right">{{ number_format($total_remun_insentif) }}</td>
-                                <td align="right">{{ number_format(abs($total_potongan)) }}</td>
                                 <td align="right">{{ number_format($total_dibayarkan) }}</td>
-                                <td colspan="3" align="center">
+                                <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.remun-15.export.recap', ['tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>

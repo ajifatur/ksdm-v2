@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Exports\Remun15Export;
-use App\Exports\RemunInsentifPusatExport;
-use App\Exports\RemunInsentifRecapExport;
+use App\Exports\Remun15PusatExport;
+use App\Exports\Remun15RecapExport;
 use App\Models\RemunInsentif;
 use App\Models\LebihKurang;
 use App\Models\Pegawai;
@@ -108,7 +108,7 @@ class Remun15ExportController extends Controller
         }
 
         // Return
-        return Excel::download(new RemunInsentifPusatExport($remun_insentif), 'Remun-15 Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
+        return Excel::download(new Remun15PusatExport($remun_insentif), 'Remun-15 Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
     }
 
     /**
@@ -129,6 +129,6 @@ class Remun15ExportController extends Controller
         $remun_insentif = RemunInsentif::where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->orderBy('remun_insentif','desc')->get();
 
         // Return
-        return Excel::download(new RemunInsentifRecapExport($remun_insentif), 'Rekap Remun-15 ('.$tahun.').xlsx');
+        return Excel::download(new Remun15RecapExport($remun_insentif), 'Rekap Remun-15 ('.$tahun.').xlsx');
     }
 }
