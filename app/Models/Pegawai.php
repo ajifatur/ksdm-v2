@@ -97,6 +97,14 @@ class Pegawai extends Model
     }
 
     /**
+     * SPKGB.
+     */
+    public function spkgb()
+    {
+        return $this->hasManyThrough(SPKGB::class, Mutasi::class, 'pegawai_id', 'mutasi_id', 'id', 'id');
+    }
+
+    /**
      * Remun Gaji.
      */
     public function remun_gaji()

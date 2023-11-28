@@ -28,11 +28,12 @@
                                 <th colspan="2">Gaji Pokok Mutasi</th>
                                 <th colspan="2">Gaji Pokok GPP</th>
                                 <th rowspan="2" width="80">Cek</th>
+                                <th rowspan="2" width="80">SPKGB</th>
                             </tr>
 							<tr>
-								<th width="60">MK</th>
+								<th width="60">MKG</th>
 								<th width="80">Nominal</th>
-								<th width="60">MK</th>
+								<th width="60">MKG</th>
 								<th width="80">Nominal</th>
 							</tr>
                         </thead>
@@ -48,6 +49,10 @@
                                 <td>{{ $p->gpp_gaji_pokok_terakhir ? "'".$p->gpp_gaji_pokok_terakhir->nama : '-' }}</td>
                                 <td align="right">{{ $p->gpp_gaji_pokok_terakhir ? number_format($p->gpp_gaji_pokok_terakhir->gaji_pokok) : '-' }}</td>
 								<td><span class="{{ $p->cek == 'Sama' ? 'text-success' : 'text-danger' }}">{{ $p->cek }}</span></td>
+                                <td>
+                                    <span class="d-none">{{ $p->spkgb_terakhir ? $p->spkgb_terakhir->mutasi->tmt : '-' }}</span>
+                                    {{ $p->spkgb_terakhir ? date('d/m/Y', strtotime($p->spkgb_terakhir->mutasi->tmt)) : '-' }}
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>

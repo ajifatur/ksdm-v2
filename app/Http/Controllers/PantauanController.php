@@ -129,6 +129,7 @@ class PantauanController extends Controller
     {
 		// Periode gaji pokok terakhir
 		$gaji_terakhir = Gaji::where('jenis_id','=',1)->latest('tahun')->latest('bulan')->first();
+        $tanggal = $gaji_terakhir->tahun.'-'.$gaji_terakhir->bulan.'-01';
 		
         // Get pegawai
         $pegawai = Pegawai::where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
@@ -147,6 +148,15 @@ class PantauanController extends Controller
 				if($pegawai[$key]->mutasi_gaji_pokok_terakhir->gaji_pokok == $pegawai[$key]->gpp_gaji_pokok_terakhir->gaji_pokok)
 					$pegawai[$key]->cek = 'Sama';
 			}
+
+            // SPKGB terakhir
+            if($pegawai[$key]->cek == 'Beda') {
+                $pegawai[$key]->spkgb_terakhir = $p->spkgb()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                    return $query->where('tmt','>',$tanggal);
+                })->first();
+            }
+            else
+                $pegawai[$key]->spkgb_terakhir = null;
 		}
 
         // View
