@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Excel;
+use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -30,7 +31,7 @@ class RemunInsentifController extends Controller
     public function index(Request $request)
     {
         // Latest remun insentif
-        $latest = RemunInsentif::latest('tahun')->latest('triwulan')->first();
+        $latest = RemunInsentif::whereIn('triwulan',[1,2,3,4])->latest('tahun')->latest('triwulan')->first();
 
         // Get triwulan dan tahun
         $triwulan = $request->query('triwulan') ?: $latest->triwulan;
@@ -43,10 +44,14 @@ class RemunInsentifController extends Controller
         // Get remun insentif
         $remun_insentif = [];
         if($request->query('unit') != null && $request->query('unit') != 0)
-            $remun_insentif = RemunInsentif::where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('unit_id','=',$request->query('unit'))->orderBy('remun_insentif','desc')->get();
+            $remun_insentif = RemunInsentif::whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('unit_id','=',$request->query('unit'))->orderBy('remun_insentif','desc')->get();
 
         // Get unit
-        $unit = Unit::where('end_date','>=',$tanggal)->orWhere('end_date','=',null)->where('nama','!=','-')->orderBy('num_order','asc')->get();
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('nama','!=','-')->orderBy('num_order','asc')->get();
 
         // View
         return view('admin/remun-insentif/index', [
@@ -66,7 +71,7 @@ class RemunInsentifController extends Controller
     public function monitoring(Request $request)
     {
         // Latest remun insentif
-        $latest = RemunInsentif::latest('tahun')->latest('triwulan')->first();
+        $latest = RemunInsentif::whereIn('triwulan',[1,2,3,4])->latest('tahun')->latest('triwulan')->first();
 
         // Get triwulan dan tahun
         $triwulan = $request->query('triwulan') ?: $latest->triwulan;
@@ -91,7 +96,7 @@ class RemunInsentifController extends Controller
 
         foreach($unit as $key=>$u) {
             // Get pensiun dan MD
-            $pensiunmd = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereHas('pegawai', function(Builder $query) use ($tanggal) {
+            $pensiunmd = RemunInsentif::where('unit_id','=',$u->id)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereHas('pegawai', function(Builder $query) use ($tanggal) {
                 return $query->whereIn('status_kerja_id',[2,3])->where('tmt_non_aktif','<=',$tanggal);
             })->get();
 
@@ -106,8 +111,8 @@ class RemunInsentifController extends Controller
             // Push
             $unit[$key]->pensiunmd = $pensiunmd;
             $unit[$key]->namapensiunmd = $arrayp;
-            $unit[$key]->pegawai = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->count();
-            $unit[$key]->remun_insentif = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->sum('remun_insentif');
+            $unit[$key]->pegawai = RemunInsentif::where('unit_id','=',$u->id)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->count();
+            $unit[$key]->remun_insentif = RemunInsentif::where('unit_id','=',$u->id)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->sum('remun_insentif');
             $unit[$key]->potongan = LebihKurang::whereIn('pegawai_id',RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray())->where('triwulan_proses','=',$triwulan)->where('tahun_proses','=',$tahun)->sum('selisih');
             $unit[$key]->dibayarkan = $unit[$key]->remun_insentif + $unit[$key]->potongan;
             $unit[$key]->potonganDosen = LebihKurang::whereIn('pegawai_id',RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->pluck('pegawai_id')->toArray())->where('triwulan_proses','=',$triwulan)->where('tahun_proses','=',$tahun)->count();
@@ -121,7 +126,7 @@ class RemunInsentifController extends Controller
         }
 
         // Get pensiun dan MD pusat
-        $pensiunmd_pusat = RemunInsentif::where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereHas('unit', function(Builder $query) {
+        $pensiunmd_pusat = RemunInsentif::whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereHas('unit', function(Builder $query) {
             return $query->where('pusat','=',1);
         })->whereHas('pegawai', function(Builder $query) use ($tanggal) {
             return $query->whereIn('status_kerja_id',[2,3])->where('tmt_non_aktif','<=',$tanggal);
@@ -138,30 +143,30 @@ class RemunInsentifController extends Controller
         // Get pegawai pusat
         $pegawai_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
             return $query->where('pusat','=',1);
-        })->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->count();
+        })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->count();
 
         // Get remun insentif pusat
         $remun_insentif_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
             return $query->where('pusat','=',1);
-        })->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->sum('remun_insentif');
+        })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->sum('remun_insentif');
 
         // Get potongan pusat
         $potongan_pusat = LebihKurang::whereIn('pegawai_id',RemunInsentif::whereHas('unit',
             function(Builder $query) {
                 return $query->where('pusat','=',1);
-            })->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray()
+            })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray()
         )->where('triwulan_proses','=',$triwulan)->where('tahun_proses','=',$tahun)->sum('selisih');
 
         // Get potongan pegawai pusat
         $potongan_pegawai_pusat['dosen'] = LebihKurang::whereIn('pegawai_id',RemunInsentif::whereHas('unit',
             function(Builder $query) {
                 return $query->where('pusat','=',1);
-            })->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->pluck('pegawai_id')->toArray()
+            })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->pluck('pegawai_id')->toArray()
         )->where('triwulan_proses','=',$triwulan)->where('tahun_proses','=',$tahun)->count();
         $potongan_pegawai_pusat['tendik'] = LebihKurang::whereIn('pegawai_id',RemunInsentif::whereHas('unit',
             function(Builder $query) {
                 return $query->where('pusat','=',1);
-            })->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->pluck('pegawai_id')->toArray()
+            })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->pluck('pegawai_id')->toArray()
         )->where('triwulan_proses','=',$triwulan)->where('tahun_proses','=',$tahun)->count();
 
         // Sum
@@ -217,9 +222,9 @@ class RemunInsentifController extends Controller
 
             // Get pegawai dalam unit berdasarkan remun insentif
             if($kategori == 1)
-                $remun_insentif = RemunInsentif::where('unit_id','=',$request->query('unit'))->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->orderBy('num_order','desc')->get();
+                $remun_insentif = RemunInsentif::where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->orderBy('num_order','desc')->get();
             elseif($kategori == 2)
-                $remun_insentif = RemunInsentif::where('unit_id','=',$request->query('unit'))->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->orderBy('num_order','desc')->get();
+                $remun_insentif = RemunInsentif::where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->orderBy('num_order','desc')->get();
         }
         else {
             // Get unit pusat
@@ -227,9 +232,9 @@ class RemunInsentifController extends Controller
 
             // Get pegawai dalam unit berdasarkan remun insentif
             if($kategori == 1)
-                $remun_insentif = RemunInsentif::whereIn('unit_id',$unit)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->orderBy('num_order','desc')->get();
+                $remun_insentif = RemunInsentif::whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->orderBy('num_order','desc')->get();
             elseif($kategori == 2)
-                $remun_insentif = RemunInsentif::whereIn('unit_id',$unit)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->orderBy('num_order','desc')->get();
+                $remun_insentif = RemunInsentif::whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->orderBy('num_order','desc')->get();
         }
 
         // Get potongan
@@ -237,14 +242,14 @@ class RemunInsentifController extends Controller
 
         foreach($potongan as $key=>$p) {
             // Get remun insentif
-            $potongan[$key]->remun_insentif = RemunInsentif::where('pegawai_id','=',$p->pegawai_id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->first();
+            $potongan[$key]->remun_insentif = RemunInsentif::where('pegawai_id','=',$p->pegawai_id)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->first();
         }
 
         // Set title
         $title = 'Potongan Remun Insentif '.($pusat != 1 ? $unit->nama : 'Pusat').' '.$get_kategori.' ('.$tahun.' Triwulan '.$triwulan.')';
 
         // PDF
-        $pdf = \PDF::loadView('admin/remun-insentif/print-potongan', [
+        $pdf = PDF::loadView('admin/remun-insentif/print-potongan', [
             'title' => $title,
             'unit' => $unit,
             'kategori' => $kategori,
@@ -308,7 +313,7 @@ class RemunInsentifController extends Controller
                     else $kategori = 0;
 
                     // Get remun insentif
-                    $remun_insentif = RemunInsentif::where('pegawai_id','=',$pegawai->id)->where('triwulan','=',2)->where('bulan','=',6)->where('tahun','=',2023)->first();
+                    $remun_insentif = RemunInsentif::where('pegawai_id','=',$pegawai->id)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',2)->where('bulan','=',6)->where('tahun','=',2023)->first();
                     if(!$remun_insentif) $remun_insentif = new RemunInsentif;
 
                     // Simpan remun insentif

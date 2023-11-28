@@ -91,176 +91,83 @@ class Remun15Controller extends Controller
 		})->where('nama','!=','-')->where('pusat','=',0)->orderBy('num_order','asc')->get();
 
         // Count total pegawai dan remun insentif
-        $total_pegawai = 0;
-        $total_remun_insentif = 0;
-        $total_potongan = 0;
-        $total_dibayarkan = 0;
+        $total_dosen_dibayarkan = 0;
+        $total_tendik_dibayarkan = 0;
+        $total_pegawai_dinolkan = 0;
+        $total_nominal_dosen = 0;
+        $total_nominal_tendik = 0;
 
         foreach($unit as $key=>$u) {
-            // Get pensiun dan MD
-            $pensiunmd = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereIn('status_kerja_id',[2,3])->where('tmt_non_aktif','<=',$tanggal);
-            })->get();
-
-            // Get pegawai pensiun dan MD
-            $arrayp = [];
-            if(count($pensiunmd) > 0) {
-                foreach($pensiunmd as $p) {
-                    array_push($arrayp, strtoupper(title_name($p->pegawai->nama, $p->pegawai->gelar_depan, $p->pegawai->gelar_belakang)));
-                }
-            }
+			// Count dosen dibayarkan
+			$unit[$key]->dosen_dibayarkan = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->count();
+			
+			// Count tendik dibayarkan
+			$unit[$key]->tendik_dibayarkan = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->count();
+			
+			// Count pegawai dinolkan
+			$unit[$key]->pegawai_dinolkan = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->where('remun_insentif','=',0)->count();
             
-            // Push
-            $unit[$key]->pensiunmd = $pensiunmd;
-            $unit[$key]->namapensiunmd = $arrayp;
-            $unit[$key]->pegawai = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->count();
-            $unit[$key]->remun_insentif = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->sum('remun_insentif');
-            $unit[$key]->potongan = LebihKurang::whereIn('pegawai_id',RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray())->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->sum('selisih');
-            $unit[$key]->dibayarkan = $unit[$key]->remun_insentif + $unit[$key]->potongan;
-            $unit[$key]->potonganDosen = LebihKurang::whereIn('pegawai_id',RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->pluck('pegawai_id')->toArray())->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->count();
-            $unit[$key]->potonganTendik = LebihKurang::whereIn('pegawai_id',RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[2])->pluck('pegawai_id')->toArray())->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->count();
+			// Count nominal dosen
+            $unit[$key]->nominal_dosen = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->sum('remun_insentif');
+			
+			// Count nominal tendik
+            $unit[$key]->nominal_tendik = RemunInsentif::where('unit_id','=',$u->id)->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[2])->sum('remun_insentif');
 
             // Sum
-            $total_pegawai += $unit[$key]->pegawai;
-            $total_remun_insentif += $unit[$key]->remun_insentif;
-            $total_potongan += $unit[$key]->potongan;
-            $total_dibayarkan += $unit[$key]->dibayarkan;
+            $total_dosen_dibayarkan += $unit[$key]->dosen_dibayarkan;
+            $total_tendik_dibayarkan += $unit[$key]->tendik_dibayarkan;
+            $total_pegawai_dinolkan += $unit[$key]->pegawai_dinolkan;
+            $total_nominal_dosen += $unit[$key]->nominal_dosen;
+            $total_nominal_tendik += $unit[$key]->nominal_tendik;
         }
 
-        // Get pensiun dan MD pusat
-        $pensiunmd_pusat = RemunInsentif::where('triwulan','=',15)->where('tahun','=',$tahun)->whereHas('unit', function(Builder $query) {
+        // Get dosen dibayarkan pada pusat
+        $dosen_dibayarkan_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
             return $query->where('pusat','=',1);
-        })->whereHas('pegawai', function(Builder $query) use ($tanggal) {
-            return $query->whereIn('status_kerja_id',[2,3])->where('tmt_non_aktif','<=',$tanggal);
-        })->get();
-        
-        // Get pegawai pensiun dan MD pusat
-        $pegawai_pensiunmd_pusat = [];
-        if(count($pensiunmd_pusat) > 0) {
-            foreach($pensiunmd_pusat as $p) {
-                array_push($pegawai_pensiunmd_pusat, strtoupper(title_name($p->pegawai->nama, $p->pegawai->gelar_depan, $p->pegawai->delar_belakang)));
-            }
-        }
+        })->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->count();
 
-        // Get pegawai pusat
-        $pegawai_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
+        // Get tendik dibayarkan pada pusat
+        $tendik_dibayarkan_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
             return $query->where('pusat','=',1);
-        })->where('triwulan','=',15)->where('tahun','=',$tahun)->count();
+        })->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->count();
 
-        // Get remun insentif pusat
-        $remun_insentif_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
+        // Get pegawai dinolkan pada pusat
+        $pegawai_dinolkan_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
             return $query->where('pusat','=',1);
-        })->where('triwulan','=',15)->where('tahun','=',$tahun)->sum('remun_insentif');
+        })->where('triwulan','=',15)->where('tahun','=',$tahun)->where('remun_insentif','=',0)->count();
 
-        // Get potongan pusat
-        $potongan_pusat = LebihKurang::whereIn('pegawai_id',RemunInsentif::whereHas('unit',
-            function(Builder $query) {
-                return $query->where('pusat','=',1);
-            })->where('triwulan','=',15)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray()
-        )->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->sum('selisih');
+        // Get nominal dosen pada pusat
+        $nominal_dosen_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
+            return $query->where('pusat','=',1);
+        })->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->sum('remun_insentif');
 
-        // Get potongan pegawai pusat
-        $potongan_pegawai_pusat['dosen'] = LebihKurang::whereIn('pegawai_id',RemunInsentif::whereHas('unit',
-            function(Builder $query) {
-                return $query->where('pusat','=',1);
-            })->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->pluck('pegawai_id')->toArray()
-        )->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->count();
-        $potongan_pegawai_pusat['tendik'] = LebihKurang::whereIn('pegawai_id',RemunInsentif::whereHas('unit',
-            function(Builder $query) {
-                return $query->where('pusat','=',1);
-            })->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[2])->pluck('pegawai_id')->toArray()
-        )->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->count();
+        // Get nominal tendik pada pusat
+        $nominal_tendik_pusat = RemunInsentif::whereHas('unit', function(Builder $query) {
+            return $query->where('pusat','=',1);
+        })->where('triwulan','=',15)->where('tahun','=',$tahun)->whereIn('kategori',[2])->sum('remun_insentif');
 
-        // Sum
-        $total_pegawai += $pegawai_pusat;
-        $total_remun_insentif += $remun_insentif_pusat;
-        $total_potongan += $potongan_pusat;
-        $total_dibayarkan += ($remun_insentif_pusat + $potongan_pusat);
+		// Sum
+		$total_dosen_dibayarkan += $dosen_dibayarkan_pusat;
+		$total_tendik_dibayarkan += $tendik_dibayarkan_pusat;
+		$total_pegawai_dinolkan += $pegawai_dinolkan_pusat;
+		$total_nominal_dosen += $nominal_dosen_pusat;
+		$total_nominal_tendik += $nominal_tendik_pusat;
 
         // View
         return view('admin/remun-15/monitoring', [
             'unit' => $unit,
             'tahun' => $tahun,
-            'pensiunmd_pusat' => $pensiunmd_pusat,
-            'pegawai_pensiunmd_pusat' => $pegawai_pensiunmd_pusat,
-            'pegawai_pusat' => $pegawai_pusat,
-            'remun_insentif_pusat' => $remun_insentif_pusat,
-            'potongan_pusat' => $potongan_pusat,
-            'potongan_pegawai_pusat' => $potongan_pegawai_pusat,
-            'total_pegawai' => $total_pegawai,
-            'total_remun_insentif' => $total_remun_insentif,
-            'total_potongan' => $total_potongan,
-            'total_dibayarkan' => $total_dibayarkan,
+            'dosen_dibayarkan_pusat' => $dosen_dibayarkan_pusat,
+            'tendik_dibayarkan_pusat' => $tendik_dibayarkan_pusat,
+            'pegawai_dinolkan_pusat' => $pegawai_dinolkan_pusat,
+            'nominal_dosen_pusat' => $nominal_dosen_pusat,
+            'nominal_tendik_pusat' => $nominal_tendik_pusat,
+            'total_dosen_dibayarkan' => $total_dosen_dibayarkan,
+            'total_tendik_dibayarkan' => $total_tendik_dibayarkan,
+            'total_pegawai_dinolkan' => $total_pegawai_dinolkan,
+            'total_nominal_dosen' => $total_nominal_dosen,
+            'total_nominal_tendik' => $total_nominal_tendik,
         ]);
-    }
-
-    /**
-     * Print Potongan PDF.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function printPotongan(Request $request)
-    {
-        // Check the access
-        // has_access(method(__METHOD__), Auth::user()->role_id);
-
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        $kategori = $request->query('kategori');
-        $unit = $request->query('unit');
-        $pusat = $request->query('pusat');
-        $triwulan = $request->query('triwulan');
-        $tahun = $request->query('tahun');
-
-        // Get kategori
-        $get_kategori = $kategori == 1 ? 'Dosen' : 'Tendik';
-
-        if($pusat != 1) {
-            // Get unit
-            $unit = Unit::findOrFail($request->query('unit'));
-
-            // Get pegawai dalam unit berdasarkan remun insentif
-            if($kategori == 1)
-                $remun_insentif = RemunInsentif::where('unit_id','=',$request->query('unit'))->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->orderBy('num_order','desc')->get();
-            elseif($kategori == 2)
-                $remun_insentif = RemunInsentif::where('unit_id','=',$request->query('unit'))->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->orderBy('num_order','desc')->get();
-        }
-        else {
-            // Get unit pusat
-            $unit = Unit::where('pusat','=',1)->pluck('id')->toArray();
-
-            // Get pegawai dalam unit berdasarkan remun insentif
-            if($kategori == 1)
-                $remun_insentif = RemunInsentif::whereIn('unit_id',$unit)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->orderBy('num_order','desc')->get();
-            elseif($kategori == 2)
-                $remun_insentif = RemunInsentif::whereIn('unit_id',$unit)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->orderBy('num_order','desc')->get();
-        }
-
-        // Get potongan
-        $potongan = LebihKurang::whereIn('pegawai_id',$remun_insentif->pluck('pegawai_id')->toArray())->where('triwulan_proses','=',$triwulan)->where('tahun_proses','=',$tahun)->get();
-
-        foreach($potongan as $key=>$p) {
-            // Get remun insentif
-            $potongan[$key]->remun_insentif = RemunInsentif::where('pegawai_id','=',$p->pegawai_id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->first();
-        }
-
-        // Set title
-        $title = 'Potongan Remun-15 '.($pusat != 1 ? $unit->nama : 'Pusat').' '.$get_kategori.' ('.$tahun.' Triwulan '.$triwulan.')';
-
-        // PDF
-        $pdf = \PDF::loadView('admin/remun-insentif/print-potongan', [
-            'title' => $title,
-            'unit' => $unit,
-            'kategori' => $kategori,
-            'triwulan' => $triwulan,
-            'tahun' => $tahun,
-            'remun_insentif' => $remun_insentif,
-            'potongan' => $potongan,
-        ]);
-        $pdf->setPaper([0, 0 , 935, 612]);
-        return $pdf->stream($title.'.pdf');
     }
 
     /**
@@ -311,8 +218,8 @@ class Remun15Controller extends Controller
 
                     // Get kategori
                     if($data[5] == 'DT') $kategori = 3;
-                    elseif($data[5] == 'DOSEN') $kategori = 1;
-                    elseif($data[5] == 'TENDIK') $kategori = 2;
+                    elseif($data[5] == 'DOSEN' || $data[5] == 'Dosen') $kategori = 1;
+                    elseif($data[5] == 'TENDIK' || $data[5] == 'Tendik') $kategori = 2;
                     else $kategori = 0;
 
                     // Get remun insentif

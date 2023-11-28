@@ -177,6 +177,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Pantauan
     Route::get('/admin/pantauan/mkg', 'PantauanController@mkg')->name('admin.pantauan.mkg');
     Route::get('/admin/pantauan/pensiun', 'PantauanController@pensiun')->name('admin.pantauan.pensiun');
+    Route::get('/admin/pantauan/gaji-pokok', 'PantauanController@gajiPokok')->name('admin.pantauan.gaji-pokok');
     Route::get('/admin/pantauan/status-kepegawaian', 'PantauanController@statusKepegawaian')->name('admin.pantauan.status-kepegawaian');
 
     // Others

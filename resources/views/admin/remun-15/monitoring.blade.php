@@ -32,32 +32,27 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2">Unit</th>
-                                <th colspan="2">Pegawai</th>
-                                <th rowspan="2" width="90">Remun ke-15</th>
-                                <th rowspan="2" width="90">Dibayarkan</th>
+                                <th colspan="3">Pegawai</th>
+                                <th colspan="2">Nominal</th>
                                 <th rowspan="2" width="30">Excel Simkeu</th>
                             </tr>
                             <tr>
-                                <th width="60">Aktif</th>
-                                <th width="60">Pensiun / MD</th>
+                                <th width="60">Dosen</th>
+                                <th width="60">Tendik</th>
+                                <th width="60">Dinolkan</th>
+                                <th width="60">Dosen</th>
+                                <th width="60">Tendik</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($unit as $u)
                             <tr>
                                 <td>{{ $u->nama }}</td>
-                                <td align="right">{{ number_format($u->pegawai - count($u->pensiunmd)) }}</td>
-                                <td align="right">
-                                    @if(count($u->pensiunmd) > 0)
-                                        <a href="#" class="btn-pegawai-non-aktif text-danger" data-id="{{ $u->id }}" data-nama="{{ implode(' - ', $u->namapensiunmd) }}">
-                                            {{ number_format(count($u->pensiunmd)) }}
-                                        </a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td align="right">{{ number_format($u->remun_insentif) }}</td>
-                                <td align="right">{{ number_format($u->dibayarkan) }}</td>
+                                <td align="right">{{ number_format($u->dosen_dibayarkan) }}</td>
+                                <td align="right">{{ number_format($u->tendik_dibayarkan) }}</td>
+                                <td align="right">{{ number_format($u->pegawai_dinolkan) }}</td>
+                                <td align="right">{{ number_format($u->nominal_dosen) }}</td>
+                                <td align="right">{{ number_format($u->nominal_tendik) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         @if($u->nama != 'Sekolah Pascasarjana')
@@ -70,21 +65,14 @@
                             @endforeach
                             <tr>
                                 <td>Pusat</td>
-                                <td align="right">{{ number_format($pegawai_pusat - count($pensiunmd_pusat)) }}</td>
-                                <td align="right">
-                                    @if(count($pensiunmd_pusat) > 0)
-                                        <a href="#" class="btn-pegawai-non-aktif text-danger" data-id="0" data-nama="{{ implode(' - ', $pegawai_pensiunmd_pusat) }}">
-                                            {{ number_format(count($pensiunmd_pusat)) }}
-                                        </a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td align="right">{{ number_format($remun_insentif_pusat) }}</td>
-                                <td align="right">{{ number_format($remun_insentif_pusat + $potongan_pusat) }}</td>
+                                <td align="right">{{ number_format($dosen_dibayarkan_pusat) }}</td>
+                                <td align="right">{{ number_format($tendik_dibayarkan_pusat) }}</td>
+                                <td align="right">{{ number_format($pegawai_dinolkan_pusat) }}</td>
+                                <td align="right">{{ number_format($nominal_dosen_pusat) }}</td>
+                                <td align="right">{{ number_format($nominal_tendik_pusat) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.remun-15.export.pusat', ['status' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.remun-15.export.pusat', ['tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -92,12 +80,14 @@
                         <tfoot class="bg-light fw-bold">
                             <tr>
                                 <td>Total</td>
-                                <td colspan="2" align="center">{{ number_format($total_pegawai) }}</td>
-                                <td align="right">{{ number_format($total_remun_insentif) }}</td>
-                                <td align="right">{{ number_format($total_dibayarkan) }}</td>
+                                <td align="right">{{ number_format($total_dosen_dibayarkan) }}</td>
+                                <td align="right">{{ number_format($total_tendik_dibayarkan) }}</td>
+                                <td align="right">{{ number_format($total_pegawai_dinolkan) }}</td>
+                                <td align="right">{{ number_format($total_nominal_dosen) }}</td>
+                                <td align="right">{{ number_format($total_nominal_tendik) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.remun-15.export.recap', ['tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.remun-15.export.recap', ['tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel Rekap"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -107,23 +97,6 @@
             </div>
 		</div>
 	</div>
-</div>
-
-<div class="modal fade" id="modal-pegawai-non-aktif" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Pegawai Pensiun / MD</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-0"></p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-sm btn-danger" type="button" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 @endsection
@@ -136,20 +109,6 @@
         orderAll: true,
         pageLength: -1,
         fixedHeader: true,
-    });
-
-    // Button Pegawai Non Aktif
-    $(document).on("click", ".btn-pegawai-non-aktif", function(e) {
-        e.preventDefault();
-        var nama = $(this).data("nama");
-        var nama = nama.split(" - ");
-        var html = '<ol class="mb-0">';
-        for(i=0; i<nama.length; i++) {
-            html += '<li>' + nama[i] + '</li>';
-        }
-        html += '</ol>';
-        $("#modal-pegawai-non-aktif .modal-body p").html(html);
-        Spandiv.Modal("#modal-pegawai-non-aktif").show();
     });
 </script>
 

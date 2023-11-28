@@ -6,8 +6,9 @@ use Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\MutasiImport;
 use App\Models\Pegawai;
+use App\Models\Gaji;
+use App\Models\GajiPokok;
 use App\Models\StatusKepegawaian;
 
 class PantauanController extends Controller
@@ -115,6 +116,43 @@ class PantauanController extends Controller
         // View
         return view('admin/pantauan/pensiun', [
             'pegawai' => $pegawai
+        ]);
+    }
+
+    /**
+     * Gaji Pokok PNS
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function gajiPokok(Request $request)
+    {
+		// Periode gaji pokok terakhir
+		$gaji_terakhir = Gaji::where('jenis_id','=',1)->latest('tahun')->latest('bulan')->first();
+		
+        // Get pegawai
+        $pegawai = Pegawai::where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+		foreach($pegawai as $key=>$p) {
+			// Get gaji pokok terakhir dari mutasi
+			$pegawai[$key]->mutasi_gaji_pokok_terakhir = $p->mutasi()->first() && $p->mutasi()->first()->gaji_pokok ? $p->mutasi()->first()->gaji_pokok : null;
+			
+			// Get gaji pokok terakhir dari gaji induk
+			$gaji_induk = $gaji_terakhir ? $p->gaji()->where('jenis_id','=',1)->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
+			$gaji_pokok = $gaji_induk ? GajiPokok::where('sk_id','=',8)->where('gaji_pokok','=',$gaji_induk->gjpokok)->first() : null;
+			$pegawai[$key]->gpp_gaji_pokok_terakhir = $gaji_pokok ?: null;
+			
+			// Cek
+			$pegawai[$key]->cek = 'Beda';
+			if($pegawai[$key]->mutasi_gaji_pokok_terakhir && $pegawai[$key]->gpp_gaji_pokok_terakhir) {
+				if($pegawai[$key]->mutasi_gaji_pokok_terakhir->gaji_pokok == $pegawai[$key]->gpp_gaji_pokok_terakhir->gaji_pokok)
+					$pegawai[$key]->cek = 'Sama';
+			}
+		}
+
+        // View
+        return view('admin/pantauan/gaji-pokok', [
+            'pegawai' => $pegawai,
+            'gaji_terakhir' => $gaji_terakhir
         ]);
     }
 

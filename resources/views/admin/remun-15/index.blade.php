@@ -53,27 +53,12 @@
                                 <th>Jabatan / Sub Jabatan</th>
                                 <th width="40">Layer</th>
                                 <th width="40">Grade</th>
-                                <th width="50">Poin</th>
-                                <th width="70">Remun ke-15</th>
-                                <th width="70">Potongan</th>
                                 <th width="70">Dibayarkan</th>
                                 <th>Keterangan</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                                $total_selisih = 0;
-                                $total_dibayarkan = 0;
-                            ?>
                             @foreach($remun_15 as $r)
-                            <?php
-                                $selisih = \App\Models\LebihKurang::where('pegawai_id','=',$r->pegawai->id)->where('triwulan_proses','=',15)->where('tahun_proses','=',$tahun)->sum('selisih');
-                                $dibayarkan = $r->remun_insentif + $selisih;
-                                
-                                // Sum total
-                                $total_selisih += $selisih;
-                                $total_dibayarkan += $dibayarkan;
-                            ?>
                             <tr>
                                 <td>{{ strtoupper($r->pegawai->nama) }}<br>{{ $r->pegawai->nip }}</td>
                                 <td>{{ $r->pegawai->status_kepegawaian->nama }}</td>
@@ -95,20 +80,15 @@
                                 </td>
                                 <td align="center">{{ $r->layer->nama }}</td>
                                 <td align="center">{{ $r->jabatan_dasar->grade }}</td>
-                                <td align="right">{{ number_format($r->poin,2) }}</td>
                                 <td align="right">{{ number_format($r->remun_insentif) }}</td>
-                                <td align="right">{{ number_format(abs($selisih)) }}</td>
-                                <td align="right">{{ number_format($dibayarkan) }}</td>
                                 <td>{{ $r->keterangan }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="8" align="center">Total</td>
+                                <td colspan="7" align="center">Total</td>
                                 <td align="right"><b>{{ number_format($remun_15->sum('remun_insentif')) }}</b></td>
-                                <td align="right"><b>{{ number_format(abs($total_selisih)) }}</b></td>
-                                <td align="right"><b>{{ number_format($total_dibayarkan) }}</b></td>
                                 <td></td>
                             </tr>
                         </tfoot>

@@ -84,6 +84,8 @@ class RemunInsentifExportController extends Controller
 		ini_set("max_execution_time", "-1");
         
         $status = $request->query('status');
+        $triwulan = $request->query('triwulan');
+        $tahun = $request->query('tahun');
 
         // Get unit
         $unit = Unit::where('pusat','=',1)->orderBy('num_order_remun','asc')->get();
@@ -94,7 +96,7 @@ class RemunInsentifExportController extends Controller
             foreach($unit as $u) {
                 $ri = RemunInsentif::whereHas('pegawai', function(Builder $query) {
                     return $query->whereNotIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                })->where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
                 array_push($remun_insentif, $ri);
             }
         }
@@ -102,7 +104,7 @@ class RemunInsentifExportController extends Controller
             foreach($unit as $u) {
                 $ri = RemunInsentif::whereHas('pegawai', function(Builder $query) {
                     return $query->whereIn('status_kerja_id',[2,3]);
-                })->where('unit_id','=',$u->id)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                })->where('unit_id','=',$u->id)->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
                 array_push($remun_insentif, $ri);
             }
         }
