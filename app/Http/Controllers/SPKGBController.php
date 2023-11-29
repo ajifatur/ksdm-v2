@@ -258,7 +258,7 @@ class SPKGBController extends Controller
         }
 
         // Redirect
-        return redirect()->route('admin.kgb.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal))])->with(['message' => 'Berhasil menambah data.']);
+        return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal))])->with(['message' => 'Berhasil menambah data.']);
     }
 
     /**
@@ -366,7 +366,7 @@ class SPKGBController extends Controller
         }
 
         // Redirect
-        return redirect()->route('admin.kgb.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt))])->with(['message' => 'Berhasil mengupdate data.']);
+        return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt))])->with(['message' => 'Berhasil mengupdate data.']);
     }
 
     /**
