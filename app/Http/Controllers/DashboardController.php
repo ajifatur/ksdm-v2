@@ -42,9 +42,9 @@ class DashboardController extends Controller
         $remun_gaji = RemunGaji::where('bulan','=',date('n'))->where('tahun','=',date('Y'))->sum('remun_gaji') + LebihKurang::where('bulan_proses','=',date('n'))->where('tahun_proses','=',date('Y'))->where('triwulan_proses','=',0)->sum('selisih');
 
         // Sum remun insentif
-        $remun_insentif_terakhir = RemunInsentif::latest('tahun')->latest('triwulan')->first();
-        $remun_insentif_total = RemunInsentif::where('tahun','=',date('Y'))->sum('remun_insentif') + LebihKurang::where('tahun_proses','=',date('Y'))->where('triwulan_proses','!=',0)->sum('selisih');
-        $remun_insentif = RemunInsentif::where('triwulan','=',$remun_insentif_terakhir->triwulan)->where('tahun','=',date('Y'))->sum('remun_insentif') + LebihKurang::where('triwulan_proses','=',$remun_insentif_terakhir->triwulan)->where('tahun_proses','=',date('Y'))->sum('selisih');
+        $remun_insentif_terakhir = RemunInsentif::latest('tahun')->latest('triwulan')->whereIn('triwulan',[1,2,3,4])->first();
+        $remun_insentif_total = RemunInsentif::where('tahun','=',date('Y'))->whereIn('triwulan',[1,2,3,4])->sum('remun_insentif') + LebihKurang::where('tahun_proses','=',date('Y'))->where('triwulan_proses','!=',0)->sum('selisih');
+        $remun_insentif = RemunInsentif::where('triwulan','=',$remun_insentif_terakhir->triwulan)->whereIn('triwulan',[1,2,3,4])->where('tahun','=',date('Y'))->sum('remun_insentif') + LebihKurang::where('triwulan_proses','=',$remun_insentif_terakhir->triwulan)->where('tahun_proses','=',date('Y'))->sum('selisih');
 
         // Sum gaji induk
         $gaji_induk_total = Gaji::where('tahun','=',date('Y'))->sum('nominal') - Gaji::where('tahun','=',date('Y'))->sum('potongan');

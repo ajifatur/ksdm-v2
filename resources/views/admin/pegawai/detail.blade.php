@@ -303,7 +303,13 @@
                                         ?>
                                         <tr>
                                             <td align="right">{{ ($key+1) }}</td>
-                                            <td>Triwulan {{ $r->triwulan }} Tahun {{ $r->tahun }}</td>
+                                            <td>
+                                                @if($r->triwulan != 15)
+                                                    Remun Triwulan {{ $r->triwulan }} Tahun {{ $r->tahun }}
+                                                @else
+                                                    Remun ke-15 Tahun {{ $r->tahun }}
+                                                @endif
+                                            </td>
                                             <td>{{ $r->status_kepegawaian ? $r->status_kepegawaian->nama : '-' }}</td>
                                             <td>
                                                 {{ $r->jabatan ? $r->jabatan->nama : '-' }}
