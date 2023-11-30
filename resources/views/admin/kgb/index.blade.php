@@ -30,7 +30,8 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 <th>Golru</th>
                                 <th>MKG</th>
                                 <th>MK Tahun</th>
@@ -42,7 +43,8 @@
                         <tbody>
                             @foreach($mutasi as $m)
                             <tr>
-                                <td>{{ strtoupper($m->pegawai->nama) }}<br>{{ $m->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">`{{ $m->pegawai->nip }}</a></td>
+                                <td>{{ strtoupper($m->pegawai->nama) }}</td>
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
                                 <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
                                 <td>{{ $m->perubahan ? $m->perubahan->mk_tahun : '' }}</td>
@@ -84,7 +86,8 @@
     // DataTable
     Spandiv.DataTable("#datatable", {
         orderAll: true,
-        fixedHeader: true
+        fixedHeader: true,
+        buttons: true
     });
 	
     // Button Delete
@@ -106,6 +109,7 @@
 
 <style>
     #datatable tr td {vertical-align: top;}
+    div.dt-buttons .dt-button {border: 2px solid #bebebe!important;}
 </style>
 
 @endsection

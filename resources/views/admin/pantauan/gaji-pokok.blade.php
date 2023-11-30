@@ -40,7 +40,7 @@
                         <tbody>
                             @foreach($pegawai as $p)
                             <tr>
-                                <td>`{{ $p->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">`{{ $p->nip }}</a></td>
                                 <td>{{ strtoupper($p->nama) }}</td>
                                 <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td>{{ $p->unit->nama }}</td>

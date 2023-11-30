@@ -181,6 +181,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/pantauan/status-kepegawaian', 'PantauanController@statusKepegawaian')->name('admin.pantauan.status-kepegawaian');
 
     // Others
+    // Route::get('/admin/kgb/import', 'KGBController@import')->name('admin.kgb.import');
     // Route::get('/admin/jabatan/bup', 'JabatanController@bup')->name('admin.jabatan.bup');
     // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
     // Route::get('/admin/kp/import', 'SPKGBController@import')->name('admin.kp.import');
@@ -188,7 +189,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
     // Route::get('/admin/remun-insentif/import', 'RemunInsentifController@import')->name('admin.remun-insentif.import');
-    Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
+    // Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
     // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
     // Route::get('/admin/jabatan/import', 'JabatanController@import')->name('admin.jabatan.import');
