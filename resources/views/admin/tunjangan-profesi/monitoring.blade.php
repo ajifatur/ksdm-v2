@@ -56,11 +56,11 @@
                                 <th>Angkatan</th>
                                 <th>Jenis</th>
                                 <th>Pegawai</th>
-                                <th>Pegawai Non Aktif</th>
+                                <th class="notexport">Pegawai Non Aktif</th>
                                 <th>Tunjangan</th>
                                 <th>PPh Pasal 21</th>
                                 <th>Diterimakan</th>
-                                <th width="50">Opsi</th>
+                                <th class="notexport" width="50">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -150,6 +150,7 @@
         orderAll: true,
         pageLength: -1,
         fixedHeader: true,
+        buttons: true,
     });
 
     // Button Pegawai Non Aktif
