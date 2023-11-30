@@ -136,12 +136,12 @@ class GajiController extends Controller
     }
 
     /**
-     * Recap.
+     * Monthly Recap.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function recap(Request $request)
+    public function monthly(Request $request)
     {
         // Check the access
         // has_access(__METHOD__, Auth::user()->role_id);
@@ -173,7 +173,7 @@ class GajiController extends Controller
         $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'tjdaerah', 'tjpencil', 'tjlain', 'tjkompen', 'pembul', 'tjberas', 'tjpph', 'potpfkbul', 'potpfk2', 'potpfk10', 'potpph', 'potswrum', 'potkelbtj', 'potlain', 'pottabrum', 'bpjs', 'bpjs2'];
 
         // View
-        return view('admin/gaji/recap', [
+        return view('admin/gaji/monthly', [
             'tahun' => $tahun,
             'anak_satker_all' => $anak_satker_all,
             'anak_satker' => $anak_satker,
@@ -185,12 +185,12 @@ class GajiController extends Controller
     }
 
     /**
-     * Recap Tahunan.
+     * Annually Recap.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function yearlyRecap(Request $request)
+    public function annually(Request $request)
     {
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
@@ -219,7 +219,7 @@ class GajiController extends Controller
         $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'pembul', 'tjberas', 'tjpph'];
 
         // View
-        return view('admin/gaji/yearly-recap', [
+        return view('admin/gaji/annually', [
             'tahun' => $tahun,
             'anak_satker' => $anak_satker,
             'gaji' => $gaji,
@@ -235,7 +235,7 @@ class GajiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request)
+    public function export(Request $request)
     {
         // Check the access
         // has_access(__METHOD__, Auth::user()->role_id);

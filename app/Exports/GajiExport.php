@@ -48,7 +48,7 @@ class GajiExport extends StringValueBinder implements WithCustomValueBinder, Fro
     public function view(): View
     {
     	// View
-    	return view('admin/gaji/excel', [
+    	return view('admin/gaji/export', [
     		'data' => $this->data
     	]);
     }

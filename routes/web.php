@@ -132,9 +132,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Gaji Induk
     Route::get('/admin/gaji', 'GajiController@index')->name('admin.gaji.index');
     Route::get('/admin/gaji/monitoring', 'GajiController@monitoring')->name('admin.gaji.monitoring');
-    Route::get('/admin/gaji/recap', 'GajiController@recap')->name('admin.gaji.recap');
-    Route::get('/admin/gaji/yearly-recap', 'GajiController@yearlyRecap')->name('admin.gaji.yearly-recap');
-    Route::get('/admin/gaji/excel', 'GajiController@excel')->name('admin.gaji.excel');
+    Route::get('/admin/gaji/monthly', 'GajiController@monthly')->name('admin.gaji.monthly');
+    Route::get('/admin/gaji/annually', 'GajiController@annually')->name('admin.gaji.annually');
+    Route::get('/admin/gaji/export', 'GajiController@export')->name('admin.gaji.export');
     Route::post('/admin/gaji/import', 'GajiController@import')->name('admin.gaji.import');
     Route::get('/admin/gaji/change', 'GajiController@change')->name('admin.gaji.change');
 
@@ -142,9 +142,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
     Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
     Route::get('/admin/uang-makan/recap', 'UangMakanController@recap')->name('admin.uang-makan.recap');
+    Route::get('/admin/uang-makan/export', 'UangMakanController@export')->name('admin.uang-makan.export');
     Route::post('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
     Route::post('/admin/uang-makan/import-old', 'UangMakanController@importOld')->name('admin.uang-makan.import-old');
-    Route::get('/admin/uang-makan/excel', 'UangMakanController@excel')->name('admin.uang-makan.excel');
 
     // SPKGB
     Route::get('/admin/spkgb', 'SPKGBController@index')->name('admin.spkgb.index');

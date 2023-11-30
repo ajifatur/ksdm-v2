@@ -47,7 +47,7 @@
                                 <td align="right">{{ number_format($u['nominal_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.uang-makan.excel', ['bulan' => ($key+1), 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.uang-makan.export', ['bulan' => ($key+1), 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>

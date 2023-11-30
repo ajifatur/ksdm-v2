@@ -48,7 +48,7 @@ class UangMakanExport extends StringValueBinder implements WithCustomValueBinder
     public function view(): View
     {
     	// View
-    	return view('admin/uang-makan/excel', [
+    	return view('admin/uang-makan/export', [
     		'data' => $this->data
     	]);
     }

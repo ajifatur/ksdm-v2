@@ -82,8 +82,8 @@
                                 <td align="right">{{ number_format($d['dosen_bersih'] + $d['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.uang-makan.excel', ['id' => $d['anak_satker']->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.uang-makan.excel', ['id' => $d['anak_satker']->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.uang-makan.export', ['id' => $d['anak_satker']->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.uang-makan.export', ['id' => $d['anak_satker']->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -103,8 +103,8 @@
                                 <td align="right">{{ number_format($total['dosen_bersih'] + $total['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.uang-makan.excel', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.uang-makan.excel', ['kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.uang-makan.export', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.uang-makan.export', ['kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>

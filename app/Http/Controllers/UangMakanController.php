@@ -129,7 +129,7 @@ class UangMakanController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request)
+    public function export(Request $request)
     {
         // Check the access
         // has_access(__METHOD__, Auth::user()->role_id);

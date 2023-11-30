@@ -16,14 +16,6 @@
             <form method="get" action="">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
-                        <select name="jenis" class="form-select form-select-sm">
-                            <option value="0">Semua Jenis</option>
-                            @foreach($jenis_gaji as $j)
-                            <option value="{{ $j->id }}" {{ $jenis && $jenis->id == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
                         <select name="bulan" class="form-select form-select-sm">
                             <option value="0" disabled>--Pilih Bulan--</option>
                             @for($m=1; $m<=12; $m++)
@@ -92,10 +84,10 @@
                                         @if($jenis)
                                         <a href="{{ route('admin.gaji.index', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
                                         @endif
-                                        <a href="{{ route('admin.gaji.recap', ['id' => $d['anak_satker']->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Lihat Rekap Bulanan"><i class="bi-calendar-check"></i></a>
+                                        <a href="{{ route('admin.gaji.monthly', ['id' => $d['anak_satker']->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Lihat Rekap Bulanan"><i class="bi-calendar-check"></i></a>
                                         @if($jenis)
-                                        <a href="{{ route('admin.gaji.excel', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.excel', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                         @endif
                                     </div>
                                 </td>
@@ -117,9 +109,9 @@
                                 <td align="center">
                                     @if($jenis)
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.gaji.excel', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.excel', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.excel', ['bulan' => $bulan, 'jenis' => $jenis->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
                                     </div>
                                     @endif
                                 </td>
