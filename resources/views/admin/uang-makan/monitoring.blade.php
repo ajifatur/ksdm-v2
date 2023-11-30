@@ -50,18 +50,21 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2">Anak Satker</th>
-                                <th colspan="2">Dosen</th>
-                                <th colspan="2">Tendik</th>
-                                <th colspan="2">Total</th>
+                                <th colspan="3">Dosen</th>
+                                <th colspan="3">Tendik</th>
+                                <th colspan="3">Total</th>
                                 <th rowspan="2" width="60">Opsi</th>
                             </tr>
                             <tr>
                                 <th width="80">Pegawai</th>
-                                <th width="80">Nominal</th>
+                                <th width="80">Nominal Kotor</th>
+                                <th width="80">Nominal Bersih</th>
                                 <th width="80">Pegawai</th>
-                                <th width="80">Nominal</th>
+                                <th width="80">Nominal Kotor</th>
+                                <th width="80">Nominal Bersih</th>
                                 <th width="80">Pegawai</th>
-                                <th width="80">Nominal</th>
+                                <th width="80">Nominal Kotor</th>
+                                <th width="80">Nominal Bersih</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,10 +72,13 @@
                             <tr>
                                 <td>{{ $d['anak_satker']->kode }} - {{ $d['anak_satker']->nama }}</td>
                                 <td align="right">{{ number_format($d['dosen_jumlah']) }}</td>
+                                <td align="right">{{ number_format($d['dosen_kotor']) }}</td>
                                 <td align="right">{{ number_format($d['dosen_bersih']) }}</td>
                                 <td align="right">{{ number_format($d['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($d['tendik_kotor']) }}</td>
                                 <td align="right">{{ number_format($d['tendik_bersih']) }}</td>
                                 <td align="right">{{ number_format($d['dosen_jumlah'] + $d['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($d['dosen_kotor'] + $d['tendik_kotor']) }}</td>
                                 <td align="right">{{ number_format($d['dosen_bersih'] + $d['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
@@ -87,10 +93,13 @@
                             <tr>
                                 <td align="center">Total</td>
                                 <td align="right">{{ number_format($total['dosen_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_kotor']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_bersih']) }}</td>
                                 <td align="right">{{ number_format($total['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_kotor']) }}</td>
                                 <td align="right">{{ number_format($total['tendik_bersih']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_jumlah'] + $total['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_kotor'] + $total['tendik_kotor']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_bersih'] + $total['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">

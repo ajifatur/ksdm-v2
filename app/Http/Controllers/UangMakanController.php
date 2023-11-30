@@ -40,8 +40,10 @@ class UangMakanController extends Controller
         $data = [];
         $total = [
             'dosen_jumlah' => 0,
+            'dosen_kotor' => 0,
             'dosen_bersih' => 0,
             'tendik_jumlah' => 0,
+            'tendik_kotor' => 0,
             'tendik_bersih' => 0,
         ];
         foreach($anak_satker as $a) {
@@ -49,23 +51,29 @@ class UangMakanController extends Controller
 
             // Set angka
             $dosen_jumlah = $uang_makan->where('jenis','=',1)->count();
+            $dosen_kotor = $uang_makan->where('jenis','=',1)->sum('kotor');
             $dosen_bersih = $uang_makan->where('jenis','=',1)->sum('bersih');
             $tendik_jumlah = $uang_makan->where('jenis','=',2)->count();
+            $tendik_kotor = $uang_makan->where('jenis','=',2)->sum('kotor');
             $tendik_bersih = $uang_makan->where('jenis','=',2)->sum('bersih');
 
             // Push data
             array_push($data, [
                 'anak_satker' => $a,
                 'dosen_jumlah' => $dosen_jumlah,
+                'dosen_kotor' => $dosen_kotor,
                 'dosen_bersih' => $dosen_bersih,
                 'tendik_jumlah' => $tendik_jumlah,
+                'tendik_kotor' => $tendik_kotor,
                 'tendik_bersih' => $tendik_bersih,
             ]);
 
             // Count total
             $total['dosen_jumlah'] += $dosen_jumlah;
+            $total['dosen_kotor'] += $dosen_kotor;
             $total['dosen_bersih'] += $dosen_bersih;
             $total['tendik_jumlah'] += $tendik_jumlah;
+            $total['tendik_kotor'] += $tendik_kotor;
             $total['tendik_bersih'] += $tendik_bersih;
         }
 
@@ -95,20 +103,23 @@ class UangMakanController extends Controller
             array_push($uang_makan, [
                 'bulan' => DateTimeExt::month($i),
                 'pegawai' => UangMakan::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->count(),
-                'nominal' => UangMakan::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->sum('bersih')
+                'nominal_kotor' => UangMakan::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->sum('kotor'),
+                'nominal_bersih' => UangMakan::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->sum('bersih'),
             ]);
         }
 
         // Total
         $total_pegawai = UangMakan::where('tahun','=',$tahun)->count();
-        $total_uang_makan = UangMakan::where('tahun','=',$tahun)->sum('bersih');
+        $total_nominal_kotor = UangMakan::where('tahun','=',$tahun)->sum('kotor');
+        $total_nominal_bersih = UangMakan::where('tahun','=',$tahun)->sum('bersih');
 
         // View
         return view('admin/uang-makan/recap', [
             'tahun' => $tahun,
             'uang_makan' => $uang_makan,
             'total_pegawai' => $total_pegawai,
-            'total_uang_makan' => $total_uang_makan,
+            'total_nominal_kotor' => $total_nominal_kotor,
+            'total_nominal_bersih' => $total_nominal_bersih,
         ]);
     }
 

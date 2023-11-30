@@ -33,7 +33,8 @@
                             <tr>
                                 <th>Bulan</th>
                                 <th>Pegawai</th>
-                                <th>Nominal</th>
+                                <th>Nominal Kotor</th>
+                                <th>Nominal Bersih</th>
                                 <th width="30">Opsi</th>
                             </tr>
                         </thead>
@@ -42,7 +43,8 @@
                             <tr>
                                 <td>{{ $u['bulan'] }}</td>
                                 <td align="right">{{ number_format($u['pegawai']) }}</td>
-                                <td align="right">{{ number_format($u['nominal']) }}</td>
+                                <td align="right">{{ number_format($u['nominal_kotor']) }}</td>
+                                <td align="right">{{ number_format($u['nominal_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.uang-makan.excel', ['bulan' => ($key+1), 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
@@ -55,7 +57,8 @@
                             <tr>
                                 <td align="center">Total</td>
                                 <td align="right">{{ number_format($total_pegawai) }}</td>
-                                <td align="right">{{ number_format($total_uang_makan) }}</td>
+                                <td align="right">{{ number_format($total_nominal_kotor) }}</td>
+                                <td align="right">{{ number_format($total_nominal_bersih) }}</td>
                                 <td></td>
                             </tr>
                         </tfoot>
