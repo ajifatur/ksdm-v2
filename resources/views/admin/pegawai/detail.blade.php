@@ -446,7 +446,7 @@
                                 </tbody>
                                 <tfoot class="bg-light fw-bold">
                                     <tr>
-                                        <td colspan="2" align="center">Total</td>
+                                        <td colspan="3" align="center">Total</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('gjpokok') + $pegawai->gaji()->sum('tjistri') + $pegawai->gaji()->sum('tjanak')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('tjfungs') + $pegawai->gaji()->sum('tjstruk') + $pegawai->gaji()->sum('tjupns')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('tjberas') + $pegawai->gaji()->sum('tjpph') + $pegawai->gaji()->sum('pembul')) }}</td>
@@ -469,10 +469,11 @@
                                     <tr>
                                         <th width="5">No</th>
                                         <th>Bulan, Tahun</th>
+                                        <th>Anak Satker,<br>Unit</th>
                                         <th width="130">Jumlah Hari</th>
-                                        <th width="130">Gaji Kotor</th>
+                                        <th width="130">Nominal Kotor</th>
                                         <th width="130">Potongan</th>
-                                        <th width="130">Gaji Bersih</th>
+                                        <th width="130">Nominal Bersih</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -480,6 +481,12 @@
                                     <tr>
                                         <td>{{ ($key+1) }}</td>
                                         <td>{{ \Ajifatur\Helpers\DateTimeExt::month((int)$um->bulan) }} {{ $um->tahun }}</td>
+										<td>
+											<?php $anak_satker = \App\Models\AnakSatker::where('kode','=',$um->kdanak)->first(); ?>
+											{{ $anak_satker ? $anak_satker->nama.' ('.$anak_satker->kode.')' : '' }}
+											<br>
+											{{ $um->unit ? $um->unit->nama : '-' }}
+										</td>
                                         <td align="right">{{ number_format($um->jmlhari) }}</td>
                                         <td align="right">{{ number_format($um->kotor) }}</td>
                                         <td align="right">{{ number_format($um->potongan) }}</td>
@@ -489,7 +496,7 @@
                                 </tbody>
                                 <tfoot class="bg-light fw-bold">
                                     <tr>
-                                        <td colspan="2" align="center">Total</td>
+                                        <td colspan="3" align="center">Total</td>
                                         <td align="right">{{ number_format($pegawai->uang_makan()->sum('jmlhari')) }}</td>
                                         <td align="right">{{ number_format($pegawai->uang_makan()->sum('kotor')) }}</td>
                                         <td align="right">{{ number_format($pegawai->uang_makan()->sum('potongan')) }}</td>
