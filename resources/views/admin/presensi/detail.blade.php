@@ -19,6 +19,7 @@
                                 <th width="20">No.</th>
                                 <th>Nama</th>
                                 <th>NIP</th>
+                                <th>Status Kepeg.</th>
                                 <th>Kehadiran</th>
                                 <th>Dobel Tanggal</th>
                                 <th>Akhir Pekan</th>
@@ -34,6 +35,7 @@
                                     ?>
                                     <td>{{ $pegawai ? $pegawai->nama : '-' }}</td>
                                     <td>{{ $nip }}</td>
+                                    <td>{{ $pegawai ? $pegawai->status_kepegawaian->nama : '-' }}</td>
                                     <td>{{ count($d) }}</td>
 									<?php
 										// Menghitung dobel tanggal
