@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Monitoring Tunjangan Profesi Per Unit')
+@section('title', 'Monitoring Tunjangan Profesi Per Bulan')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Monitoring Tunjangan Profesi Per Unit</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Monitoring Tunjangan Profesi Per Bulan</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -13,14 +13,6 @@
             <form method="get" action="">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
-                        <select name="bulan" class="form-select form-select-sm">
-                            <option value="0" disabled>--Pilih Bulan--</option>
-                            @for($m=1; $m<=12; $m++)
-                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($m) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
                         <select name="tahun" class="form-select form-select-sm">
                             <option value="0" disabled>--Pilih Tahun--</option>
                             @for($y=date('Y'); $y>=2023; $y--)
@@ -39,7 +31,7 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="2">Unit</th>
+                                <th rowspan="2">Bulan</th>
 								<th colspan="4">Nominal Kotor</th>
                                 <th rowspan="2" width="80">Total Nominal Kotor</th>
 								<th colspan="4">Nominal Bersih</th>
@@ -60,25 +52,28 @@
                         <tbody>
                             @foreach($data as $d)
                             <tr>
-								<td>{{ $d['unit']->nama }}</td>
-								<?php $total_kotor_per_unit = 0; ?>
+								<td>
+                                    <span class="d-none">{{ $d['bulan'] < 10 ? '0'.$d['bulan'] : $d['bulan'] }}</span>
+                                    {{ $d['bulan_nama'] }}
+                                </td>
+								<?php $total_kotor_per_bulan = 0; ?>
 								@foreach($d['tunjangan_profesi'] as $tp)
 								<td align="right">{{ number_format($tp['tunjangan']) }}</td>
-								<?php $total_kotor_per_unit += $tp['tunjangan']; ?>
+								<?php $total_kotor_per_bulan += $tp['tunjangan']; ?>
 								@endforeach
-								<td align="right">{{ number_format($total_kotor_per_unit) }}</td>
-								<?php $total_bersih_per_unit = 0; ?>
+								<td align="right">{{ number_format($total_kotor_per_bulan) }}</td>
+								<?php $total_bersih_per_bulan = 0; ?>
 								@foreach($d['tunjangan_profesi'] as $tp)
 								<td align="right">{{ number_format($tp['diterimakan']) }}</td>
-								<?php $total_bersih_per_unit += $tp['diterimakan']; ?>
+								<?php $total_bersih_per_bulan += $tp['diterimakan']; ?>
 								@endforeach
-								<td align="right">{{ number_format($total_bersih_per_unit) }}</td>
+								<td align="right">{{ number_format($total_bersih_per_bulan) }}</td>
                                 <td align="center">
 									<div class="btn-group">
 										@foreach($d['tunjangan_profesi'] as $tp)
-                                        <a href="{{ route('admin.tunjangan-profesi.unit.export', ['id' => $d['unit']->id, 'jenis' => $tp['jenis']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tunjangan {{ $tp['jenis']->nama }}"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.tunjangan-profesi.excel', ['jenis' => $tp['jenis']->id, 'bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tunjangan {{ $tp['jenis']->nama }}"><i class="bi-file-excel"></i></a>
 										@endforeach
-                                        <a href="{{ route('admin.tunjangan-profesi.unit.export', ['id' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.tunjangan-profesi.excel', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
 									</div>
 								</td>
 							</tr>

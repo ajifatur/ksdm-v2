@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use Ajifatur\Helpers\FileExt;
 use App\Models\LebihKurang;
 
 class LebihKurangController extends Controller
@@ -22,7 +21,8 @@ class LebihKurangController extends Controller
     public function update(Request $request)
     {
         // Simpan lebih kurang
-        $lebih_kurang = LebihKurang::findOrFail($request->id);
+        $lebih_kurang = LebihKurang::find($request->id);
+        if(!$lebih_kurang) $lebih_kurang = new LebihKurang;
         $lebih_kurang->pegawai_id = $request->pegawai;
         $lebih_kurang->jabatan_terbayar_id = $request->jabatan_terbayar;
         $lebih_kurang->jabatan_seharusnya_id = $request->jabatan_seharusnya;

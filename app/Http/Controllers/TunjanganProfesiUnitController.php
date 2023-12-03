@@ -51,6 +51,7 @@ class TunjanganProfesiUnitController extends Controller
 				$tunjangan_profesi[strtolower(str_replace('-','_',$j->file))] = [
 					'jenis' => $j,
 					'pegawai' => $tunjangan->count(),
+					'tunjangan' => $tunjangan->sum('tunjangan'),
 					'diterimakan' => $tunjangan->sum('diterimakan'),
 				];
 			}
@@ -62,15 +63,20 @@ class TunjanganProfesiUnitController extends Controller
 			]);
 		}
 		
-		$total = [];
+		$total_tunjangan = [];
+		$total_diterimakan = [];
 		foreach($jenis as $j) {
-			// Get tunjangan
+			// Get tunjangan dan diterimakan
 			$tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
+				return $query->where('jenis_id','=',$j->id);
+			})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->sum('tunjangan');
+			$diterimakan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
 				return $query->where('jenis_id','=',$j->id);
 			})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->sum('diterimakan');
 
 			// Push to array
-			array_push($total, $tunjangan);
+			array_push($total_tunjangan, $tunjangan);
+			array_push($total_diterimakan, $diterimakan);
 		}
 
         // View
@@ -79,7 +85,8 @@ class TunjanganProfesiUnitController extends Controller
             'bulan' => $bulan,
             'tahun' => $tahun,
             'data' => $data,
-            'total' => $total,
+            'total_tunjangan' => $total_tunjangan,
+            'total_diterimakan' => $total_diterimakan,
         ]);
     }
 
@@ -90,7 +97,7 @@ class TunjanganProfesiUnitController extends Controller
 	 * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function excel(Request $request, $id)
+    public function export(Request $request, $id)
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");

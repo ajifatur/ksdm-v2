@@ -122,7 +122,11 @@
                                 @if(Request::query('unit') == null || Request::query('unit') == 0)
                                 <td>{{ $r->unit->nama }}</td>
                                 @endif
-                                <td></td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-primary btn-add-lebih-kurang"data-pegawai="{{ $r->pegawai_id }}" data-npegawai="{{ strtoupper($r->pegawai->nama) }}" data-jseharusnya="{{ $r->jabatan_id }}" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                    </div>
+                                </td>
                             </tr>
                                 @foreach($lebih_kurang as $lk)
                                 <tr bgcolor="#e3e3e3">
@@ -331,6 +335,22 @@
     });
     Spandiv.Select2("select[name=jabatan_seharusnya]", {
         dropdownParent: "#modal-lebih-kurang"
+    });
+
+    // Button Add Lebih Kurang
+    $(document).on("click", ".btn-add-lebih-kurang", function(e) {
+        e.preventDefault();
+        $("#modal-lebih-kurang").find(".modal-title").text("Tambah Kelebihan / Kekurangan");
+        $("#modal-lebih-kurang").find("input[name=pegawai]").val($(this).data("pegawai"));
+        $("#modal-lebih-kurang").find("input[name=npegawai]").val($(this).data("npegawai"));
+        $("#modal-lebih-kurang").find("select[name=jabatan_terbayar]").val(null).trigger("change");
+        $("#modal-lebih-kurang").find("select[name=jabatan_seharusnya]").val($(this).data("jseharusnya")).trigger("change");
+        $("#modal-lebih-kurang").find("select[name=bulan]").val(null);
+        $("#modal-lebih-kurang").find("select[name=tahun]").val(null);
+        $("#modal-lebih-kurang").find("input[name=terbayar]").val(0);
+        $("#modal-lebih-kurang").find("input[name=seharusnya]").val(0);
+        $("#modal-lebih-kurang").find("input[name=selisih]").val(0);
+        Spandiv.Modal("#modal-lebih-kurang").show();
     });
 
     // Button Edit Lebih Kurang

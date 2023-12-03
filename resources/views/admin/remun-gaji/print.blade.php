@@ -3,10 +3,14 @@
 // Cek mutasi
 function check_mutasi($pegawai, $bulan, $tahun) {
     // Get mutasi terbaru
-    $mutasi = $pegawai->mutasi()->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+    $mutasi = $pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
+		return $query->where('remun','=',1);
+	})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
 
     // Get mutasi sebelumnya
-    $mutasi_sebelum = $pegawai->mutasi()->where('bulan','!=',$bulan)->orWhere('tahun','!=',$tahun)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+    $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
+		return $query->where('remun','=',1);
+	})->where('bulan','!=',$bulan)->orWhere('tahun','!=',$tahun)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
 
     // Jika rangkap jabatan, mengecek perubahan
     if($mutasi && count($mutasi->detail) > 1) {
@@ -100,7 +104,9 @@ function check_mutasi($pegawai, $bulan, $tahun) {
                 <?php
                     $lebih_kurang = \App\Models\LebihKurang::where('pegawai_id','=',$r->pegawai->id)->where('bulan_proses','=',Request::query('bulan'))->where('tahun_proses','=',Request::query('tahun'))->where('triwulan_proses','=',0)->where('selisih','!=',0)->get();
                     $dibayarkan = $r->remun_gaji + $lebih_kurang->sum('selisih');
-                    $mutasi = $r->pegawai->mutasi()->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+                    $mutasi = $r->pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
+						return $query->where('remun','=',1);
+					})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
 
                     // Sum total
                     $total_terbayar += $lebih_kurang->sum('terbayar');
@@ -175,19 +181,5 @@ function check_mutasi($pegawai, $bulan, $tahun) {
             </tr>
         </tfoot>
     </table>
-    <!-- <table width="100%" id="sign">
-        <tr>
-            <td width="80%"></td>
-            <td height="80" valign="top">
-                Semarang,
-                <br><br>
-                Pejabat Pembuat Komitmen
-                <br><br><br><br><br>
-                Siti Mursidah, S.Pd., M.Si.
-                <br>
-                NIP. 197710262005022001
-            </td>
-        </tr>
-    </table> -->
 </body>
 </html>

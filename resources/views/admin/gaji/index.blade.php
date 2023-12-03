@@ -67,7 +67,7 @@
                                 <th width="80">Tunj. Fungsional,<br>Tunj. Struktural,<br>Tunj. Umum</th>
                                 <th width="80">Tunj. Beras,<br>Tunj. Kh. Pajak,<br>Pembulatan</th>
                                 <th width="80">Jumlah Penghasilan Kotor</th>
-                                <th width="80">IWP,<br>BPJS</th>
+                                <th width="80">IWP,<br>BPJS,<br>BPJS2</th>
                                 <th width="80">Pajak Penghasilan</th>
                                 <th width="80">Jumlah Potongan</th>
                             </tr>
@@ -82,7 +82,7 @@
                                 <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjstruk) }}<br>{{ number_format($g->tjupns) }}</td>
                                 <td align="right">{{ number_format($g->tjberas) }}<br>{{ number_format($g->tjpph) }}<br>{{ number_format($g->pembul) }}</td>
                                 <td align="right">{{ number_format($g->nominal) }}</td>
-                                <td align="right">{{ number_format($g->potpfk10) }}<br>{{ number_format($g->bpjs) }}</td>
+                                <td align="right">{{ number_format($g->potpfk10) }}<br>{{ number_format($g->bpjs) }}<br>{{ number_format($g->bpjs2) }}</td>
                                 <td align="right">{{ number_format($g->potpph) }}</td>
                                 <td align="right">{{ number_format($g->potongan) }}</td>
                                 <td align="right">{{ number_format($g->nominal - $g->potongan) }}</td>

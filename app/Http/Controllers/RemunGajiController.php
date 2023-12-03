@@ -91,7 +91,9 @@ class RemunGajiController extends Controller
 
             foreach($proses as $key=>$p) {
                 // Count mutasi
-                $proses[$key]->mutasi = Mutasi::where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->count();
+                $proses[$key]->mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
+                    return $query->where('remun','=',1);
+                })->where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->count();
 
                 // Count pegawai
                 $proses[$key]->pegawai = RemunGaji::where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->count();
@@ -922,5 +924,21 @@ class RemunGajiController extends Controller
             }
         }
         var_dump($error);
+    }
+
+    public function mround() {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+        
+        // Get remun gaji Januari - Mei
+        $remun_gaji = RemunGaji::where('bulan','<',6)->get();
+        foreach($remun_gaji as $rg) {
+            // Update
+            $update = RemunGaji::find($rg->id);
+            $update->remun_penerimaan = mround($rg->remun_penerimaan, 1);
+            $update->remun_gaji = mround($rg->remun_gaji, 1);
+            $update->remun_insentif = mround($rg->remun_insentif, 1);
+            $update->save();
+        }
     }
 }

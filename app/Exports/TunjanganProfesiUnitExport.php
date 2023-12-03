@@ -48,7 +48,7 @@ class TunjanganProfesiUnitExport extends StringValueBinder implements WithCustom
     public function view(): View
     {
     	// View
-    	return view('admin/tunjangan-profesi/unit/excel', [
+    	return view('admin/tunjangan-profesi/unit/export', [
     		'data' => $this->data
     	]);
     }

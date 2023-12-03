@@ -80,7 +80,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Remun 15
     Route::get('/admin/remun-15', 'Remun15Controller@index')->name('admin.remun-15.index');
     Route::get('/admin/remun-15/monitoring', 'Remun15Controller@monitoring')->name('admin.remun-15.monitoring');
-    Route::get('/admin/remun-15/print-potongan', 'Remun15Controller@printPotongan')->name('admin.remun-15.print-potongan');
     Route::get('/admin/remun-15/export/single', 'Remun15ExportController@single')->name('admin.remun-15.export.single');
     Route::get('/admin/remun-15/export/pusat', 'Remun15ExportController@pusat')->name('admin.remun-15.export.pusat');
     Route::get('/admin/remun-15/export/recap', 'Remun15ExportController@recap')->name('admin.remun-15.export.recap');
@@ -106,20 +105,27 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/tunjangan-profesi/delete', 'TunjanganProfesiController@delete')->name('admin.tunjangan-profesi.delete');
     Route::get('/admin/tunjangan-profesi/monitoring', 'TunjanganProfesiController@monitoring')->name('admin.tunjangan-profesi.monitoring');
     Route::get('/admin/tunjangan-profesi/process', 'TunjanganProfesiController@process')->name('admin.tunjangan-profesi.process');
-    Route::post('/admin/tunjangan-profesi/process', 'TunjanganProfesiController@process')->name('admin.tunjangan-profesi.process');
-    Route::get('/admin/tunjangan-profesi/print/{id}', 'TunjanganProfesiController@print')->name('admin.tunjangan-profesi.print');
-    Route::get('/admin/tunjangan-profesi/print-non-pns', 'TunjanganProfesiController@printNonPNS')->name('admin.tunjangan-profesi.print-non-pns');
-    Route::get('/admin/tunjangan-profesi/print-sptjm', 'TunjanganProfesiController@printSPTJM')->name('admin.tunjangan-profesi.print-sptjm');
-    Route::get('/admin/tunjangan-profesi/excel', 'TunjanganProfesiController@excel')->name('admin.tunjangan-profesi.excel');
-    Route::get('/admin/tunjangan-profesi/csv/{id}', 'TunjanganProfesiController@csv')->name('admin.tunjangan-profesi.csv');
-    Route::get('/admin/tunjangan-profesi/csv-batch/{id}', 'TunjanganProfesiController@csvBatch')->name('admin.tunjangan-profesi.csv-batch');
-    Route::get('/admin/tunjangan-profesi/csv-non-pns', 'TunjanganProfesiController@csvNonPNS')->name('admin.tunjangan-profesi.csv-non-pns');
+    Route::post('/admin/tunjangan-profesi/process', 'TunjanganProfesiController@process');
+    Route::get('/admin/tunjangan-profesi/export', 'TunjanganProfesiController@export')->name('admin.tunjangan-profesi.export');
     Route::get('/admin/tunjangan-profesi/new', 'TunjanganProfesiController@new')->name('admin.tunjangan-profesi.new');
     Route::get('/admin/tunjangan-profesi/change', 'TunjanganProfesiController@change')->name('admin.tunjangan-profesi.change');
 	
+	// Tunjangan Profesi (Print)
+    Route::get('/admin/tunjangan-profesi/print/single/{id}', 'TunjanganProfesiPrintController@single')->name('admin.tunjangan-profesi.print.single');
+    Route::get('/admin/tunjangan-profesi/print/non-pns', 'TunjanganProfesiPrintController@nonPNS')->name('admin.tunjangan-profesi.print.non-pns');
+    Route::get('/admin/tunjangan-profesi/print/sptjm', 'TunjanganProfesiPrintController@sptjm')->name('admin.tunjangan-profesi.print.sptjm');
+	
+	// Tunjangan Profesi (CSV)
+    Route::get('/admin/tunjangan-profesi/csv/single/{id}', 'TunjanganProfesiController@single')->name('admin.tunjangan-profesi.csv.single');
+    Route::get('/admin/tunjangan-profesi/csv/non-pns', 'TunjanganProfesiController@nonPNS')->name('admin.tunjangan-profesi.csv.non-pns');
+    Route::get('/admin/tunjangan-profesi/csv/batch/{id}', 'TunjanganProfesiController@batch')->name('admin.tunjangan-profesi.csv.batch');
+	
 	// Tunjangan Profesi (Unit)
     Route::get('/admin/tunjangan-profesi/unit/monitoring', 'TunjanganProfesiUnitController@monitoring')->name('admin.tunjangan-profesi.unit.monitoring');
-    Route::get('/admin/tunjangan-profesi/unit/excel/{id}', 'TunjanganProfesiUnitController@excel')->name('admin.tunjangan-profesi.unit.excel');
+    Route::get('/admin/tunjangan-profesi/unit/export/{id}', 'TunjanganProfesiUnitController@export')->name('admin.tunjangan-profesi.unit.export');
+	
+	// Tunjangan Profesi (Bulan)
+    Route::get('/admin/tunjangan-profesi/bulan/monitoring', 'TunjanganProfesiBulanController@monitoring')->name('admin.tunjangan-profesi.bulan.monitoring');
 	
 	// Tunjangan Profesi (Mutasi)
     Route::get('/admin/tunjangan-profesi/mutasi', 'MutasiSerdosController@index')->name('admin.tunjangan-profesi.mutasi.index');
@@ -182,23 +188,23 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // Others
     // Route::get('/admin/kgb/import', 'KGBController@import')->name('admin.kgb.import');
-    // Route::get('/admin/jabatan/bup', 'JabatanController@bup')->name('admin.jabatan.bup');
-    // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
     // Route::get('/admin/kp/import', 'SPKGBController@import')->name('admin.kp.import');
-    // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
+    // Route::get('/admin/jabatan/import', 'JabatanController@import')->name('admin.jabatan.import');
+    // Route::get('/admin/jabatan/bup', 'JabatanController@bup')->name('admin.jabatan.bup');
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
+    // Route::get('/admin/jabatan-dasar/import', 'JabatanDasarController@import')->name('admin.jabatan-dasar.import');
+    // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
+    // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
+    // Route::get('/admin/remun-gaji/mround', 'RemunGajiController@mround')->name('admin.remun-gaji.mround');
     // Route::get('/admin/remun-insentif/import', 'RemunInsentifController@import')->name('admin.remun-insentif.import');
     // Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
     // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
-    // Route::get('/admin/jabatan/import', 'JabatanController@import')->name('admin.jabatan.import');
-    // Route::get('/admin/jabatan-dasar/import', 'JabatanDasarController@import')->name('admin.jabatan-dasar.import');
+    // Route::get('/admin/mutasi/check', 'MutasiController@check')->name('admin.mutasi.check');
     // Route::get('/admin/referensi/import', 'ReferensiController@import')->name('admin.referensi.import');
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');
     // Route::get('/admin/gaji-pokok/import', 'GajiPokokController@import')->name('admin.gaji-pokok.import');
-    // Route::get('/admin/mutasi/check', 'MutasiController@check')->name('admin.mutasi.check');
-    // Route::get('/admin/tunjangan-profesi/unit', 'TunjanganProfesiController@unit')->name('admin.tunjangan-profesi.unit');
 });
 
 \Ajifatur\Helpers\RouteExt::auth();

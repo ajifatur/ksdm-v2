@@ -136,38 +136,5 @@
             </tr>
         </tfoot>
     </table>
-    <!-- <table width="100%" id="sign">
-        <tr>
-            <td width="40%" height="80" valign="top">
-                Mengetahui
-                <br>
-                a.n. Kuasa Pengguna Anggaran
-                <br>
-                Pejabat Pembuat Komitmen
-                <br><br><br><br>
-                Siti Mursidah, S.Pd., M.Si.
-                <br>
-                NIP. 197710262005022001
-            </td>
-            <td width="30%" height="80" valign="top">
-                <br><br>
-                Bendahara Pengeluaran
-                <br><br><br><br>
-                Daru Lestariningsih, S.E.
-                <br>
-                NIP. 198508032010122003
-            </td>
-            <td width="30%" height="80" valign="top">
-                <br>
-                Semarang, {{ date('j') }} {{ \Ajifatur\Helpers\DateTimeExt::month(date('n')) }} {{ date('Y') }}
-                <br>
-                Petugas Pengelolaan Administrasi Belanja Pegawai
-                <br><br><br><br>
-                Ari Pamungkas, S.E.
-                <br>
-                NIP. 198109242005011001
-            </td>
-        </tr>
-    </table> -->
 </body>
 </html>

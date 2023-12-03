@@ -413,7 +413,7 @@
                                         <th width="130">Tunj. Fungsional,<br>Tunj. Struktural,<br>Tunj. Umum</th>
                                         <th width="130">Tunj. Beras,<br>Tunj. Kh. Pajak,<br>Pembulatan</th>
                                         <th width="130">Jumlah Penghasilan Kotor</th>
-                                        <th width="130">IWP,<br>BPJS</th>
+                                        <th width="130">IWP,<br>BPJS,<br>BPJS2</th>
                                         <th width="130">Pajak Penghasilan</th>
                                         <th width="130">Jumlah Potongan</th>
                                     </tr>
@@ -437,7 +437,7 @@
                                         <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjstruk) }}<br>{{ number_format($g->tjupns) }}</td>
                                         <td align="right">{{ number_format($g->tjberas) }}<br>{{ number_format($g->tjpph) }}<br>{{ number_format($g->pembul) }}</td>
                                         <td align="right">{{ number_format($g->nominal) }}</td>
-                                        <td align="right">{{ number_format($g->potpfk10) }}<br>{{ number_format($g->bpjs) }}</td>
+                                        <td align="right">{{ number_format($g->potpfk10) }}<br>{{ number_format($g->bpjs) }}<br>{{ number_format($g->bpjs2) }}</td>
                                         <td align="right">{{ number_format($g->potpph) }}</td>
                                         <td align="right">{{ number_format($g->potongan) }}</td>
                                         <td align="right">{{ number_format($g->nominal - $g->potongan) }}</td>
@@ -451,7 +451,7 @@
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('tjfungs') + $pegawai->gaji()->sum('tjstruk') + $pegawai->gaji()->sum('tjupns')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('tjberas') + $pegawai->gaji()->sum('tjpph') + $pegawai->gaji()->sum('pembul')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('nominal')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('potpfk10') + $pegawai->gaji()->sum('bpjs')) }}</td>
+                                        <td align="right">{{ number_format($pegawai->gaji()->sum('potpfk10') + $pegawai->gaji()->sum('bpjs') + $pegawai->gaji()->sum('bpjs2')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('potpph')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('potongan')) }}</td>
                                         <td align="right">{{ number_format($pegawai->gaji()->sum('nominal') - $pegawai->gaji()->sum('potongan')) }}</td>

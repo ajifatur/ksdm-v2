@@ -63,14 +63,32 @@ class GajiController extends Controller
      */
     public function monitoring(Request $request)
     {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-        $bulan = $request->query('bulan') ?: date('n');
-        $tahun = $request->query('tahun') ?: date('Y');
-
         // Get jenis
         $jenis = JenisGaji::find($request->query('jenis'));
+
+        $tahun_bulan_grup = [];
+        if($jenis->grup == 1) {
+            // Get tahun grup
+            $tahun_grup = Gaji::where('jenis_id','=',$jenis->id)->orderBy('tahun','desc')->groupBy('tahun')->pluck('tahun')->toArray();
+
+            // Get bulan grup
+            foreach($tahun_grup as $t) {
+                $bulan_grup = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$t)->orderBy('bulan','desc')->groupBy('bulan')->pluck('bulan')->toArray();
+                array_push($tahun_bulan_grup, [
+                    'tahun' => $t,
+                    'bulan' => $bulan_grup
+                ]);
+            }
+
+            // Get bulan dan tahun
+            $bulan = $request->query('bulan') ?: (int)$tahun_bulan_grup[0]['bulan'][0];
+            $tahun = $request->query('tahun') ?: $tahun_bulan_grup[0]['tahun'];
+        }
+        elseif($jenis->grup == 0) {
+            // Get bulan dan tahun
+            $bulan = $request->query('bulan') ?: date('n');
+            $tahun = $request->query('tahun') ?: date('Y');
+        }
 
         // Get jenis gaji
         $jenis_gaji = JenisGaji::all();
@@ -129,6 +147,7 @@ class GajiController extends Controller
             'jenis' => $jenis,
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'tahun_bulan_grup' => $tahun_bulan_grup,
             'jenis_gaji' => $jenis_gaji,
             'data' => $data,
             'total' => $total,

@@ -13,29 +13,48 @@
 <div class="row">
 	<div class="col-12">
 		<div class="card">
-            <form method="get" action="">
-                <div class="card-header d-sm-flex justify-content-center align-items-center">
-                    <div>
-                        <select name="bulan" class="form-select form-select-sm">
-                            <option value="0" disabled>--Pilih Bulan--</option>
-                            @for($m=1; $m<=12; $m++)
-                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($m) }}</option>
-                            @endfor
+            @if($jenis && $jenis->grup == 1)
+                <form method="get" action="">
+                    <input type="hidden" name="jenis" value="{{ Request::query('jenis') }}">
+                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                    <div class="card-header d-sm-flex justify-content-end align-items-center">
+                        <select id="periode" class="form-select form-select-sm">
+                            <option value="" disabled>--Pilih Bulan dan Tahun--</option>
+                            @foreach($tahun_bulan_grup as $tb)
+                                @foreach($tb['bulan'] as $b)
+                                    <option value="{{ $tb['tahun'] }}-{{ (int)$b }}" {{ $tb['tahun'].'-'.(int)$b == $tahun.'-'.$bulan ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month((int)$b) }} {{ $tb['tahun'] }}</option>
+                                @endforeach
+                            @endforeach
                         </select>
                     </div>
-                    <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
-                        <select name="tahun" class="form-select form-select-sm">
-                            <option value="0" disabled>--Pilih Tahun--</option>
-                            @for($y=2024; $y>=2022; $y--)
-                            <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
+                </form>
+            @else
+                <form method="get" action="">
+                    <input type="hidden" name="jenis" value="{{ Request::query('jenis') }}">
+                    <div class="card-header d-sm-flex justify-content-center align-items-center">
+                        <div>
+                            <select name="bulan" class="form-select form-select-sm">
+                                <option value="0" disabled>--Pilih Bulan--</option>
+                                @for($m=1; $m<=12; $m++)
+                                <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($m) }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
+                            <select name="tahun" class="form-select form-select-sm">
+                                <option value="0" disabled>--Pilih Tahun--</option>
+                                @for($y=2024; $y>=2022; $y--)
+                                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
+                            <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter me-1"></i> Filter</button>
+                        </div>
                     </div>
-                    <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
-                        <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter me-1"></i> Filter</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            @endif
             <hr class="my-0">
             <div class="card-body">
                 @if(Session::get('message'))
@@ -169,6 +188,21 @@
 @section('js')
 
 <script type="text/javascript">
+    if($("select[id=periode]").length > 0) {
+        // Select2
+        Spandiv.Select2("select[id=periode]");
+
+        // Change periode
+        $(document).on("change", "select[id=periode]", function(e) {
+            e.preventDefault();
+            var periode = $(this).val();
+            var split = periode.split("-");
+            $("input[name=bulan]").val(split[1]);
+            $("input[name=tahun]").val(split[0]);
+            $(this).parents("form").submit();
+        })
+    }
+
     // DataTable
     Spandiv.DataTable("#datatable", {
         orderAll: true,
