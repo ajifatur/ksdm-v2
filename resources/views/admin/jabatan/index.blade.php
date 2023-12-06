@@ -37,6 +37,7 @@
                                 @if($visibilitas == 1)
                                 <th>Pegawai</th>
                                 @endif
+                                <th width="50">BUP</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,6 +59,7 @@
                                     @endif
                                 </td>
                                 @endif
+                                <td align="right">{{ $g->bup }}</td>
                             </tr>
                             <?php $total += count($jenis == 1 ? $g->pegawai_jabfung : $g->pegawai_jabstruk); ?>
                             @endforeach
@@ -69,6 +71,7 @@
                                 @if($visibilitas == 1)
                                 <td>Total</td>
                                 @endif
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
