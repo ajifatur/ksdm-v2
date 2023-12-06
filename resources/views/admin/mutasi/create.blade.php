@@ -68,6 +68,9 @@
                                     </div>
                                 </div>
                                 @endforeach
+                            @else
+                                <button class="btn btn-outline-primary btn-add btn-add-new" title="Tambah"><i class="bi-plus"></i></button>
+                                <div class="lists"></div>
                             @endif
                         </div>
                     </div>
@@ -368,6 +371,10 @@
         // Add / update list berdasarkan key
         if(key != '') $("#jabatan-unit .lists[data-id=" + key + "]").html(html);
         else $("#jabatan-unit .lists:last-child").after('<div class="lists">' + html + '</div>');
+
+        // Hide button add new
+        if(!$(".btn-add-new").hasClass("d-none"))
+            $(".btn-add-new").addClass("d-none");
         
         Spandiv.Modal("#modal-jabatan-unit").hide();
         refreshLists();
