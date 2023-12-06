@@ -6,7 +6,7 @@
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-2 mb-sm-0">Monitoring Uang Makan PNS</h1>
-    <div class="btn-group">
+    <div class="btn-group d-none">
         <a href="#" class="btn btn-sm btn-primary btn-import"><i class="bi-upload me-1"></i> Import File</a>
         <!-- <a href="#" class="btn btn-sm btn-secondary btn-import-old"><i class="bi-upload me-1"></i> Import File (Format Lama)</a> -->
     </div>
@@ -116,43 +116,6 @@
 	</div>
 </div>
 
-<div class="modal fade" id="modal-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Import File</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" action="{{ route('admin.uang-makan.import') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Anak Satker:</label>
-                        <select name="anak_satker" class="form-select form-select-sm" required>
-                            <option value="0" disabled selected>--Pilih Anak Satker--</option>
-                            @foreach($anak_satker as $a)
-                            <option value="{{ $a->kode }}">{{ $a->kode }} - {{ $a->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label>File:</label>
-                        <input type="file" name="file" class="form-control form-control-sm {{ $errors->has('file') ? 'border-danger' : '' }}" accept=".xls, .xlsx">
-                        <div class="small text-muted">File harus berekstensi .xls atau .xlsx</div>
-                        @if($errors->has('file'))
-                        <div class="small text-danger">{{ $errors->first('file') }}</div>
-                        @endif
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
-                    <button class="btn btn-sm btn-danger" type="button" data-bs-dismiss="modal">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="modal-import-old" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -220,10 +183,6 @@
     });
 
     // Button Import
-    $(document).on("click", ".btn-import", function(e) {
-        e.preventDefault();
-        Spandiv.Modal("#modal-import").show();
-    });
     $(document).on("click", ".btn-import-old", function(e) {
         e.preventDefault();
         Spandiv.Modal("#modal-import-old").show();
