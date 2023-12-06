@@ -57,7 +57,7 @@ class SPKGBPrintController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function printBatch(Request $request)
+    public function batch(Request $request)
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");

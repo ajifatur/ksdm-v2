@@ -6,9 +6,6 @@
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-2 mb-sm-0">Monitoring {{ $jenis ? $jenis->nama : 'Gaji' }} PNS</h1>
-    @if($jenis)
-    <a href="#" class="btn btn-sm btn-primary btn-import"><i class="bi-upload me-1"></i> Import File</a>
-    @endif
 </div>
 <div class="row">
 	<div class="col-12">
@@ -143,46 +140,6 @@
 	</div>
 </div>
 
-<div class="modal fade" id="modal-import" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Import File</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" action="{{ route('admin.gaji.import') }}" enctype="multipart/form-data">
-                @csrf
-                @if($jenis)
-                <input type="hidden" name="jenis" value="{{ $jenis->id }}">
-                @endif
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Kode Satker:</label>
-                        <select name="satker" class="form-select form-select-sm" required>
-                            <option value="0" disabled>--Pilih Satker--</option>
-                            <!-- <option value="690645" {{ $tahun >= 2023 ? 'selected' : '' }}>690645</option> -->
-                            <!-- <option value="677507" {{ $tahun < 2023 ? 'selected' : '' }}>677507</option> -->
-                            <option value="690645">690645</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>File:</label>
-                        <input type="file" name="file" class="form-control form-control-sm {{ $errors->has('file') ? 'border-danger' : '' }}" accept=".xls, .xlsx">
-                        <div class="small text-muted">File harus berekstensi .xls atau .xlsx</div>
-                        @if($errors->has('file'))
-                        <div class="small text-danger">{{ $errors->first('file') }}</div>
-                        @endif
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
-                    <button class="btn btn-sm btn-danger" type="button" data-bs-dismiss="modal">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @endsection
 
 @section('js')
@@ -207,12 +164,6 @@
     Spandiv.DataTable("#datatable", {
         orderAll: true,
         pageLength: -1
-    });
-
-    // Button Import
-    $(document).on("click", ".btn-import", function(e) {
-        e.preventDefault();
-        Spandiv.Modal("#modal-import").show();
     });
 </script>
 
