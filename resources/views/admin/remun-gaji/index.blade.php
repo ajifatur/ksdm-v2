@@ -124,7 +124,7 @@
                                 @endif
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="#" class="btn btn-sm btn-primary btn-add-lebih-kurang"data-pegawai="{{ $r->pegawai_id }}" data-npegawai="{{ strtoupper($r->pegawai->nama) }}" data-jseharusnya="{{ $r->jabatan_id }}" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                        <a href="#" class="btn btn-sm btn-primary btn-add-lebih-kurang" data-pegawai="{{ $r->pegawai_id }}" data-npegawai="{{ strtoupper($r->pegawai->nama) }}" data-jseharusnya="{{ $r->jabatan_id }}" data-bs-toggle="tooltip" title="Tambah Kelebihan/Kekurangan"><i class="bi-plus"></i></a>
                                     </div>
                                 </td>
                             </tr>

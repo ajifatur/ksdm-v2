@@ -99,6 +99,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // Status Kepegawaian
     Route::get('/admin/status-kepegawaian', 'StatusKepegawaianController@index')->name('admin.status-kepegawaian.index');
+	
+    // SK
+    Route::get('/admin/sk', 'SKController@index')->name('admin.sk.index');
 
     // Tunjangan Profesi
     Route::get('/admin/tunjangan-profesi', 'TunjanganProfesiController@index')->name('admin.tunjangan-profesi.index');
