@@ -210,6 +210,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/referensi/import', 'ReferensiController@import')->name('admin.referensi.import');
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');
     // Route::get('/admin/gaji-pokok/import', 'GajiPokokController@import')->name('admin.gaji-pokok.import');
+    // Route::get('/admin/gaji/sync', 'GajiController@sync')->name('admin.gaji.sync');
 });
 
 \Ajifatur\Helpers\RouteExt::auth();

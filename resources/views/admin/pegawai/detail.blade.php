@@ -428,8 +428,7 @@
                                             <span class="text-success">({{ $g->jenis_gaji->nama }})</span>
                                         </td>
 										<td>
-											<?php $anak_satker = \App\Models\AnakSatker::where('kode','=',$g->kdanak)->first(); ?>
-											{{ $anak_satker ? $anak_satker->nama.' ('.$anak_satker->kode.')' : '' }}
+											{{ $g->anak_satker ? $g->anak_satker->nama.' ('.$g->anak_satker->kode.')' : '' }}
 											<br>
 											{{ $g->unit ? $g->unit->nama : '-' }}
 										</td>

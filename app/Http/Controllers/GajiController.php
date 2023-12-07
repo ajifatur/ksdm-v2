@@ -16,6 +16,7 @@ use App\Models\JenisGaji;
 use App\Models\AnakSatker;
 use App\Models\Pegawai;
 use App\Models\PegawaiNonAktif;
+use App\Models\SK;
 
 class GajiController extends Controller
 {
@@ -213,9 +214,6 @@ class GajiController extends Controller
     {
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
-        
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
 
         // Get tahun
         $tahun = $request->query('tahun') ?: date('Y');
@@ -256,9 +254,6 @@ class GajiController extends Controller
      */
     public function export(Request $request)
     {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
 
@@ -335,6 +330,9 @@ class GajiController extends Controller
         elseif($request->method() == "POST") {
             ini_set("memory_limit", "-1");
             ini_set("max_execution_time", "-1");
+
+            // Get SK
+            $sk = SK::where('jenis_id','=',5)->where('status','=',1)->first();
             
             // Make directory if not exists
             if(!File::exists(public_path('storage/spreadsheets/gaji')))
@@ -394,14 +392,19 @@ class GajiController extends Controller
                                 $pegawai->tmt_non_aktif = null;
                                 $pegawai->save();
                             }
+                            
+                            // Get anak satker
+                            $a = AnakSatker::where('kode','=',$data[1])->first();
 
                             // Get gaji
                             $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$data[1])->where('bulan','=',$data[3])->where('tahun','=',$data[4])->where('nip','=',$data[7])->first();
                             if(!$gaji) $gaji = new Gaji;
 
                             // Simpan gaji induk
+                            $gaji->sk_id = $sk->id;
                             $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
                             $gaji->unit_id = $this->kdanak_to_unit($data[1]);
+                            $gaji->anak_satker_id = $a->id;
                             $gaji->jenis_id = $jenis->id;
                             $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
                             $gaji->kdanak = $data[1];
@@ -471,13 +474,18 @@ class GajiController extends Controller
                                 $pegawai->save();
                             }
 
+                            // Get anak satker
+                            $a = AnakSatker::where('kode','=',$data[2])->first();
+
                             // Get gaji
                             $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$data[2])->where('bulan','=',$data[4])->where('tahun','=',$data[5])->where('nip','=',$data[8])->first();
                             if(!$gaji) $gaji = new Gaji;
 
                             // Simpan gaji
+                            $gaji->sk_id = $sk->id;
                             $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
                             $gaji->unit_id = $this->kdanak_to_unit($data[2]);
+                            $gaji->anak_satker_id = $a->id;
                             $gaji->jenis_id = $jenis->id;
                             $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
                             $gaji->kdanak = $data[2];
@@ -603,6 +611,35 @@ class GajiController extends Controller
             'perubahan_tjanak' => $perubahan_tjanak,
             'perubahan_unit' => $perubahan_unit,
         ]);
+    }
+
+    /**
+     * Sync
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function sync(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
+
+        // Get SK
+        $sk = SK::where('jenis_id','=',5)->where('status','=',1)->first();
+
+        // Get gaji
+        $gaji = Gaji::where('jenis_id','=',$request->query('jenis'))->get();
+        
+        foreach($gaji as $g) {
+            // Get anak satker
+            $anak_satker = AnakSatker::where('kode','=',$g->kdanak)->first();
+
+            // Update
+            $update = Gaji::find($g->id);
+            $update->sk_id = $sk->id;
+            $update->anak_satker_id = $anak_satker->id;
+            $update->save();
+        }
     }
 
     // Sum array

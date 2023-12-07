@@ -23,8 +23,7 @@
                 <td>{{ $g->nama }}</td>
                 @if($data['kategori'] == '')
                 <td>{{ $g->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
-                <?php $anak_satker = \App\Models\AnakSatker::where('kode','=',$g->kdanak)->first(); ?>
-                <td>{{ $anak_satker ? $anak_satker->kode.' - '.$anak_satker->nama : '-' }}</td>
+                <td>{{ $g->anak_satker ? $g->anak_satker->kode.' - '.$g->anak_satker->nama : '-' }}</td>
                 <td>{{ $g->unit ? $g->unit->nama : '-' }}</td>
                 @endif
                 @foreach($data['kategori_gaji'] as $j)

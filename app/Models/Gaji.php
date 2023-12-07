@@ -41,6 +41,14 @@ class Gaji extends Model
     }
     
     /**
+     * Anak Satker.
+     */
+    public function anak_satker()
+    {
+        return $this->belongsTo(AnakSatker::class, 'anak_satker_id');
+    }
+    
+    /**
      * Jenis Gaji.
      */
     public function jenis_gaji()
