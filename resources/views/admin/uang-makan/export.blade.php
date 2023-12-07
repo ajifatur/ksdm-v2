@@ -3,6 +3,9 @@
         <tr>
             <th align="center" width="20"><b>nip</b></th>
             <th align="center" width="40"><b>nama</b></th>
+            <th align="center" width="15"><b>jenis</b></th>
+            <th align="center" width="20"><b>anak satker</b></th>
+            <th align="center" width="20"><b>unit</b></th>
             <th align="center" width="15"><b>jumlah_hari</b></th>
             <th align="center" width="10"><b>tarif</b></th>
             <th align="center" width="10"><b>pph</b></th>
@@ -16,6 +19,9 @@
             <tr>
                 <td>{{ $um->nip }}</td>
                 <td>{{ $um->nama }}</td>
+                <td>{{ $um->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
+                <td>{{ $um->anak_satker ? $um->anak_satker->kode.' - '.$um->anak_satker->nama : '-' }}</td>
+                <td>{{ $um->unit ? $um->unit->nama : '-' }}</td>
                 <td>{{ $um->jmlhari }}</td>
                 <td>{{ $um->tarif }}</td>
                 <td>{{ $um->pph }}</td>
@@ -25,6 +31,9 @@
             </tr>
         @endforeach
 		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
 			<td></td>
 			<td></td>
 			<td></td>

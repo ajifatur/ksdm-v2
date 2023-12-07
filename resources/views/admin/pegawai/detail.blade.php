@@ -481,8 +481,7 @@
                                         <td>{{ ($key+1) }}</td>
                                         <td>{{ \Ajifatur\Helpers\DateTimeExt::month((int)$um->bulan) }} {{ $um->tahun }}</td>
 										<td>
-											<?php $anak_satker = \App\Models\AnakSatker::where('kode','=',$um->kdanak)->first(); ?>
-											{{ $anak_satker ? $anak_satker->nama.' ('.$anak_satker->kode.')' : '' }}
+											{{ $um->anak_satker ? $um->anak_satker->nama.' ('.$um->anak_satker->kode.')' : '' }}
 											<br>
 											{{ $um->unit ? $um->unit->nama : '-' }}
 										</td>

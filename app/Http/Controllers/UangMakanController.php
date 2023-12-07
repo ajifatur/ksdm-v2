@@ -190,7 +190,7 @@ class UangMakanController extends Controller
             // Return
             return Excel::download(new UangMakanExport([
                 'uang_makan' => $uang_makan
-            ]), 'Uang-Makan '.$anak_satker->nama.' '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
+            ]), 'Uang-Makan '.$anak_satker->nama.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
         }
         elseif(!$anak_satker) {
             if(in_array($request->kategori, [1,2])) {
@@ -205,7 +205,7 @@ class UangMakanController extends Controller
                 // Return
                 return Excel::download(new UangMakanExport([
                     'uang_makan' => $uang_makan,
-                ]), 'Uang-Makan '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
+                ]), 'Uang-Makan '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
             }
             else {
                 // Get uang makan
@@ -219,7 +219,7 @@ class UangMakanController extends Controller
                 // Return
                 return Excel::download(new UangMakanExport([
                     'uang_makan' => $uang_makan,
-                ]), 'Uang-Makan '.$tahun.' '.\Ajifatur\Helpers\DateTimeExt::month($bulan).'.xlsx');
+                ]), 'Uang-Makan '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx');
             }
         }
     }
