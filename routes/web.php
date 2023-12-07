@@ -211,6 +211,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');
     // Route::get('/admin/gaji-pokok/import', 'GajiPokokController@import')->name('admin.gaji-pokok.import');
     // Route::get('/admin/gaji/sync', 'GajiController@sync')->name('admin.gaji.sync');
+    // Route::get('/admin/uang-makan/sync', 'UangMakanController@sync')->name('admin.uang-makan.sync');
 });
 
 \Ajifatur\Helpers\RouteExt::auth();

@@ -39,4 +39,12 @@ class UangMakan extends Model
     {
         return $this->belongsTo(Unit::class, 'unit_id');
     }
+    
+    /**
+     * Anak Satker.
+     */
+    public function anak_satker()
+    {
+        return $this->belongsTo(AnakSatker::class, 'anak_satker_id');
+    }
 }

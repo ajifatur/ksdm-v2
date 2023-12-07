@@ -270,6 +270,9 @@ class UangMakanController extends Controller
                         // Get pegawai
                         $pegawai = Pegawai::where('nip','=',$data[5])->first();
 
+                        // Get anak satker
+                        $as = AnakSatker::where('kode','=',$request->anak_satker)->first();
+
                         // Get uang makan
                         $uang_makan = UangMakan::where('kdanak','=',$request->anak_satker)->where('bulan','=',$data[1])->where('tahun','=',$data[2])->where('nip','=',$data[5])->first();
                         if(!$uang_makan) $uang_makan = new UangMakan;
@@ -277,6 +280,7 @@ class UangMakanController extends Controller
                         // Simpan uang makan
                         $uang_makan->pegawai_id = $pegawai ? $pegawai->id : 0;
                         $uang_makan->unit_id = $this->kdanak_to_unit($request->anak_satker);
+                        $uang_makan->anak_satker_id = $as->id;
                         $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
                         $uang_makan->kdanak = $request->anak_satker;
                         $uang_makan->bulan = $data[1];
@@ -358,6 +362,9 @@ class UangMakanController extends Controller
                         elseif($data[7] == 5) $tarif = 37000;
                         else $tarif = 35000;
 
+                        // Get anak satker
+                        $as = AnakSatker::where('kode','=',$request->anak_satker)->first();
+
                         // Get uang makan
                         $uang_makan = UangMakan::where('kdanak','=',$request->anak_satker)->where('bulan','=',($request->bulan < 10 ? '0'.$request->bulan : $request->bulan))->where('tahun','=',$request->tahun)->where('nip','=',$data[3])->first();
                         if(!$uang_makan) $uang_makan = new UangMakan;
@@ -365,6 +372,7 @@ class UangMakanController extends Controller
                         // Simpan uang makan
                         $uang_makan->pegawai_id = $pegawai ? $pegawai->id : 0;
                         $uang_makan->unit_id = $this->kdanak_to_unit($request->anak_satker);
+                        $uang_makan->anak_satker_id = $as->id;
                         $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
                         $uang_makan->kdanak = $request->anak_satker;
                         $uang_makan->bulan = $request->bulan < 10 ? '0'.$request->bulan : $request->bulan;
@@ -403,6 +411,31 @@ class UangMakanController extends Controller
 
         // Redirect
         return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
+    }
+
+    /**
+     * Sync
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function sync(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
+
+        // Get uang makan
+        $uang_makan = UangMakan::all();
+        
+        foreach($uang_makan as $um) {
+            // Get anak satker
+            $anak_satker = AnakSatker::where('kode','=',$um->kdanak)->first();
+
+            // Update
+            $update = UangMakan::find($um->id);
+            $update->anak_satker_id = $anak_satker->id;
+            $update->save();
+        }
     }
 
     public function kdanak_to_unit($kdanak) {
