@@ -21,6 +21,38 @@ use App\Models\PegawaiNonAktif;
 class UangMakanController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $id = $request->query('id') ?: 0;
+
+        // Get anak satker
+        $as = AnakSatker::find($id);
+
+        // Get anak satker
+        $anak_satker = AnakSatker::where('nama','!=','Bantuan Pangan')->get();
+
+        // Get uang makan
+        $uang_makan = [];
+        if($id != 0)
+            $uang_makan = UangMakan::where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$as->kode)->get();
+
+        // View
+        return view('admin/uang-makan/index', [
+            'anak_satker' => $anak_satker,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'uang_makan' => $uang_makan,
+        ]);
+    }
+
+    /**
      * Monitoring.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -35,7 +67,7 @@ class UangMakanController extends Controller
         $tahun = $request->query('tahun') ?: date('Y');
 
         // Get anak satker
-        $anak_satker = AnakSatker::all();
+        $anak_satker = AnakSatker::where('nama','!=','Bantuan Pangan')->get();
 
         $data = [];
         $total = [

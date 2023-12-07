@@ -82,6 +82,7 @@
                                 <td align="right">{{ number_format($d['dosen_bersih'] + $d['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ route('admin.uang-makan.index', ['id' => $d['anak_satker']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
                                         <a href="{{ route('admin.uang-makan.export', ['id' => $d['anak_satker']->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                         <a href="{{ route('admin.uang-makan.export', ['id' => $d['anak_satker']->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                     </div>
