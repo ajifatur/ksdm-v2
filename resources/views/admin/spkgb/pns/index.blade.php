@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'List SPKGB')
+@section('title', 'List SPKGB PNS')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">List SPKGB</h1>
+    <h1 class="h3 mb-2 mb-sm-0">List SPKGB PNS</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -85,10 +85,10 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($p->mutasi_spkgb)
-                                                <a href="{{ route('admin.spkgb.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.spkgb.pns.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                 <a href="{{ route('admin.spkgb.print.single', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
                                             @else
-                                                <a href="{{ route('admin.spkgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                                <a href="{{ route('admin.spkgb.pns.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
                                             @endif
                                         </div>
                                     </td>

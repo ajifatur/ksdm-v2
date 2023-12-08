@@ -47,13 +47,19 @@
         <table id="address">
             <tr>
                 <td width="20">Yth.</td>
-                <td>
-                    Kepala KPPN Semarang I
-                    <br>
-                    Jl. Ki Mangunsarkoro No. 34
-                    <br>
-                    Semarang
-                </td>
+				<td>
+					@if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
+						Kepala KPPN Semarang I
+						<br>
+						Jl. Ki Mangunsarkoro No. 34
+						<br>
+						Semarang
+					@else
+						Rektor
+						<br>
+						Universitas Negeri Semarang
+					@endif
+				</td>
             </tr>
         </table>
 		<br>
@@ -71,12 +77,21 @@
 				<td>:</td>
 				<td>{{ $spkgb->pegawai->tempat_lahir }}, {{ \Ajifatur\Helpers\DateTimeExt::full($spkgb->pegawai->tanggal_lahir) }}</td>
 			</tr>
-			<tr>
-				<td>3.</td>
-				<td colspan="2">NIP</td>
-				<td>:</td>
-				<td>{{ $spkgb->pegawai->nip }}</td>
-			</tr>
+			@if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
+				<tr>
+					<td>3.</td>
+					<td colspan="2">NIP</td>
+					<td>:</td>
+					<td>{{ $spkgb->pegawai->nip }}</td>
+				</tr>
+			@else
+				<tr>
+					<td>3.</td>
+					<td colspan="2">NPU</td>
+					<td>:</td>
+					<td>{{ $spkgb->pegawai->npu }}</td>
+				</tr>
+			@endif
 			<tr>
 				<td>4.</td>
 				<td colspan="2">Pangkat</td>
@@ -161,28 +176,46 @@
 			</tr>
 		</table>
 		<br>
-		Sesuai dengan Peraturan Pemerintah Nomor 15 Tahun 2019, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+		@if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
+			Sesuai dengan Peraturan Pemerintah Nomor 15 Tahun 2019, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+		@else
+			Sesuai dengan Peraturan Rektor Nomor 16 Tahun 2023, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+		@endif
 		<br><br><br>
 		<table id="sign" width="100%">
 			<tr>
 				<td width="55%"></td>
 				<td width="45%">
-					a.n. Rektor
-					<br>
-					Wakil Rektor Bidang Perencanaan, Umum, SDM, dan Keuangan
-					<br>
-					u.b. Direktur Umum dan SDM,
-					<br><br><br><br><br>
-					{{ title_name($spkgb->ttd->nama, $spkgb->ttd->gelar_depan, $spkgb->ttd->gelar_belakang) }}
-					<br>
-					NIP. {{ $spkgb->ttd->nip }}
+					@if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
+						a.n. Rektor
+						<br>
+						Wakil Rektor Bidang Perencanaan, Umum, SDM, dan Keuangan
+						<br>
+						u.b. Direktur Umum dan SDM,
+						<br><br><br><br><br>
+						{{ title_name($spkgb->ttd->nama, $spkgb->ttd->gelar_depan, $spkgb->ttd->gelar_belakang) }}
+						<br>
+						NIP. {{ $spkgb->ttd->nip }}
+					@else
+						a.n. Wakil Rektor Bidang Perencanaan, Umum, SDM, dan Keuangan
+						<br>
+						Direktur Umum dan SDM,
+						<br><br><br><br><br>
+						{{ title_name($spkgb->ttd->nama, $spkgb->ttd->gelar_depan, $spkgb->ttd->gelar_belakang) }}
+						<br>
+						NIP. {{ $spkgb->ttd->nip }}
+					@endif
 				</td>
 			</tr>
 		</table>
 		<div id="cc">
 			Tembusan:
 			<ol>
-				<li>Rektor</li>
+				@if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
+					<li>Rektor</li>
+				@else
+					<li>Wakil Rektor Bidang Perencanaan, Umum, SDM, dan Keuangan</li>
+				@endif
 				<li>{{ $spkgb->unit->pimpinan }}</li>
 				<li>Sdr. {{ $spkgb->nama }}</li>
 			</ol>

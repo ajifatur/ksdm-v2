@@ -26,14 +26,10 @@
                 <td>{{ $d->pegawai->nip }}</td>
                 <td>{{ strtoupper($d->pegawai->nama) }}</td>
                 <td>{{ $d->unit ? $d->unit->nama : '-' }}</td>
-                @if($d->golru)
-                    <td align="center">{{ $d->golru->golongan->nama }}</td>
+                @if($d->pegawai->golongan)
+                    <td align="center">{{ $d->pegawai->golongan->nama }}</td>
                 @else
-                    @if($d->pegawai->golongan)
-                        <td align="center">{{ $d->pegawai->golongan->nama }}</td>
-                    @else
-                        <td align="center">-</td>
-                    @endif
+                    <td align="center">-</td>
                 @endif
                 <td>{{ $d->unit ? $d->unit->layer_id : '-' }}</td>
                 <td>{{ $d->jabatan_dasar ? $d->jabatan_dasar->grade : '-' }}</td>

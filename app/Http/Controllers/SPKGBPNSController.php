@@ -21,7 +21,7 @@ use App\Models\Golru;
 use App\Models\GajiPokok;
 use App\Models\Pejabat;
 
-class SPKGBController extends Controller
+class SPKGBPNSController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -43,7 +43,7 @@ class SPKGBController extends Controller
         }
 
         // View
-        return view('admin/spkgb/index', [
+        return view('admin/spkgb/pns/index', [
             'pegawai' => [
                 'pegawai_gol_iii_iv' => $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal),
                 'pegawai_golru_ii_a_d' => $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal),
@@ -102,7 +102,7 @@ class SPKGBController extends Controller
         $gaji_pokok_baru = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($mutasi->gaji_pokok->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first();
 
         // View
-        return view('admin/spkgb/create', [
+        return view('admin/spkgb/pns/create', [
             'pegawai' => $pegawai,
             'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
@@ -258,7 +258,7 @@ class SPKGBController extends Controller
         }
 
         // Redirect
-        return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal))])->with(['message' => 'Berhasil menambah data.']);
+        return redirect()->route('admin.spkgb.pns.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal))])->with(['message' => 'Berhasil menambah data.']);
     }
 
     /**
@@ -291,7 +291,7 @@ class SPKGBController extends Controller
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
 
         // View
-        return view('admin/spkgb/edit', [
+        return view('admin/spkgb/pns/edit', [
             'spkgb' => $spkgb,
             'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
@@ -366,7 +366,7 @@ class SPKGBController extends Controller
         }
 
         // Redirect
-        return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt))])->with(['message' => 'Berhasil mengupdate data.']);
+        return redirect()->route('admin.spkgb.pns.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt))])->with(['message' => 'Berhasil mengupdate data.']);
     }
 
     /**
@@ -382,7 +382,11 @@ class SPKGBController extends Controller
         $total = 0;
         for($i=1; $i<=12; $i++) {
             // Get SPKGB
-            $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
                 return $query->has('perubahan')->where('bulan','=',$i)->where('tahun','=',$tahun);
             })->count();
 
@@ -398,7 +402,7 @@ class SPKGBController extends Controller
         }
 
         // View
-        return view('admin/spkgb/monitoring', [
+        return view('admin/spkgb/pns/monitoring', [
             'tahun' => $tahun,
             'data' => $data,
             'total' => $total

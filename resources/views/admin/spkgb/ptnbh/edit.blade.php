@@ -1,17 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Edit SPKGB')
+@section('title', 'Edit SPKGB Pegawai PTNBH')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Edit SPKGB</h1>
+    <h1 class="h3 mb-0">Edit SPKGB Pegawai PTNBH</h1>
 </div>
 <div class="row">
 	<div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="post" action="{{ route('admin.spkgb.update') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('admin.spkgb.ptnbh.update') }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="id" value="{{ $spkgb->id }}">
                     <input type="hidden" name="mutasi_id" value="{{ $spkgb->mutasi_id }}">

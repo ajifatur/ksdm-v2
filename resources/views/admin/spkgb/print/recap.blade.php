@@ -9,7 +9,17 @@
     </style>
 </head>
 <body>
-    <div id="title">REKAPITULASI SURAT PEMBERITAHUAN KENAIKAN GAJI BERKALA (SPKGB)<br>(TMT: {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($tanggal)) }})</div>
+    <div id="title">
+        REKAPITULASI SURAT PEMBERITAHUAN KENAIKAN GAJI BERKALA (SPKGB)
+        <br>
+        @if(Request::query('type') == 1)
+            PEGAWAI NEGERI SIPIL
+        @elseif(Request::query('type') == 2)
+            PEGAWAI TETAP PTNBH
+        @endif
+        <br>
+        (TMT: {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($tanggal)) }})
+    </div>
     <table style="width: 100%">
         <thead>
             <tr>

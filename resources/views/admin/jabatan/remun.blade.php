@@ -60,7 +60,8 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable", {
-        orderAll: true
+        orderAll: true,
+        buttons: true
     });
 
     // Select2
@@ -79,6 +80,7 @@
 
 <style>
     #datatable tr td {vertical-align: top;}
+    div.dt-buttons .dt-button {border: 2px solid #bebebe!important;}
 </style>
 
 @endsection

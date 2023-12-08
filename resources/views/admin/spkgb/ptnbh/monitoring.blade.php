@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Monitoring SPKGB')
+@section('title', 'Monitoring SPKGB Pegawai PTNBH')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Monitoring SPKGB</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Monitoring SPKGB Pegawai PTNBH</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -43,9 +43,9 @@
                                 <td align="right">{{ $d['spkgb'] }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.index', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak Rekap PDF" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak Batch PDF" target="_blank"><i class="bi-list"></i></a>
+                                        <a href="{{ route('admin.spkgb.ptnbh.index', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 2]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak Rekap PDF" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 2]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak Batch PDF" target="_blank"><i class="bi-list"></i></a>
                                     </div>
                                 </td>
                             </tr>

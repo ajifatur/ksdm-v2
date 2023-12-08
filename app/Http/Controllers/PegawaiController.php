@@ -135,6 +135,7 @@ class PegawaiController extends Controller
             $mutasi = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
                 return $query->where('status','=',1);
             })->first();
+            // $mutasi = $pegawai->mutasi()->first();
 
             // Get jabatan dan unit
             $jabatan = [];

@@ -316,7 +316,7 @@
                                                 <br>
                                                 {{ $r->unit ? '('.$r->unit->nama.')' : '' }}
                                             </td>
-                                            <td align="right">{{ number_format($r->poin, 2) }}</td>
+                                            <td align="right">{{ $r->triwulan != 15 ? number_format($r->poin, 2) : '-' }}</td>
                                             <td align="right">{{ number_format($r->remun_insentif) }}</td>
                                             <td align="right">{{ number_format(abs($potongan)) }}</td>
                                             <td align="right">{{ number_format($dibayarkan) }}</td>

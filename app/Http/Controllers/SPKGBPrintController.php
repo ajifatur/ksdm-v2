@@ -52,7 +52,7 @@ class SPKGBPrintController extends Controller
     }
 
     /**
-     * Print Batch PDF.
+     * Print Batch.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -67,9 +67,24 @@ class SPKGBPrintController extends Controller
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
         // Get SPKGB
-        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($tanggal) {
-            return $query->has('perubahan')->where('tmt','=',$tanggal);
-        })->orderBy('unit_id','asc')->get();
+        if($request->query('type') == 1) {
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->orderBy('unit_id','asc')->get();
+        }
+        elseif($request->query('type') == 2) {
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->orderBy('unit_id','asc')->get();
+        }
 
         // Set title
         $title = 'Batch SPKGB '.$tahun.' '.DateTimeExt::month($bulan);
@@ -87,7 +102,7 @@ class SPKGBPrintController extends Controller
     }
 
     /**
-     * Print Recap PDF.
+     * Print Recap.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -102,9 +117,24 @@ class SPKGBPrintController extends Controller
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
         // Get SPKGB
-        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($tanggal) {
-            return $query->has('perubahan')->where('tmt','=',$tanggal);
-        })->orderBy('unit_id','asc')->get();
+        if($request->query('type') == 1) {
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->orderBy('unit_id','asc')->get();
+        }
+        elseif($request->query('type') == 2) {
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->orderBy('unit_id','asc')->get();
+        }
 
         // Set title
         $title = 'Rekap SPKGB '.$tahun.' '.DateTimeExt::month($bulan);
