@@ -201,8 +201,10 @@ class MutasiController extends Controller
                 $mutasi->uraian = $request->uraian;
                 $mutasi->tmt = DateTimeExt::change($request->tmt);
                 $mutasi->remun_penerimaan = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
-                $mutasi->remun_gaji = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
-                $mutasi->remun_insentif = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                // $mutasi->remun_gaji = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
+                // $mutasi->remun_insentif = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
+                $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
                 $mutasi->save();
 
                 foreach($request->jabatan_id as $key=>$jabatan_id) {
@@ -493,8 +495,10 @@ class MutasiController extends Controller
                 $mutasi->uraian = $request->uraian;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
-                $mutasi->remun_gaji = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
-                $mutasi->remun_insentif = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                // $mutasi->remun_gaji = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
+                // $mutasi->remun_insentif = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
+                $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
                 $mutasi->save();
 
                 // Delete mutasi detail
@@ -728,8 +732,10 @@ class MutasiController extends Controller
                             $mutasi->uraian = $uraian;
                             $mutasi->tmt = DateTimeExt::change($data[8]);
                             $mutasi->remun_penerimaan = $remun_gaji ? mround(($remun_gaji->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1) : mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
-                            $mutasi->remun_gaji = $remun_gaji ? mround(($remun_gaji->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1) : mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
-                            $mutasi->remun_insentif = $remun_gaji ? mround(($remun_gaji->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1) : mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                            // $mutasi->remun_gaji = $remun_gaji ? mround(($remun_gaji->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1) : mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
+                            // $mutasi->remun_insentif = $remun_gaji ? mround(($remun_gaji->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1) : mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                            $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
+                            $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
                             $mutasi->save();
 
                             // Simpan mutasi detail
