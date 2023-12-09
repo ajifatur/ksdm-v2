@@ -40,25 +40,30 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2">Unit</th>
-                                <th colspan="2">Pegawai</th>
-                                <th rowspan="2" width="90">Remun Insentif</th>
-                                <th rowspan="2" width="90">Potongan</th>
-                                <th rowspan="2" width="90">Dibayarkan</th>
+                                <th colspan="4">Pegawai</th>
+                                <th colspan="3">Remun Insentif</th>
                                 <th colspan="2">Excel Simkeu</th>
                                 <th rowspan="2" width="30">Potongan PDF</th>
                             </tr>
                             <tr>
-                                <th width="60">Aktif</th>
-                                <th width="60">Pensiun / MD</th>
+                                <th width="60">Dosen</th>
+                                <th width="60">Tendik</th>
+                                <th width="60">Dinolkan</th>
+                                <th width="60">Nonaktif</th>
+                                <th width="90">Nominal</th>
+                                <th width="90">Potongan</th>
+                                <th width="90">Dibayarkan</th>
                                 <th width="30">Aktif</th>
-                                <th width="30">Pensiun / MD</th>
+                                <th width="30">Nonaktif</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($unit as $u)
                             <tr>
                                 <td>{{ $u->nama }}</td>
-                                <td align="right">{{ number_format($u->pegawai - count($u->pensiunmd)) }}</td>
+                                <td align="right">{{ number_format($u->dosen) }}</td>
+                                <td align="right">{{ number_format($u->tendik) }}</td>
+                                <td align="right">{{ number_format($u->dinolkan) }}</td>
                                 <td align="right">
                                     @if(count($u->pensiunmd) > 0)
                                         <a href="#" class="btn-pegawai-non-aktif text-danger" data-id="{{ $u->id }}" data-nama="{{ implode(' - ', $u->namapensiunmd) }}">
@@ -109,7 +114,9 @@
                             @endforeach
                             <tr>
                                 <td>Pusat</td>
-                                <td align="right">{{ number_format($pegawai_pusat - count($pensiunmd_pusat)) }}</td>
+                                <td align="right">{{ number_format($dosen_pusat) }}</td>
+                                <td align="right">{{ number_format($tendik_pusat) }}</td>
+                                <td align="right">{{ number_format($dinolkan_pusat) }}</td>
                                 <td align="right">
                                     @if(count($pensiunmd_pusat) > 0)
                                         <a href="#" class="btn-pegawai-non-aktif text-danger" data-id="0" data-nama="{{ implode(' - ', $pegawai_pensiunmd_pusat) }}">
@@ -155,7 +162,7 @@
                         <tfoot class="bg-light fw-bold">
                             <tr>
                                 <td>Total</td>
-                                <td colspan="2" align="center">{{ number_format($total_pegawai) }}</td>
+                                <td colspan="4" align="center">{{ number_format($total_dosen + $total_tendik + $total_dinolkan + $total_nonaktif) }}</td>
                                 <td align="right">{{ number_format($total_remun_insentif) }}</td>
                                 <td align="right">{{ number_format(abs($total_potongan)) }}</td>
                                 <td align="right">{{ number_format($total_dibayarkan) }}</td>
