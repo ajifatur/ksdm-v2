@@ -219,7 +219,8 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
     // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
-    Route::get('/admin/mutasi/import-blu', 'MutasiController@importBLU')->name('admin.mutasi.import-blu');
+    // Route::get('/admin/mutasi/import-blu', 'MutasiController@importBLU')->name('admin.mutasi.import-blu');
+    // Route::get('/admin/mutasi/jabatan', 'MutasiController@jabatan')->name('admin.mutasi.jabatan');
     // Route::get('/admin/mutasi/check', 'MutasiController@check')->name('admin.mutasi.check');
     // Route::get('/admin/referensi/import', 'ReferensiController@import')->name('admin.referensi.import');
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');

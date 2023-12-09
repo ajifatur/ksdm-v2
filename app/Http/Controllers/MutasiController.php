@@ -944,4 +944,21 @@ class MutasiController extends Controller
             }
         }
     }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function jabatan(Request $request)
+    {
+        // Get mutasi
+        $mutasi = Mutasi::where('jenis_id','=',1)->orderBy('tmt','desc')->get();
+
+        // View
+        return view('admin/mutasi/jabatan', [
+            'mutasi' => $mutasi
+        ]);
+    }
 }
