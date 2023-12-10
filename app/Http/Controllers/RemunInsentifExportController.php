@@ -110,7 +110,7 @@ class RemunInsentifExportController extends Controller
         }
 
         // Return
-        return Excel::download(new RemunInsentifPusatExport($remun_insentif), 'Remun Insentif '.$request->query('triwulan').' Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
+        return Excel::download(new RemunInsentifPusatExport($remun_insentif), 'Remun Insentif Triwulan '.$request->query('triwulan').' Pusat ('.($status == 1 ? 'Aktif' : 'Pensiun-MD').').xlsx');
     }
 
     /**

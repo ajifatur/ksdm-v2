@@ -30,7 +30,7 @@
                         <tbody>
                             @foreach($new as $n)
                             <tr>
-								<td>{{ $n['pegawai']->nip }}</td>
+								<td>'{{ $n['pegawai']->nip }}</td>
                                 <td>{{ title_name($n['pegawai']->nama, $n['pegawai']->gelar_depan, $n['pegawai']->gelar_belakang) }}</td>
                                 <td>{{ $n['unit']->nama }}</td>
                                 <td>{{ $n['angkatan']->nama }}</td>
@@ -53,6 +53,7 @@
     Spandiv.DataTable("#datatable", {
         orderAll: true,
         fixedHeader: true,
+        buttons: true,
     });
 </script>
 
