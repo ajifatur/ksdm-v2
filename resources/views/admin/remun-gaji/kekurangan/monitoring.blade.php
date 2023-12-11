@@ -91,7 +91,11 @@
                                 <td align="right">{{ number_format($total_kekurangan['dosen']) }}</td>
                                 <td align="right">{{ number_format($total_pegawai['tendik']) }}</td>
                                 <td align="right">{{ number_format($total_kekurangan['tendik']) }}</td>
-                                <td colspan="2"></td>
+                                <td colspan="2" align="center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.remun-gaji.kekurangan.export.recap', ['id' => 1]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Rekap Excel"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
