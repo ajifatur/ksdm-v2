@@ -108,11 +108,11 @@ class KekuranganRemunGajiController extends Controller
             foreach($array[0] as $data) {
                 if($data[0] != null) {
                     // Get pegawai
-                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+                    $pegawai = Pegawai::where('nip','=',$data[1])->first();
 
                     // Cek remun gaji terakhir
                     $remun_gaji = RemunGaji::where('pegawai_id','=',$pegawai->id)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
-                    if(!$remun_gaji) array_push($error, $data[1]);
+                    if(!$remun_gaji) array_push($error, $data[2]);
 
                     // Get kekurangan
                     $kekurangan = KekuranganRemunGaji::where('pegawai_id','=',$pegawai->id)->where('kekurangan_id','=',1)->first();
@@ -130,9 +130,18 @@ class KekuranganRemunGajiController extends Controller
                     $kekurangan->bulan = 12;
                     $kekurangan->tahun = 2023;
                     $kekurangan->kategori = $remun_gaji->kategori;
-                    $kekurangan->dibayarkan = $data[2];
-                    $kekurangan->seharusnya = $data[3];
-                    $kekurangan->selisih = $data[4];
+                    $kekurangan->dibayarkan = $data[12];
+                    $kekurangan->seharusnya = $data[13];
+                    $kekurangan->selisih = $data[14];
+                    $kekurangan->dibayarkan1 = $data[3];
+                    $kekurangan->seharusnya1 = $data[4];
+                    $kekurangan->selisih1 = $data[5];
+                    $kekurangan->dibayarkan2 = $data[6];
+                    $kekurangan->seharusnya2 = $data[7];
+                    $kekurangan->selisih2 = $data[8];
+                    $kekurangan->dibayarkan3 = $data[9];
+                    $kekurangan->seharusnya3 = $data[10];
+                    $kekurangan->selisih3 = $data[11];
                     $kekurangan->save();
                 }
             }

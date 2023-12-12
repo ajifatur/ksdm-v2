@@ -31,11 +31,12 @@
                 <th align="center" rowspan="2" width="30"><b>Layer</b></th>
                 <th align="center" rowspan="2" width="30"><b>Grade</b></th>
                 <th align="center" colspan="3"><b>Kekurangan/Kelebihan Pembayaran Remunerasi Gaji</b></th>
+                <th align="center" rowspan="2" width="60"><b>Dibayarkan</b></th>
             </tr>
             <tr>
                 <th align="center" width="60"><b>Terbayar</b></th>
                 <th align="center" width="60"><b>Seharusnya</b></th>
-                <th align="center" width="60"><b>Selisih / Dibayarkan</b></th>
+                <th align="center" width="60"><b>Selisih</b></th>
             </tr>
             <tr>
                 <th align="center"><em>1</em></th>
@@ -48,6 +49,7 @@
                 <th align="center"><em>8</em></th>
                 <th align="center"><em>9</em></th>
                 <th align="center"><em>10 = 9 - 8</em></th>
+                <th align="center"><em>11</em></th>
             </tr>
         </thead>
         <tbody>
@@ -67,7 +69,20 @@
                     <td align="right">{{ number_format($k->dibayarkan,0,'.','.') }}</td>
                     <td align="right">{{ number_format($k->seharusnya,0,'.','.') }}</td>
                     <td align="right">{{ number_format($k->selisih,0,'.','.') }}</td>
+                    <td align="right">{{ number_format($k->selisih,0,'.','.') }}</td>
                 </tr>
+                @for($i=3;$i>=1;$i--)
+                    @if($k->{'dibayarkan'.$i} > 0 && $k->{'seharusnya'.$i} > 0 && $k->{'selisih'.$i} > 0)
+                        <tr bgcolor="#e3e3e3">
+                            <td></td>
+                            <td colspan="6" align="center" height="20">{{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($i)) }} 2023</td>
+                            <td align="right">{{ number_format($k->{'dibayarkan'.$i},0,'.','.') }}</td>
+                            <td align="right">{{ number_format($k->{'seharusnya'.$i},0,'.','.') }}</td>
+                            <td align="right">{{ number_format($k->{'selisih'.$i},0,'.','.') }}</td>
+                            <td align="right"></td>
+                        </tr>
+                    @endif
+                @endfor
             @endforeach
         </tbody>
         <tfoot>
@@ -76,9 +91,10 @@
                 <td align="right"><b>{{ number_format($kekurangan->sum('dibayarkan'),0,'.','.') }}</b></td>
                 <td align="right"><b>{{ number_format($kekurangan->sum('seharusnya'),0,'.','.') }}</b></td>
                 <td align="right"><b>{{ number_format($kekurangan->sum('selisih'),0,'.','.') }}</b></td>
+                <td align="right"><b>{{ number_format($kekurangan->sum('selisih'),0,'.','.') }}</b></td>
             </tr>
             <tr id="sign">
-                <td colspan="7" width="80%"></td>
+                <td colspan="8" width="80%"></td>
                 <td colspan="3" height="80" valign="top">
                     <div id="sign-content">
                         Semarang,
