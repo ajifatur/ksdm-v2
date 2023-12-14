@@ -69,10 +69,10 @@
                     <td align="right">{{ number_format($k->dibayarkan,0,'.','.') }}</td>
                     <td align="right">{{ number_format($k->seharusnya,0,'.','.') }}</td>
                     <td align="right">{{ number_format($k->selisih,0,'.','.') }}</td>
-                    <td align="right">{{ number_format($k->selisih,0,'.','.') }}</td>
+                    <td align="right">{{ $k->selisih < 0 ? 0 : number_format($k->selisih,0,'.','.') }}</td>
                 </tr>
                 @for($i=3;$i>=1;$i--)
-                    @if($k->{'dibayarkan'.$i} > 0 && $k->{'seharusnya'.$i} > 0 && $k->{'selisih'.$i} > 0)
+                    @if($k->{'dibayarkan'.$i} != 0 && $k->{'seharusnya'.$i} != 0 && $k->{'selisih'.$i} != 0)
                         <tr bgcolor="#e3e3e3">
                             <td></td>
                             <td colspan="6" align="center" height="20">{{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($i)) }} 2023</td>
@@ -91,7 +91,7 @@
                 <td align="right"><b>{{ number_format($kekurangan->sum('dibayarkan'),0,'.','.') }}</b></td>
                 <td align="right"><b>{{ number_format($kekurangan->sum('seharusnya'),0,'.','.') }}</b></td>
                 <td align="right"><b>{{ number_format($kekurangan->sum('selisih'),0,'.','.') }}</b></td>
-                <td align="right"><b>{{ number_format($kekurangan->sum('selisih'),0,'.','.') }}</b></td>
+                <td align="right"><b>{{ number_format($kekurangan->where('selisih','>=',0)->sum('selisih'),0,'.','.') }}</b></td>
             </tr>
             <tr id="sign">
                 <td colspan="8" width="80%"></td>

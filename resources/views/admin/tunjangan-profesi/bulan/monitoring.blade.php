@@ -71,9 +71,9 @@
                                 <td align="center">
 									<div class="btn-group">
 										@foreach($d['tunjangan_profesi'] as $tp)
-                                        <a href="{{ route('admin.tunjangan-profesi.excel', ['jenis' => $tp['jenis']->id, 'bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tunjangan {{ $tp['jenis']->nama }}"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.tunjangan-profesi.export', ['jenis' => $tp['jenis']->id, 'bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tunjangan {{ $tp['jenis']->nama }}"><i class="bi-file-excel"></i></a>
 										@endforeach
-                                        <a href="{{ route('admin.tunjangan-profesi.excel', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.tunjangan-profesi.export', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
 									</div>
 								</td>
 							</tr>

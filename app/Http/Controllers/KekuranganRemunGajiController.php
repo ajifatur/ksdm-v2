@@ -47,7 +47,7 @@ class KekuranganRemunGajiController extends Controller
                     array_push($nominal_pusat, [
                         'kategori' => $i,
                         'pegawai' => $kekurangan->count(),
-                        'kekurangan' => $kekurangan->sum('selisih'),
+                        'kekurangan' => $kekurangan->where('selisih','>=',0)->sum('selisih'),
                     ]);
                 }
 
@@ -60,7 +60,7 @@ class KekuranganRemunGajiController extends Controller
                 array_push($nominal, [
                     'kategori' => $i,
                     'pegawai' => $kekurangan->count(),
-                    'kekurangan' => $kekurangan->sum('selisih'),
+                    'kekurangan' => $kekurangan->where('selisih','>=',0)->sum('selisih'),
                 ]);
             }
 
@@ -100,7 +100,82 @@ class KekuranganRemunGajiController extends Controller
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
+		
+		$kekurangan = KekuranganRemunGaji::whereHas('pegawai', function(Builder $query) {
+			return $query->whereIn('nama',['Sinta Saraswati','Sungkowo Edy Mulyono']);
+		})->get();
+		foreach($kekurangan as $k) {
+			// Cek remun April
+			$remun_gaji_april = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',4)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
 
+			$update = KekuranganRemunGaji::find($k->id);
+			$update->seharusnya3 = $remun_gaji_april->remun_gaji;
+			$update->selisih3 = $update->seharusnya3 - $update->dibayarkan3;
+			$update->seharusnya = $update->seharusnya1 + $update->seharusnya2 + $update->seharusnya3;
+			$update->selisih = $update->selisih1 + $update->selisih2 + $update->selisih3;
+			$update->save();
+		}
+		
+		/*
+		$kekurangan = KekuranganRemunGaji::all();
+		foreach($kekurangan as $k) {
+			// Cek remun maksimal Maret
+			$remun_gaji = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','<=',3)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+			if($remun_gaji && $remun_gaji->status_kepeg_id == 2) {
+				// Cek remun April
+				$remun_gaji_april = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',4)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+				
+				$update = KekuranganRemunGaji::find($k->id);
+				$update->seharusnya3 = $remun_gaji_april->remun_gaji;
+				$update->selisih3 = $update->seharusnya3 - $update->dibayarkan3;
+				$update->seharusnya = $update->seharusnya1 + $update->seharusnya2 + $update->seharusnya3;
+				$update->selisih = $update->selisih1 + $update->selisih2 + $update->selisih3;
+				$update->save();
+			}
+		}
+		*/
+		
+		/*
+		$unit = Unit::whereIn('nama',['FIPP','FISIP','FEB','FK','DAKK','DPK','DSIH','DUSDM'])->pluck('id')->toArray();
+		$kekurangan = KekuranganRemunGaji::whereIn('unit_id',$unit)->get();
+		foreach($kekurangan as $k) {
+			$pegawai_non_aktif = Pegawai::where('nama','=',$k->pegawai->nama)->where('status_kerja_id','!=',1)->first();
+			var_dump($k->pegawai->nama);
+			var_dump($k->pegawai->nip);
+			var_dump($k->pegawai_id);
+			var_dump($pegawai_non_aktif->id);
+			var_dump($pegawai_non_aktif->nip);
+			echo "<br>";
+			$pegawai_non_aktif = Pegawai::where('nama','=',$k->pegawai->nama)->where('status_kerja_id','!=',1)->first();
+			$kk = KekuranganRemunGaji::find($k->id);
+			$kk->pegawai_id = $pegawai_non_aktif->id;
+			$kk->save();
+		}
+		*/
+		
+		/*
+		// Get kekurangan 
+		$kekurangan = KekuranganRemunGaji::all();
+		foreach($kekurangan as $k) {
+			// Cek remun maksimal April
+			$remun_gaji = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','<=',4)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+			
+			// Simpan data kekurangan
+			if($remun_gaji) {
+			$kk = KekuranganRemunGaji::find($k->id);
+			$kk->status_kepeg_id = $remun_gaji->status_kepeg_id;
+			$kk->golru_id = $remun_gaji->status_kepeg_id;
+			$kk->jabatan_dasar_id = $remun_gaji->jabatan_dasar_id;
+			$kk->jabatan_id = $remun_gaji->jabatan_id;
+			$kk->unit_id = $remun_gaji->unit_id;
+			$kk->layer_id = $remun_gaji->layer_id;
+			$kk->save();
+			}
+		}
+		return;
+		*/
+
+		/*
 		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Kekurangan Jan-Mar 2023.xlsx'));
 
         $error = [];
@@ -147,6 +222,7 @@ class KekuranganRemunGajiController extends Controller
             }
         }
         var_dump($error);
+		*/
     }
 
     /**
