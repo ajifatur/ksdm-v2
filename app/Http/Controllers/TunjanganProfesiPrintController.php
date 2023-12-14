@@ -57,6 +57,46 @@ class TunjanganProfesiPrintController extends Controller
     }
 
     /**
+     * Batch.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  id
+     * @return \Illuminate\Http\Response
+     */
+    public function batch(Request $request, $id)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        if($id == 1) $jenis = 2;
+        elseif($id == 2) $jenis = 3;
+        elseif($id == 3) $jenis = 3;
+
+        // Get SK
+        $sk = SK::where('jenis_id','=',$jenis)->where('status','=',1)->first();
+
+        // Get tunjangan profesi
+        $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($id) {
+            return $query->where('jenis_id','=',$id);
+        })->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
+
+        // Set title
+        $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
+
+        // PDF
+        $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
+            'title' => $title,
+            'nama' => 'Tunjangan '.$tunjangan[0]->angkatan->jenis->deskripsi,
+            'sk' => $sk,
+            'bulan' => $request->bulan,
+            'tahun' => $request->tahun,
+            'tunjangan' => $tunjangan
+        ]);
+        $pdf->setPaper([0, 0 , 935, 612]);
+        return $pdf->stream($title.'.pdf');
+    }
+
+    /**
      * Non PNS.
      *
      * @param  \Illuminate\Http\Request  $request

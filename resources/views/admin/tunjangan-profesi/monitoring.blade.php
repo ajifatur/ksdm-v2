@@ -110,6 +110,9 @@
                                         <a href="{{ route('admin.tunjangan-profesi.csv.batch', ['id' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
                                         @endif
                                         @if(in_array(Request::query('jenis'), [1,2,3,4]))
+                                            @if(in_array(Request::query('jenis'), [1,2,3]))
+										    <a href="{{ route('admin.tunjangan-profesi.print.batch', ['id' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF Batch" target="_blank"><i class="bi-file-pdf"></i></a>
+                                            @endif
 										<a href="{{ route('admin.tunjangan-profesi.print.sptjm', ['jenis' => Request::query('jenis'), 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
 										@endif
                                     </div>

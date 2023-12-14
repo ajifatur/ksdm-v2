@@ -123,6 +123,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 	
 	// Tunjangan Profesi (Print)
     Route::get('/admin/tunjangan-profesi/print/single/{id}', 'TunjanganProfesiPrintController@single')->name('admin.tunjangan-profesi.print.single');
+    Route::get('/admin/tunjangan-profesi/print/batch/{id}', 'TunjanganProfesiPrintController@batch')->name('admin.tunjangan-profesi.print.batch');
     Route::get('/admin/tunjangan-profesi/print/non-pns', 'TunjanganProfesiPrintController@nonPNS')->name('admin.tunjangan-profesi.print.non-pns');
     Route::get('/admin/tunjangan-profesi/print/sptjm', 'TunjanganProfesiPrintController@sptjm')->name('admin.tunjangan-profesi.print.sptjm');
 	
