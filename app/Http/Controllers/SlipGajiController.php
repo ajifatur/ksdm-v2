@@ -250,6 +250,7 @@ class SlipGajiController extends Controller
             'bahasa' => $bahasa,
             'bulan_english' => $month[date('n', strtotime($slip_gaji->tanggal)) - 1],
             'mata_uang' => $mata_uang,
+            'month' => $month,
             'gaji_induk' => $gaji_induk,
             'tunjangan_profesi' => $tunjangan_profesi,
             'tunjangan_kehormatan_profesor' => $tunjangan_kehormatan_profesor,

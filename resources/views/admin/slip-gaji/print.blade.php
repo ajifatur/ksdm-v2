@@ -36,7 +36,7 @@
             <tr>
                 <td width="140">{{ $bahasa == 'en' ? 'Month' : 'Bulan' }}</td>
                 <td width="5">:</td>
-                <td>{{ $bahasa == 'en' ? $bulan_english : \Ajifatur\Helpers\DateTimeExt::month($slip_gaji->bulan) }} {{ $slip_gaji->tahun }}</td>
+                <td>{{ $bahasa == 'en' ? $month[$slip_gaji->bulan - 1] : \Ajifatur\Helpers\DateTimeExt::month($slip_gaji->bulan) }} {{ $slip_gaji->tahun }}</td>
             </tr>
             <tr>
                 <td>{{ $bahasa == 'en' ? 'Name' : 'Nama' }}</td>
