@@ -30,7 +30,7 @@
                         <tbody>
                             @foreach($pegawai as $p)
                             <tr>
-                                <td><a class="{{ $p->status_kerja->status == 0 ? 'text-danger' : '' }}" href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">{{ $p->nip }}</a></td>
+                                <td><a class="{{ $p->status_kerja->status == 0 ? 'text-danger' : '' }}" href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
                                 <td>{{ $p->nama }}</td>
                                 <td>{{ $p->gelar_depan }}</td>
                                 <td>{{ $p->gelar_belakang }}</td>
