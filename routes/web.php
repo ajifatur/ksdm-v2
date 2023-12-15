@@ -84,6 +84,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/remun-insentif/export/single', 'RemunInsentifExportController@single')->name('admin.remun-insentif.export.single');
     Route::get('/admin/remun-insentif/export/pusat', 'RemunInsentifExportController@pusat')->name('admin.remun-insentif.export.pusat');
     Route::get('/admin/remun-insentif/export/recap', 'RemunInsentifExportController@recap')->name('admin.remun-insentif.export.recap');
+    Route::get('/admin/remun-insentif/import/zakat', 'RemunInsentifImportController@zakat')->name('admin.remun-insentif.import.zakat');
 
     // Remun 15
     Route::get('/admin/remun-15', 'Remun15Controller@index')->name('admin.remun-15.index');
