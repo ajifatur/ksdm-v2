@@ -13,19 +13,19 @@
 		.page-break {page-break-after: always;}
 		
 		/* Content */
-		.content {position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; text-align: justify; border: 2px solid #333;}
-        .subject {position: absolute; top: 30px; right: 120px; font-size: 13px; line-height: 13px;}
-		.subject tr td {vertical-align: top;}
-		.title {position: absolute; top: 110px; width: 100%; font-family: 'FiraSans-Bold'; font-size: 20px; text-align: center; text-decoration: underline;}
-        .description {position: absolute; top: 160px; left: 15px; right: 15px;}
-		.description tr td {vertical-align: top;}
-        .sign {position: absolute; top: 310px; left: 15px; right: 15px; width: 100%;}
-		.sign tr td {vertical-align: top;}
+		.content-1 {position: absolute; top: 15px; left: 15px; right: 15px; height: 47.5%; text-align: justify; border: 2px solid #333;}
+		.content-2 {position: absolute; top: 50%; left: 15px; right: 15px; height: 47.5%; text-align: justify; border: 2px solid #333;}
+		.subject tr td, .description tr td, .sign tr td {vertical-align: top;}
 		.sign .name {font-family: 'FiraSans-Bold'; text-decoration: underline;}
+        .subject {position: absolute; top: 30px; right: 120px; font-size: 13px; line-height: 13px;}
+		.title {position: absolute; top: 110px; width: 100%; font-family: 'FiraSans-Bold'; font-size: 20px; text-align: center; text-decoration: underline;}
+        .description {position: absolute; width: 96%; top: 160px; left: 15px;}
+        .sign {position: absolute; top: 310px; left: 15px; right: 15px; width: 100%;}
     </style>
 </head>
 <body>
-	<div class="content">
+	@for($i=1; $i<=2; $i++)
+	<div class="content-{{ $i }}">
 		<table class="subject">
 			<tr>
 				<td width="60">TA</td>
@@ -92,5 +92,6 @@
 			</tr>
 		</table>
 	</div>
+	@endfor
 </body>
 </html>
