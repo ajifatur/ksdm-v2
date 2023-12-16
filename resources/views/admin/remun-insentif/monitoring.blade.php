@@ -41,9 +41,9 @@
                             <tr>
                                 <th rowspan="2">Unit</th>
                                 <th colspan="4">Pegawai</th>
-                                <th colspan="3">Remun Insentif</th>
+                                <th colspan="4">Remun Insentif</th>
                                 <th colspan="2">Excel Simkeu</th>
-                                <th rowspan="2" width="30">Potongan PDF</th>
+                                <th rowspan="2" width="30">PDF</th>
                             </tr>
                             <tr>
                                 <th width="60">Dosen</th>
@@ -53,6 +53,7 @@
                                 <th width="90">Nominal</th>
                                 <th width="90">Potongan</th>
                                 <th width="90">Dibayarkan</th>
+                                <th width="90">Zakat</th>
                                 <th width="30">Aktif</th>
                                 <th width="30">Nonaktif</th>
                             </tr>
@@ -76,6 +77,7 @@
                                 <td align="right">{{ number_format($u->remun_insentif) }}</td>
                                 <td align="right">{{ number_format(abs($u->potongan)) }}</td>
                                 <td align="right">{{ number_format($u->dibayarkan) }}</td>
+                                <td align="right">{{ number_format($u->zakat) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         @if($u->nama != 'Sekolah Pascasarjana')
@@ -97,18 +99,18 @@
                                     @endif
                                 </td>
                                 <td align="center">
-                                    @if($u->potongan != 0)
-                                        <div class="btn-group">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.print.zakat', ['unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" target="_blank" data-bs-toggle="tooltip" title="Download PDF Zakat"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.remun-insentif.print.kwitansi', ['unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" target="_blank" data-bs-toggle="tooltip" title="Download PDF Kwitansi"><i class="bi-file-pdf"></i></a>
+                                        @if($u->potongan != 0)
                                             @if($u->potonganDosen > 0)
-                                            <a href="{{ route('admin.remun-insentif.print-potongan', ['kategori' => 1, 'unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Dosen"><i class="bi-file-pdf"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.print.potongan', ['kategori' => 1, 'unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Potongan Dosen"><i class="bi-file-pdf"></i></a>
                                             @endif
                                             @if($u->potonganTendik > 0)
-                                            <a href="{{ route('admin.remun-insentif.print-potongan', ['kategori' => 2, 'unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Tendik"><i class="bi-file-pdf"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.print.potongan', ['kategori' => 2, 'unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Potongan Tendik"><i class="bi-file-pdf"></i></a>
                                             @endif
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -129,6 +131,7 @@
                                 <td align="right">{{ number_format($remun_insentif_pusat) }}</td>
                                 <td align="right">{{ number_format(abs($potongan_pusat)) }}</td>
                                 <td align="right">{{ number_format($remun_insentif_pusat + $potongan_pusat) }}</td>
+                                <td align="right">{{ number_format($zakat_pusat) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.remun-insentif.export.pusat', ['status' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
@@ -144,18 +147,18 @@
                                     @endif
                                 </td>
                                 <td align="center">
-                                    @if($potongan_pusat != 0)
-                                        <div class="btn-group">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.print.zakat', ['pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" target="_blank" data-bs-toggle="tooltip" title="Download PDF Zakat"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.remun-insentif.print.kwitansi', ['pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" target="_blank" data-bs-toggle="tooltip" title="Download PDF Kwitansi"><i class="bi-file-pdf"></i></a>
+                                        @if($potongan_pusat != 0)
                                             @if($potongan_pegawai_pusat['dosen'] > 0)
-                                            <a href="{{ route('admin.remun-insentif.print-potongan', ['kategori' => 1, 'pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Dosen"><i class="bi-file-pdf"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.print.potongan', ['kategori' => 1, 'pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Potongan Dosen"><i class="bi-file-pdf"></i></a>
                                             @endif
                                             @if($potongan_pegawai_pusat['tendik'] > 0)
-                                            <a href="{{ route('admin.remun-insentif.print-potongan', ['kategori' => 2, 'pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Tendik"><i class="bi-file-pdf"></i></a>
+                                            <a href="{{ route('admin.remun-insentif.print.potongan', ['kategori' => 2, 'pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Potongan Tendik"><i class="bi-file-pdf"></i></a>
                                             @endif
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -166,11 +169,13 @@
                                 <td align="right">{{ number_format($total_remun_insentif) }}</td>
                                 <td align="right">{{ number_format(abs($total_potongan)) }}</td>
                                 <td align="right">{{ number_format($total_dibayarkan) }}</td>
-                                <td colspan="3" align="center">
+                                <td align="right">{{ number_format($total_zakat) }}</td>
+                                <td colspan="2" align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.remun-insentif.export.recap', ['triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>

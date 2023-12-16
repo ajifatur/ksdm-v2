@@ -80,11 +80,18 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Remun Insentif
     Route::get('/admin/remun-insentif', 'RemunInsentifController@index')->name('admin.remun-insentif.index');
     Route::get('/admin/remun-insentif/monitoring', 'RemunInsentifController@monitoring')->name('admin.remun-insentif.monitoring');
-    Route::get('/admin/remun-insentif/print-potongan', 'RemunInsentifController@printPotongan')->name('admin.remun-insentif.print-potongan');
     Route::get('/admin/remun-insentif/export/single', 'RemunInsentifExportController@single')->name('admin.remun-insentif.export.single');
     Route::get('/admin/remun-insentif/export/pusat', 'RemunInsentifExportController@pusat')->name('admin.remun-insentif.export.pusat');
     Route::get('/admin/remun-insentif/export/recap', 'RemunInsentifExportController@recap')->name('admin.remun-insentif.export.recap');
-    Route::get('/admin/remun-insentif/import/zakat', 'RemunInsentifImportController@zakat')->name('admin.remun-insentif.import.zakat');
+
+    // Remun Insentif (Print)
+    Route::get('/admin/remun-insentif/print/potongan', 'RemunInsentifPrintController@potongan')->name('admin.remun-insentif.print.potongan');
+    Route::get('/admin/remun-insentif/print/zakat', 'RemunInsentifPrintController@zakat')->name('admin.remun-insentif.print.zakat');
+    Route::get('/admin/remun-insentif/print/kwitansi', 'RemunInsentifPrintController@kwitansi')->name('admin.remun-insentif.print.kwitansi');
+
+    // Remun Insentif (Zakat)
+    Route::get('/admin/remun-insentif/zakat/import', 'RemunInsentifZakatController@import')->name('admin.remun-insentif.zakat.import');
+    Route::post('/admin/remun-insentif/zakat/import', 'RemunInsentifZakatController@import')->name('admin.remun-insentif.zakat.import');
 
     // Remun 15
     Route::get('/admin/remun-15', 'Remun15Controller@index')->name('admin.remun-15.index');
