@@ -88,6 +88,7 @@ class RemunInsentifPrintController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
+        $pensiun = $request->query('pensiun');
         $unit = $request->query('unit');
         $pusat = $request->query('pusat');
         $triwulan = $request->query('triwulan');
@@ -100,37 +101,55 @@ class RemunInsentifPrintController extends Controller
         // Set romawi
         $romawi = ['I','II','III','IV'];
 
-        if($pusat != 1) {
-            // Get unit
-            $unit = Unit::findOrFail($request->query('unit'));
+        if($pensiun != 1) {
+            if($pusat != 1) {
+                // Get unit
+                $unit = Unit::findOrFail($request->query('unit'));
 
-            // Get pegawai dalam unit berdasarkan remun insentif
-            $remun_insentif_dosen = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
-            })->where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
-            $remun_insentif_tendik = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
-            })->where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                // Get pegawai dalam unit berdasarkan remun insentif
+                $remun_insentif_dosen = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
+                    return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
+                })->where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                $remun_insentif_tendik = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
+                    return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
+                })->where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+            }
+            else {
+                // Get unit pusat
+                $unit = Unit::where('pusat','=',1)->pluck('id')->toArray();
+
+                // Get pegawai dalam unit berdasarkan remun insentif
+                $remun_insentif_dosen = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
+                    return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
+                })->whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                $remun_insentif_tendik = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
+                    return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
+                })->whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+            }
         }
         else {
-            // Get unit pusat
-            $unit = Unit::where('pusat','=',1)->pluck('id')->toArray();
+            // Get unit
+            $unit = null;
 
             // Get pegawai dalam unit berdasarkan remun insentif
             $remun_insentif_dosen = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
-            })->whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                return $query->whereIn('status_kerja_id',[2])->where('tmt_non_aktif','<=',$tanggal);
+            })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[1,3])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
             $remun_insentif_tendik = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
-            })->whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
+                return $query->whereIn('status_kerja_id',[2])->where('tmt_non_aktif','<=',$tanggal);
+            })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->whereIn('kategori',[2])->where('remun_insentif','>',0)->orderBy('num_order','asc')->get();
         }
 
         // Set title
-        $title = 'Potongan Zakat '.($pusat != 1 ? $unit->nama : 'Pusat').' ('.$tahun.' Triwulan '.$triwulan.')';
+        if($pensiun != 1)
+            $title = 'Potongan Zakat '.($pusat != 1 ? $unit->nama : 'Pusat').' ('.$tahun.' Triwulan '.$triwulan.')';
+        else
+            $title = 'Potongan Zakat Pegawai Pensiun ('.$tahun.' Triwulan '.$triwulan.')';
 
         // PDF
         $pdf = PDF::loadView('admin/remun-insentif/print/zakat', [
             'title' => $title,
+            'pensiun' => $pensiun,
             'unit' => $unit,
             'triwulan' => $triwulan,
             'tahun' => $tahun,
@@ -153,6 +172,7 @@ class RemunInsentifPrintController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
+        $pensiun = $request->query('pensiun');
         $unit = $request->query('unit');
         $pusat = $request->query('pusat');
         $triwulan = $request->query('triwulan');
@@ -165,36 +185,52 @@ class RemunInsentifPrintController extends Controller
         // Set romawi
         $romawi = ['I','II','III','IV'];
 
-        if($pusat != 1) {
-            // Get unit
-            $unit = Unit::findOrFail($request->query('unit'));
+        if($pensiun != 1) {
+            if($pusat != 1) {
+                // Get unit
+                $unit = Unit::findOrFail($request->query('unit'));
 
-            // Get potongan zakat
-            $potongan_zakat = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
-            })->where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->sum('pot_zakat');
+                // Get potongan zakat
+                $potongan_zakat = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
+                    return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
+                })->where('unit_id','=',$request->query('unit'))->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->get();
+            }
+            else {
+                // Get unit pusat
+                $unit = Unit::where('pusat','=',1)->pluck('id')->toArray();
+
+                // Get potongan zakat
+                $potongan_zakat = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
+                    return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
+                })->whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->get();
+            }
         }
         else {
-            // Get unit pusat
-            $unit = Unit::where('pusat','=',1)->pluck('id')->toArray();
+            // Get unit
+            $unit = null;
 
             // Get potongan zakat
             $potongan_zakat = RemunInsentif::whereHas('pegawai', function(Builder $query) use ($tanggal) {
-                return $query->whereNotIn('status_kerja_id',[2,3])->orWhere('tmt_non_aktif','>',$tanggal);
-            })->whereIn('unit_id',$unit)->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->sum('pot_zakat');
+                return $query->whereIn('status_kerja_id',[2])->where('tmt_non_aktif','<=',$tanggal);
+            })->whereIn('triwulan',[1,2,3,4])->where('triwulan','=',$triwulan)->where('tahun','=',$tahun)->where('remun_insentif','>',0)->get();
         }
 
         // Set title
-        $title = 'Kwitansi Zakat '.($pusat != 1 ? $unit->nama : 'Pusat').' ('.$tahun.' Triwulan '.$triwulan.')';
+        if($pensiun != 1)
+            $title = 'Kwitansi Zakat '.($pusat != 1 ? $unit->nama : 'Pusat').' ('.$tahun.' Triwulan '.$triwulan.')';
+        else
+            $title = 'Kwitansi Zakat Pegawai Pensiun ('.$tahun.' Triwulan '.$triwulan.')';
 
         // PDF
         $pdf = PDF::loadView('admin/remun-insentif/print/kwitansi', [
             'title' => $title,
+            'pensiun' => $pensiun,
+            'pusat' => $pusat,
             'unit' => $unit,
             'triwulan' => $triwulan,
             'tahun' => $tahun,
             'romawi' => $romawi,
-            'pot$potongan_zakat' =>$potongan_zakat,
+            'potongan_zakat' => $potongan_zakat,
         ]);
         $pdf->setPaper([0, 0, 612, 935]);
         return $pdf->stream($title.'.pdf');

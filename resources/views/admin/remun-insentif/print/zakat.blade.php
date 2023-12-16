@@ -16,7 +16,7 @@
 </head>
 <body>
     <div id="title">
-        DAFTAR PEMOTONGAN AMAL JARIYAH<br>PEMBAYARAN REMUNERASI UNSUR INSENTIF TRIWULAN {{ $romawi[$triwulan-1] }} TAHUN {{ $tahun }} BAGI TENAGA PENDIDIK<br>DAN TENAGA KEPENDIDIKAN {{ Request::query('pusat') == 1 ? 'PUSAT' : strtoupper($unit->nama) }} UNNES
+        DAFTAR PEMOTONGAN AMAL JARIYAH<br>PEMBAYARAN REMUNERASI UNSUR INSENTIF TRIWULAN {{ $romawi[$triwulan-1] }} TAHUN {{ $tahun }} BAGI TENAGA PENDIDIK<br>DAN TENAGA KEPENDIDIKAN {{ $pensiun != 1 ? Request::query('pusat') == 1 ? 'PUSAT' : strtoupper($unit->nama) : 'PENSIUN' }} UNNES
     </div>
     <table style="width: 100%">
         <thead>
@@ -74,19 +74,5 @@
             </tr>
         </tfoot>
     </table>
-    <!-- <table width="100%" id="sign">
-        <tr>
-            <td width="80%"></td>
-            <td height="80" valign="top">
-                Semarang,
-                <br><br>
-                Pejabat Pembuat Komitmen
-                <br><br><br><br><br>
-                Siti Mursidah, S.Pd., M.Si.
-                <br>
-                NIP. 197710262005022001
-            </td>
-        </tr>
-    </table> -->
 </body>
 </html>

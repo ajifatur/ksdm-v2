@@ -175,7 +175,12 @@
                                         <a href="{{ route('admin.remun-insentif.export.recap', ['triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
-                                <td></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.print.zakat', ['pensiun' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" target="_blank" data-bs-toggle="tooltip" title="Download PDF Zakat Pensiunan"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.remun-insentif.print.kwitansi', ['pensiun' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" target="_blank" data-bs-toggle="tooltip" title="Download PDF Kwitansi Pensiunan"><i class="bi-file-pdf"></i></a>
+                                    </div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
