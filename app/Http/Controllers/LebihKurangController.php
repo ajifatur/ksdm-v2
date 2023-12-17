@@ -34,6 +34,7 @@ class LebihKurangController extends Controller
         $lebih_kurang->terbayar = str_replace(',', '', $request->terbayar);
         $lebih_kurang->seharusnya = str_replace(',', '', $request->seharusnya);
         $lebih_kurang->selisih = $lebih_kurang->seharusnya - $lebih_kurang->terbayar;
+        $lebih_kurang->kekurangan = 0;
         $lebih_kurang->save();
 
         // Redirect

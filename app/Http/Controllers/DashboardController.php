@@ -38,8 +38,8 @@ class DashboardController extends Controller
         })->count();
 
         // Sum remun gaji
-        $remun_gaji_total = RemunGaji::where('tahun','=',date('Y'))->sum('remun_gaji') + LebihKurang::where('tahun_proses','=',date('Y'))->where('triwulan_proses','=',0)->sum('selisih');
-        $remun_gaji = RemunGaji::where('bulan','=',date('n'))->where('tahun','=',date('Y'))->sum('remun_gaji') + LebihKurang::where('bulan_proses','=',date('n'))->where('tahun_proses','=',date('Y'))->where('triwulan_proses','=',0)->sum('selisih');
+        $remun_gaji_total = RemunGaji::where('tahun','=',date('Y'))->sum('remun_gaji') + LebihKurang::where('tahun_proses','=',date('Y'))->where('triwulan_proses','=',0)->where('kekurangan','=',0)->sum('selisih');
+        $remun_gaji = RemunGaji::where('bulan','=',date('n'))->where('tahun','=',date('Y'))->sum('remun_gaji') + LebihKurang::where('bulan_proses','=',date('n'))->where('tahun_proses','=',date('Y'))->where('triwulan_proses','=',0)->where('kekurangan','=',0)->sum('selisih');
 
         // Sum remun insentif
         $remun_insentif_terakhir = RemunInsentif::latest('tahun')->latest('triwulan')->whereIn('triwulan',[1,2,3,4])->first();

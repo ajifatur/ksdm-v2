@@ -102,7 +102,7 @@ function check_mutasi($pegawai, $bulan, $tahun) {
             ?>
             @foreach($remun_gaji as $key=>$r)
                 <?php
-                    $lebih_kurang = \App\Models\LebihKurang::where('pegawai_id','=',$r->pegawai->id)->where('bulan_proses','=',Request::query('bulan'))->where('tahun_proses','=',Request::query('tahun'))->where('triwulan_proses','=',0)->where('selisih','!=',0)->get();
+                    $lebih_kurang = \App\Models\LebihKurang::where('pegawai_id','=',$r->pegawai->id)->where('bulan_proses','=',Request::query('bulan'))->where('tahun_proses','=',Request::query('tahun'))->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->get();
                     $dibayarkan = $r->remun_gaji + $lebih_kurang->sum('selisih');
                     $mutasi = $r->pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
 						return $query->where('remun','=',1);

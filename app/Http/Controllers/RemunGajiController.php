@@ -99,7 +99,7 @@ class RemunGajiController extends Controller
                 $proses[$key]->pegawai = RemunGaji::where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->count();
 
                 // Count lebih kurang
-                $proses[$key]->lebih_kurang = LebihKurang::where('bulan_proses','=',$p->bulan)->where('tahun_proses','=',$p->tahun)->where('triwulan_proses','=',0)->where('selisih','!=',0)->count();
+                $proses[$key]->lebih_kurang = LebihKurang::where('bulan_proses','=',$p->bulan)->where('tahun_proses','=',$p->tahun)->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count();
 
                 // Sum remun gaji
                 $proses[$key]->remun_gaji = RemunGaji::where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->sum('remun_gaji') + LebihKurang::where('bulan_proses','=',$p->bulan)->where('tahun_proses','=',$p->tahun)->where('triwulan_proses','=',0)->sum('selisih');
@@ -187,6 +187,7 @@ class RemunGajiController extends Controller
 									$lebih_kurang->terbayar = $rg ? $rg->remun_gaji : 0;
 									$lebih_kurang->seharusnya = $m->remun_gaji;
 									$lebih_kurang->selisih = $lebih_kurang->seharusnya - $lebih_kurang->terbayar;
+                                    $lebih_kurang->kekurangan = 0;
 									$lebih_kurang->save();
 								}
 							}
@@ -208,6 +209,7 @@ class RemunGajiController extends Controller
 								$lebih_kurang->terbayar = $rg ? $rg->remun_gaji : 0;
 								$lebih_kurang->seharusnya = $m->remun_gaji;
 								$lebih_kurang->selisih = $lebih_kurang->seharusnya - $lebih_kurang->terbayar;
+                                $lebih_kurang->kekurangan = 0;
 								$lebih_kurang->save();
 							}
 
@@ -322,7 +324,7 @@ class RemunGajiController extends Controller
                     $pegawai = $remun_gaji->pluck('pegawai_id')->toArray();
     
                     // Count lebih kurang
-                    $lebih_kurang = LebihKurang::whereIn('pegawai_id',$pegawai)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->sum('selisih');
+                    $lebih_kurang = LebihKurang::whereIn('pegawai_id',$pegawai)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',0)->sum('selisih');
 
                     array_push($nominal_pusat, [
                         'kategori' => $i,
@@ -340,7 +342,7 @@ class RemunGajiController extends Controller
                 $pegawai = $remun_gaji->pluck('pegawai_id')->toArray();
 
                 // Count lebih kurang
-                $lebih_kurang = LebihKurang::whereIn('pegawai_id',$pegawai)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->sum('selisih');
+                $lebih_kurang = LebihKurang::whereIn('pegawai_id',$pegawai)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',0)->sum('selisih');
 
                 array_push($nominal, [
                     'kategori' => $i,

@@ -178,7 +178,7 @@
                                         <th width="5">No</th>
                                         <th>Bulan, Tahun</th>
                                         <th width="130">Status</th>
-                                        @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->count() > 0)
+                                        @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count() > 0)
                                             <th>Jabatan / Unit Terbayar</th>
                                             <th>Jabatan / Unit Seharusnya</th>
                                             <th width="130">Terbayar</th>
@@ -200,7 +200,7 @@
                                     ?>
                                     @foreach($pegawai->remun_gaji as $key=>$r)
                                         <?php
-                                            $lebih_kurang = $pegawai->lebih_kurang()->where('bulan_proses','=',$r->bulan)->where('tahun_proses','=',$r->tahun)->where('triwulan_proses','=',0)->where('selisih','!=',0)->get();
+                                            $lebih_kurang = $pegawai->lebih_kurang()->where('bulan_proses','=',$r->bulan)->where('tahun_proses','=',$r->tahun)->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->get();
                                             $dibayarkan = $r->remun_gaji + $lebih_kurang->sum('selisih');
 
                                             // Sum total
@@ -213,12 +213,12 @@
                                             <td align="right">{{ ($key+1) }}</td>
                                             <td>{{ \Ajifatur\Helpers\DateTimeExt::month($r->bulan) }} {{ $r->tahun }}</td>
                                             <td>{{ $r->status_kepegawaian->nama }}</td>
-                                            <td colspan="{{ $pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->count() > 0 ? 2 : 1 }}">
+                                            <td colspan="{{ $pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count() > 0 ? 2 : 1 }}">
                                                 {{ $r->jabatan ? $r->jabatan->nama : '-' }}
                                                 <br>
                                                 {{ $r->unit ? '('.$r->unit->nama.')' : '' }}
                                             </td>
-                                            @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->count() > 0)
+                                            @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count() > 0)
                                             <td align="right">{{ $r->remun_gaji != $dibayarkan ? number_format($lebih_kurang->sum('terbayar')) : '' }}</td>
                                             <td align="right">{{ $r->remun_gaji != $dibayarkan ? number_format($lebih_kurang->sum('seharusnya')) : '' }}</td>
                                             <td align="right">{{ $r->remun_gaji != $dibayarkan ? number_format($lebih_kurang->sum('selisih')) : '' }}</td>
@@ -240,7 +240,7 @@
                                                     <br>
                                                     {{ $r->unit ? '('.$r->unit->nama.')' : '' }}
                                                 </td>
-                                                @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->count() > 0)
+                                                @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count() > 0)
                                                 <td align="right">{{ number_format($lk->terbayar) }}</td>
                                                 <td align="right">{{ number_format($lk->seharusnya) }}</td>
                                                 <td align="right">{{ number_format($lk->selisih) }}</td>
@@ -253,8 +253,8 @@
                                 </tbody>
                                 <tfoot class="bg-light fw-bold">
                                     <tr>
-                                        <td colspan="{{ $pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->count() > 0 ? 5 : 4 }}" align="center">Total</td>
-                                        @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->count() > 0)
+                                        <td colspan="{{ $pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count() > 0 ? 5 : 4 }}" align="center">Total</td>
+                                        @if($pegawai->lebih_kurang()->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->count() > 0)
                                         <td align="right"><b>{{ number_format($total_terbayar) }}</b></td>
                                         <td align="right"><b>{{ number_format($total_seharusnya) }}</b></td>
                                         <td align="right"><b>{{ number_format($total_selisih) }}</b></td>

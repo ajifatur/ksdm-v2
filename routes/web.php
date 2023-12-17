@@ -72,6 +72,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Kekurangan Remun Gaji
     Route::get('/admin/remun-gaji/kekurangan/monitoring', 'KekuranganRemunGajiController@monitoring')->name('admin.remun-gaji.kekurangan.monitoring');
     Route::get('/admin/remun-gaji/kekurangan/print', 'KekuranganRemunGajiController@print')->name('admin.remun-gaji.kekurangan.print');
+    Route::get('/admin/remun-gaji/kekurangan/print-2', 'RemunGajiKekuranganController@print')->name('admin.remun-gaji.kekurangan.print-2');
     Route::get('/admin/remun-gaji/kekurangan/import', 'KekuranganRemunGajiController@import')->name('admin.remun-gaji.kekurangan.import');
     Route::get('/admin/remun-gaji/kekurangan/export/single', 'KekuranganRemunGajiExportController@single')->name('admin.remun-gaji.kekurangan.export.single');
     Route::get('/admin/remun-gaji/kekurangan/export/pusat', 'KekuranganRemunGajiExportController@pusat')->name('admin.remun-gaji.kekurangan.export.pusat');
