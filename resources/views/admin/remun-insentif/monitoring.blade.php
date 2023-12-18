@@ -43,6 +43,7 @@
                                 <th colspan="4">Pegawai</th>
                                 <th colspan="4">Remun Insentif</th>
                                 <th colspan="2">Excel Simkeu</th>
+                                <th rowspan="2" width="30">Excel Zakat</th>
                                 <th rowspan="2" width="30">PDF</th>
                             </tr>
                             <tr>
@@ -100,6 +101,11 @@
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.export.zakat', ['unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Zakat"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
                                         <a href="{{ route('admin.remun-insentif.print.zakat', ['unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" target="_blank" data-bs-toggle="tooltip" title="Download PDF Zakat"><i class="bi-file-pdf"></i></a>
                                         <a href="{{ route('admin.remun-insentif.print.kwitansi', ['unit' => $u->id, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" target="_blank" data-bs-toggle="tooltip" title="Download PDF Kwitansi"><i class="bi-file-pdf"></i></a>
                                         @if($u->potongan != 0)
@@ -148,6 +154,11 @@
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.export.zakat', ['pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Zakat"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
                                         <a href="{{ route('admin.remun-insentif.print.zakat', ['pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" target="_blank" data-bs-toggle="tooltip" title="Download PDF Zakat"><i class="bi-file-pdf"></i></a>
                                         <a href="{{ route('admin.remun-insentif.print.kwitansi', ['pusat' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" target="_blank" data-bs-toggle="tooltip" title="Download PDF Kwitansi"><i class="bi-file-pdf"></i></a>
                                         @if($potongan_pusat != 0)
@@ -175,7 +186,12 @@
                                         <a href="{{ route('admin.remun-insentif.export.recap', ['triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
-                                <td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.remun-insentif.export.zakat', ['pensiun' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Zakat Pensiunan"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                </td>
+                                <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.remun-insentif.print.zakat', ['pensiun' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" target="_blank" data-bs-toggle="tooltip" title="Download PDF Zakat Pensiunan"><i class="bi-file-pdf"></i></a>
                                         <a href="{{ route('admin.remun-insentif.print.kwitansi', ['pensiun' => 1, 'triwulan' => $triwulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" target="_blank" data-bs-toggle="tooltip" title="Download PDF Kwitansi Pensiunan"><i class="bi-file-pdf"></i></a>
