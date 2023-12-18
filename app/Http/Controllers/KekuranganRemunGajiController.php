@@ -12,6 +12,7 @@ use App\Models\KekuranganRemunGaji;
 use App\Models\RemunGaji;
 use App\Models\Pegawai;
 use App\Models\Unit;
+use App\Models\LebihKurang;
 
 class KekuranganRemunGajiController extends Controller
 {   
@@ -100,7 +101,37 @@ class KekuranganRemunGajiController extends Controller
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
+
+        $kekurangan = KekuranganRemunGaji::all();
+        foreach($kekurangan as $k) {
+            // Get remun Januari, Februari, Maret
+			$remun_gaji_1 = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',1)->where('tahun','=',2023)->first();
+			$remun_gaji_2 = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',2)->where('tahun','=',2023)->first();
+			$remun_gaji_3 = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',3)->where('tahun','=',2023)->first();
+
+            for($i=1; $i<=3; $i++) {
+                if(${'remun_gaji_'.$i}) {
+                    // Simpan kekurangan
+                    $kek = LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('kekurangan','=',1)->where('bulan_proses','=',4)->where('tahun_proses','=',2023)->where('triwulan_proses','=',0)->where('bulan','=',$i)->where('tahun','=',2023)->first();
+                    if(!$kek) $kek = new LebihKurang;
+                    $kek->pegawai_id = $k->pegawai_id;
+                    $kek->jabatan_terbayar_id = ${'remun_gaji_'.$i}->jabatan_id;
+                    $kek->jabatan_seharusnya_id = ${'remun_gaji_'.$i}->jabatan_id;
+                    $kek->bulan = $i;
+                    $kek->tahun = 2023;
+                    $kek->bulan_proses = 4;
+                    $kek->triwulan_proses = 0;
+                    $kek->tahun_proses = 2023;
+                    $kek->terbayar = $k->{'dibayarkan'.$i};
+                    $kek->seharusnya = $k->{'seharusnya'.$i};
+                    $kek->selisih = $k->{'selisih'.$i};
+                    $kek->kekurangan = 1;
+                    $kek->save();
+                }
+            }
+        }
 		
+        /*
 		$kekurangan = KekuranganRemunGaji::whereHas('pegawai', function(Builder $query) {
 			return $query->whereIn('nama',['Sinta Saraswati','Sungkowo Edy Mulyono']);
 		})->get();
@@ -115,6 +146,7 @@ class KekuranganRemunGajiController extends Controller
 			$update->selisih = $update->selisih1 + $update->selisih2 + $update->selisih3;
 			$update->save();
 		}
+        */
 		
 		/*
 		$kekurangan = KekuranganRemunGaji::all();

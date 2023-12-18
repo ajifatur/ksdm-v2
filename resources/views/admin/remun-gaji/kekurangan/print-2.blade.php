@@ -53,25 +53,33 @@
             </tr>
         </thead>
         <tbody>
+            <?php $i = 1; ?>
             @foreach($kekurangan as $key=>$k)
                 <tr>
-                    <td align="center">{{ ($key+1) }}</td>
+                    <td align="center">{{ $i }}</td>
                     <td>{{ strtoupper($k->pegawai->nama) }}<br>{{ $k->pegawai->nip }}</td>
                     @if($k->mutasi && $k->mutasi->golru && $k->mutasi->golru->golongan)
 					<td align="center">{{ $k->mutasi->golru->golongan->nama }}</td>
                     @else
-					<td align="center">{{ $k->pegawai->golongan->nama }}</td>
+					<td align="center">{{ $k->pegawai->golongan ? $k->pegawai->golongan->nama : '-' }}</td>
                     @endif
-                    @if($k->mutasi)
-                        <td>{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan->nama : '-' }}</td>
-                        <td>{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan->sub : '-' }}</td>
-                        <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->layer ? $k->mutasi->detail()->where('status','=',1)->first()->layer->nama : '-' }}</td>
-                        <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar->grade : '-' }}</td>
+                    @if($k->remun_gaji)
+                        <td>{{ $k->remun_gaji->jabatan->nama }}</td>
+                        <td>{{ $k->remun_gaji->jabatan->sub }}</td>
+                        <td align="center">{{ $k->remun_gaji->layer->nama }}</td>
+                        <td align="center">{{ $k->remun_gaji->jabatan_dasar->grade }}</td>
                     @else
-                        <td>-</td>
-                        <td>-</td>
-                        <td align="center">-</td>
-                        <td align="center">-</td>
+                        @if($k->mutasi)
+                            <td>{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan->nama : '-' }}</td>
+                            <td>{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan->sub : '-' }}</td>
+                            <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->layer ? $k->mutasi->detail()->where('status','=',1)->first()->layer->nama : '-' }}</td>
+                            <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar->grade : '-' }}</td>
+                        @else
+                            <td>-</td>
+                            <td>-</td>
+                            <td align="center">-</td>
+                            <td align="center">-</td>
+                        @endif
                     @endif
                     <td align="right">{{ number_format($k->total_terbayar,0,'.','.') }}</td>
                     <td align="right">{{ number_format($k->total_seharusnya,0,'.','.') }}</td>
@@ -88,6 +96,7 @@
                         <td align="right"></td>
                     </tr>
                 @endforeach
+                <?php $i++; ?>
             @endforeach
         </tbody>
         <tfoot>

@@ -72,7 +72,7 @@
 					<br>
 					<br>
 					<br>
-					<span class="name">Daru Lestariningsih, S.E.</span>
+					<span class="name">Daru Lestariningsih, S.E., M.Si.</span>
 					<br>
 					NIP. 198508032010122003
 				</td>

@@ -49,6 +49,8 @@ class RemunGajiKekuranganController extends Controller
 
         // Get unit
         $unit = Unit::find($request->query('unit'));
+        if($unit)
+            $pegawai_dalam_unit = RemunGaji::where('unit_id','=',$unit->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray();
 
         // Set total
         $total['terbayar'] = 0;
@@ -57,13 +59,26 @@ class RemunGajiKekuranganController extends Controller
         $total['selisih_plus'] = 0;
 
         // Get kekurangan
-        $kekurangan = LebihKurang::whereHas('pegawai', function(Builder $query) use ($kategori) {
-            return $query->where('jenis','=',$kategori);
-        })->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->groupBy('pegawai_id')->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
+        if($unit) {
+            $kekurangan = LebihKurang::whereHas('pegawai', function(Builder $query) use ($kategori, $pegawai_dalam_unit) {
+                return $query->where('jenis','=',$kategori)->whereIn('id',$pegawai_dalam_unit);
+            })->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->groupBy('pegawai_id')->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
+        }
+        else {
+            $kekurangan = LebihKurang::whereHas('pegawai', function(Builder $query) use ($kategori) {
+                return $query->where('jenis','=',$kategori);
+            })->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->groupBy('pegawai_id')->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
+        }
+
         foreach($kekurangan as $key=>$k) {
             $kekurangan[$key]->mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('remun','=',1);
             })->where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+            $kekurangan[$key]->grade = $kekurangan[$key]->mutasi && $kekurangan[$key]->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar ? $kekurangan[$key]->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar->grade : 0;
+            if($bulan == 4 && $tahun == 2023) {
+                $kekurangan[$key]->remun_gaji = RemunGaji::where('pegawai_id','=',$k->pegawai_id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+                $kekurangan[$key]->grade = $kekurangan[$key]->remun_gaji->jabatan_dasar->grade;
+            }
             $kekurangan[$key]->detail = LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
             $kekurangan[$key]->total_terbayar = LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->sum('terbayar');
             $kekurangan[$key]->total_seharusnya = LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->sum('seharusnya');
@@ -78,12 +93,13 @@ class RemunGajiKekuranganController extends Controller
                 $total['selisih_plus'] += $kekurangan[$key]->total_selisih;
         }
 
+        $kekurangan = $kekurangan->sortByDesc('grade');
+
         // Set title
         $title = 'Kekurangan Remun Gaji '.($unit ? $unit->nama.' ' : '').($kategori == 1 ? 'Dosen' : 'Tendik').' ('.$tahun.' '.$rentang_bulan.')';
 
         // PDF
         $pdf = PDF::loadView('admin/remun-gaji/kekurangan/print-2', [
-        // return view('admin/remun-gaji/kekurangan/print-2', [
             'title' => $title,
             'unit' => $unit,
             'rentang_bulan' => $rentang_bulan,
