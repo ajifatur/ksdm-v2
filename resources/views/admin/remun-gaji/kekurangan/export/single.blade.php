@@ -16,11 +16,12 @@
     </thead>
     <tbody>
         @foreach($data as $d)
+            @if($d->total_selisih > 0)
             <tr>
                 <td>{{ $d->pegawai->nip }}</td>
                 <td>{{ strtoupper($d->pegawai->nama) }}</td>
                 <td>BNI</td>
-                <td>{{ $d->selisih }}</td>
+                <td>{{ $d->total_selisih }}</td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
@@ -28,6 +29,7 @@
                 <td>0</td>
                 <td>0</td>
             </tr>
+            @endif
         @endforeach
     </tbody>
 </table>

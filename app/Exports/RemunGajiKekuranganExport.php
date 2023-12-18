@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class KekuranganRemunGajiExport extends StringValueBinder implements WithCustomValueBinder, FromView
+class RemunGajiKekuranganExport extends StringValueBinder implements WithCustomValueBinder, FromView
 {
 	use Exportable;
 

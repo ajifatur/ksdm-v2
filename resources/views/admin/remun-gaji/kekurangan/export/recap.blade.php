@@ -3,36 +3,52 @@
         <tr>
             <th align="center" width="25"><b>NIP</b></th>
             <th align="center" width="40"><b>NAMA</b></th>
-            <th align="center" width="25"><b>UNIT</b></th>
             <th align="center" width="10"><b>GOL</b></th>
+            <th align="center" width="25"><b>UNIT</b></th>
             <th align="center" width="10"><b>LAYER</b></th>
             <th align="center" width="10"><b>GRADE</b></th>
-            <th align="center" width="25"><b>STATUS</b></th>
-            <th align="center" width="10"><b>JENIS</b></th>
             <th align="center" width="40"><b>JABATAN</b></th>
             <th align="center" width="40"><b>SUB NAMA</b></th>
+            <th align="center" width="25"><b>STATUS</b></th>
+            <th align="center" width="10"><b>JENIS</b></th>
             <th align="center" width="15"><b>DIBAYARKAN</b></th>
 
         </tr>
     </thead>
     <tbody>
-        @foreach($data as $d)
+        @foreach($data as $k)
             <tr>
-                <td>{{ $d->pegawai->nip }}</td>
-                <td>{{ strtoupper($d->pegawai->nama) }}</td>
-                <td>{{ $d->unit ? $d->unit->nama : '-' }}</td>
-                @if($d->pegawai->golongan)
-                    <td align="center">{{ $d->pegawai->golongan->nama }}</td>
+                <td>{{ $k->pegawai->nip }}</td>
+                <td>{{ strtoupper($k->pegawai->nama) }}</td>
+                @if($k->mutasi && $k->mutasi->golru && $k->mutasi->golru->golongan)
+                <td align="center">{{ $k->mutasi->golru->golongan->nama }}</td>
                 @else
-                    <td align="center">-</td>
+                <td align="center">{{ $k->pegawai->golongan ? $k->pegawai->golongan->nama : '-' }}</td>
                 @endif
-                <td>{{ $d->unit ? $d->unit->layer_id : '-' }}</td>
-                <td>{{ $d->jabatan_dasar ? $d->jabatan_dasar->grade : '-' }}</td>
-                <td>{{ $d->status_kepegawaian ? $d->status_kepegawaian->nama : '-' }}</td>
-                <td>{{ $d->kategori == 1 ? 'Dosen' : 'Tendik' }}</td>
-                <td>{{ $d->jabatan ? $d->jabatan->nama : '-' }}</td>
-                <td>{{ $d->jabatan ? $d->jabatan->sub : '-' }}</td>
-                <td>{{ $d->selisih }}</td>
+                @if($k->remun_gaji)
+                    <td>{{ $k->remun_gaji->unit->nama }}</td>
+                    <td>{{ $k->remun_gaji->layer->nama }}</td>
+                    <td>{{ $k->remun_gaji->jabatan_dasar->grade }}</td>
+                    <td>{{ $k->remun_gaji->jabatan->nama }}</td>
+                    <td>{{ $k->remun_gaji->jabatan->sub }}</td>
+                @else
+                    @if($k->mutasi)
+                        <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->unit ? $k->mutasi->detail()->where('status','=',1)->first()->unit->nama : '-' }}</td>
+                        <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->layer ? $k->mutasi->detail()->where('status','=',1)->first()->layer->nama : '-' }}</td>
+                        <td align="center">{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan_dasar->grade : '-' }}</td>
+                        <td>{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan->nama : '-' }}</td>
+                        <td>{{ $k->mutasi->detail()->where('status','=',1)->first()->jabatan ? $k->mutasi->detail()->where('status','=',1)->first()->jabatan->sub : '-' }}</td>
+                    @else
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    @endif
+                @endif
+                <td>{{ $k->status_kepegawaian ? $k->status_kepegawaian->nama : '-' }}</td>
+                <td>{{ $k->kategori == 1 ? 'Dosen' : 'Tendik' }}</td>
+                <td>{{ $k->total_selisih }}</td>
             </tr>
         @endforeach
     </tbody>

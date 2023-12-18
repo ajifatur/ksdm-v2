@@ -26,6 +26,74 @@ use App\Models\Referensi;
 class RemunGajiKekuranganController extends Controller
 {
     /**
+     * Monitoring.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function monitoring(Request $request)
+    {
+        // Get tahun kekurangan
+        $tahun_kekurangan = LebihKurang::where('kekurangan','=',1)->where('triwulan_proses','=',0)->groupBy('tahun_proses')->pluck('tahun_proses')->toArray();
+
+        // Get bulan kekurangan
+        $periode = [];
+        foreach($tahun_kekurangan as $t) {
+            $bulan_kekurangan = LebihKurang::where('kekurangan','=',1)->where('triwulan_proses','=',0)->where('tahun_proses','=',$t)->orderBy('bulan_proses','desc')->groupBy('bulan_proses')->pluck('bulan_proses')->toArray();
+            array_push($periode, [
+                'tahun' => $t,
+                'bulan' => $bulan_kekurangan
+            ]);
+        }
+
+        // Set tahun, bulan, tanggal
+        if($request->query('periode') != null) {
+            $explode = explode('-', $request->query('periode'));
+            $tahun = $explode[0];
+            $bulan = $explode[1];
+        }
+        else {
+            $tahun = $periode[0]['tahun'];
+            $bulan = $periode[0]['bulan'][0];
+        }
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+
+        // Get unit
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('nama','!=','-')->orderBy('num_order','asc')->get();
+
+        $data = [];
+        $isPusat = 0;
+        foreach($unit as $u) {
+            // Append pusat
+            if($isPusat == 0 && $u->pusat == 1) {
+                array_push($data, [
+                    'unit' => 'Pusat',
+                ]);
+            }
+
+            array_push($data, [
+                'unit' => $u,
+            ]);
+
+            $isPusat = $u->pusat;
+        }
+
+        // View
+        return view('admin/remun-gaji/kekurangan/monitoring', [
+            'periode' => $periode,
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'tanggal' => $tanggal,
+            'unit' => $unit,
+            'data' => $data,
+        ]);
+    }
+
+    /**
      * Print PDF.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -99,7 +167,7 @@ class RemunGajiKekuranganController extends Controller
         $title = 'Kekurangan Remun Gaji '.($unit ? $unit->nama.' ' : '').($kategori == 1 ? 'Dosen' : 'Tendik').' ('.$tahun.' '.$rentang_bulan.')';
 
         // PDF
-        $pdf = PDF::loadView('admin/remun-gaji/kekurangan/print-2', [
+        $pdf = PDF::loadView('admin/remun-gaji/kekurangan/print', [
             'title' => $title,
             'unit' => $unit,
             'rentang_bulan' => $rentang_bulan,
