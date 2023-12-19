@@ -17,6 +17,7 @@ use App\Models\PegawaiNonAktif;
 use App\Models\GajiPokok;
 use App\Models\Mutasi;
 use App\Models\RemunGaji;
+use App\Models\LebihKurang;
 
 class PegawaiController extends Controller
 {
@@ -119,9 +120,6 @@ class PegawaiController extends Controller
      */
     public function detail(Request $request, $id)
     {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
         // Get pegawai
         $pegawai = Pegawai::findOrFail($id);
 
@@ -135,7 +133,6 @@ class PegawaiController extends Controller
             $mutasi = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
                 return $query->where('status','=',1);
             })->first();
-            // $mutasi = $pegawai->mutasi()->first();
 
             // Get jabatan dan unit
             $jabatan = [];
@@ -154,6 +151,65 @@ class PegawaiController extends Controller
             $mkg = ($mutasi && $mutasi->gaji_pokok) ? $mutasi->gaji_pokok->nama : '-';
         }
 
+        // Get remun gaji
+        $remun_gaji = [];
+        $remun_gaji_total['terbayar'] = 0;
+        $remun_gaji_total['seharusnya'] = 0;
+        $remun_gaji_total['selisih'] = 0;
+        $remun_gaji_total['dibayarkan'] = 0;
+        $remun_gaji_expand = false;
+        foreach($pegawai->remun_gaji as $r) {
+            // Get kekurangan
+            $kekurangan = LebihKurang::where('pegawai_id','=',$pegawai->id)->where('bulan_proses','=',$r->bulan)->where('tahun_proses','=',$r->tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
+
+            if(count($kekurangan) > 0) {
+                // Count
+                $remun_gaji_total['terbayar'] += $kekurangan->sum('terbayar');
+                $remun_gaji_total['seharusnya']  += $kekurangan->sum('seharusnya');
+                $remun_gaji_total['selisih']  += $kekurangan->sum('selisih');
+                $remun_gaji_total['dibayarkan'] += ($kekurangan->sum('selisih') > 0 ? $kekurangan->sum('selisih') : 0);
+
+                // Push remun gaji
+                array_push($remun_gaji, [
+                    'kekurangan' => true,
+                    'bulan' => $r->bulan,
+                    'nama_bulan' => DateTimeExt::month($r->bulan),
+                    'tahun' => $r->tahun,
+                    'remun_gaji' => $r,
+                    'lebih_kurang' => $kekurangan,
+                    'dibayarkan' => ($kekurangan->sum('selisih') > 0 ? $kekurangan->sum('selisih') : 0)
+                ]);
+
+                // Expand
+                $remun_gaji_expand = true;
+            }
+
+            // Get lebih kurang
+            $lebih_kurang = $pegawai->lebih_kurang()->where('bulan_proses','=',$r->bulan)->where('tahun_proses','=',$r->tahun)->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->get();
+            $dibayarkan = $r->remun_gaji + $lebih_kurang->sum('selisih');
+
+            // Count
+            $remun_gaji_total['terbayar'] += $lebih_kurang->sum('terbayar');
+            $remun_gaji_total['seharusnya']  += $lebih_kurang->sum('seharusnya');
+            $remun_gaji_total['selisih']  += $lebih_kurang->sum('selisih');
+            $remun_gaji_total['dibayarkan'] += $dibayarkan;
+
+            // Push remun gaji
+            array_push($remun_gaji, [
+                'kekurangan' => false,
+                'bulan' => $r->bulan,
+                'nama_bulan' => DateTimeExt::month($r->bulan),
+                'tahun' => $r->tahun,
+                'remun_gaji' => $r,
+                'lebih_kurang' => $lebih_kurang,
+                'dibayarkan' => $dibayarkan
+            ]);
+
+            // Expand
+            if(count($lebih_kurang) > 0)
+                $remun_gaji_expand = true;
+        }
+
         // View
         return view('admin/pegawai/detail', [
             'pegawai' => $pegawai,
@@ -161,6 +217,9 @@ class PegawaiController extends Controller
             'unit' => $unit,
             'golru' => $golru,
             'mkg' => $mkg,
+            'remun_gaji' => $remun_gaji,
+            'remun_gaji_total' => $remun_gaji_total,
+            'remun_gaji_expand' => $remun_gaji_expand,
         ]);
     }
 
