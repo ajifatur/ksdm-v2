@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Rekap Bulanan '.($jenis ? $jenis->nama : 'Gaji').' PNS')
+@section('title', 'Rekap Bulanan '.($jenis ? $jenis->nama : 'Gaji').' ASN')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Rekap Bulanan {{ $jenis ? $jenis->nama : 'Gaji' }} PNS</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Rekap Bulanan {{ $jenis ? $jenis->nama : 'Gaji' }} ASN</h1>
 </div>
 <div class="row">
 	<div class="col-12">

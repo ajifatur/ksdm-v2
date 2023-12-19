@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Import Gaji PNS')
+@section('title', 'Import Gaji ASN')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Import Gaji PNS</h1>
+    <h1 class="h3 mb-0">Import Gaji ASN</h1>
 </div>
 <div class="row">
 	<div class="col-12">

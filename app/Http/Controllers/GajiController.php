@@ -215,6 +215,9 @@ class GajiController extends Controller
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
 
+        // Get tipe
+        $tipe = $request->query('tipe');
+
         // Get tahun
         $tahun = $request->query('tahun') ?: date('Y');
 
@@ -225,18 +228,22 @@ class GajiController extends Controller
         $jenis_gaji = JenisGaji::all();
 
         // Get anak satker
-        $anak_satker = AnakSatker::all();
+        $anak_satker = AnakSatker::where('jenis','=',$tipe)->get();
 
         // Get gaji
         $gaji = [];
-        if($jenis && in_array($request->query('kategori'), [1,2]))
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('jenis','=',$request->query('kategori'))->where('tahun','=',$tahun)->get();
+        if($jenis && in_array($request->query('kategori'), [1,2])) {
+            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use ($tipe) {
+                return $query->where('jenis','=',$tipe);
+            })->where('jenis_id','=',$jenis->id)->where('jenis','=',$request->query('kategori'))->where('tahun','=',$tahun)->get();
+        }
 
         // Get kategori gaji
         $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'pembul', 'tjberas', 'tjpph'];
 
         // View
         return view('admin/gaji/annually', [
+            'tipe' => $tipe,
             'tahun' => $tahun,
             'anak_satker' => $anak_satker,
             'gaji' => $gaji,

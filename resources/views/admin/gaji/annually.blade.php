@@ -1,16 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Rekap Tahunan '.($jenis ? $jenis->nama : 'Gaji').' PNS')
+@section('title', 'Rekap Tahunan '.($jenis ? $jenis->nama : 'Gaji').' '.($tipe == 1 ? 'PNS' : 'PPPK'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Rekap Tahunan {{ $jenis ? $jenis->nama : 'Gaji' }} PNS</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Rekap Tahunan {{ $jenis ? $jenis->nama : 'Gaji' }} {{ $tipe == 1 ? 'PNS' : 'PPPK' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="tipe" value="{{ $tipe }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="jenis" class="form-select form-select-sm">
