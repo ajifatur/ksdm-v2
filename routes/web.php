@@ -123,6 +123,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 	
     // SK
     Route::get('/admin/sk', 'SKController@index')->name('admin.sk.index');
+	
+    // Pejabat Penandatangan
+    Route::get('/admin/ttd', 'TTDController@index')->name('admin.ttd.index');
 
     // Tunjangan Profesi
     Route::get('/admin/tunjangan-profesi', 'TunjanganProfesiController@index')->name('admin.tunjangan-profesi.index');

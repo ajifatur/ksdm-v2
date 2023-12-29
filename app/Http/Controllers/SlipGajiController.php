@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Models\SlipGaji;
 use App\Models\Pegawai;
+use App\Models\TTD;
 
 class SlipGajiController extends Controller
 {
@@ -41,7 +42,9 @@ class SlipGajiController extends Controller
         // Get pegawai
         $pegawai = Pegawai::whereHas('status_kerja', function (Builder $query) {
             return $query->where('status','=',1);
-        })->whereIn('status_kepeg_id',[1,2])->get();
+        })->whereHas('status_kepegawaian', function (Builder $query) {
+            return $query->whereIn('nama', ['PNS','CPNS','PPPK']);
+        })->get();
 
         // View
         return view('admin/slip-gaji/create', [
@@ -144,7 +147,6 @@ class SlipGajiController extends Controller
             'bulan' => 'required',
             'tahun' => 'required',
             'jabatan' => 'required',
-            'position' => 'required',
             'additional_allowance' => 'required',
             'tanggal' => 'required',
         ]);
@@ -241,6 +243,9 @@ class SlipGajiController extends Controller
         // Set salary cuts
         $salary_cuts = $gaji_induk->potpfk10 + $gaji_induk->bpjs + $gaji_induk->potpph;
 
+        // Get bendahara pengeluaran
+        $bendahara_pengeluaran = TTD::where('kode','=','bpeng')->where('tanggal_mulai','<=',$slip_gaji->tanggal)->where('tanggal_selesai','>=',$slip_gaji->tanggal)->first();
+
         // Set title
         $title = ($bahasa == 'en' ? 'Salary Slip' : 'Slip Gaji').'_'.$slip_gaji->pegawai->nip;
 
@@ -256,6 +261,7 @@ class SlipGajiController extends Controller
             'tunjangan_kehormatan_profesor' => $tunjangan_kehormatan_profesor,
             'gross_earnings' => $gross_earnings,
             'salary_cuts' => $salary_cuts,
+            'bendahara_pengeluaran' => $bendahara_pengeluaran,
             'title' => $title,
         ]);
         $pdf->setPaper([0, 0 , 612, 935]);

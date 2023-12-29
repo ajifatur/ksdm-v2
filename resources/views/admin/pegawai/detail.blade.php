@@ -37,7 +37,7 @@
                     @endif
                     @if(count($pegawai->gaji) > 0)
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="gaji-pns-tab" data-bs-toggle="tab" data-bs-target="#gaji-pns" type="button" role="tab" aria-controls="gaji-pns" aria-selected="false">Gaji PNS</button>
+                        <button class="nav-link" id="gaji-pns-tab" data-bs-toggle="tab" data-bs-target="#gaji-pns" type="button" role="tab" aria-controls="gaji-pns" aria-selected="false">Gaji ASN</button>
                     </li>
                     @endif
                     @if(count($pegawai->uang_makan) > 0)

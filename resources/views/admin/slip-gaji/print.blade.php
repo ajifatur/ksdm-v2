@@ -51,7 +51,11 @@
             <tr>
                 <td>{{ $bahasa == 'en' ? 'Rank/Level' : 'Pangkat/Gol.' }}</td>
                 <td>:</td>
-                <td>{{ $bahasa == 'en' ? $slip_gaji->golru->english : $slip_gaji->golru->indonesia }}, {{ $slip_gaji->golru->nama }}</td>
+                @if($slip_gaji->golru)
+                    <td>{{ $bahasa == 'en' ? $slip_gaji->golru->english : $slip_gaji->golru->indonesia }}, {{ $slip_gaji->golru->nama }}</td>
+                @else
+                    <td>{{ $slip_gaji->pegawai->golongan->nama }}</td>
+                @endif
             </tr>
             <tr>
                 <td>{{ $bahasa == 'en' ? 'Position' : 'Jabatan' }}</td>
@@ -266,9 +270,9 @@
                     <br>
                     {{ $bahasa == 'en' ? 'Expenditure Treasury' : 'Bendahara Pengeluaran' }},
                     <br><br><br><br><br>
-                    Daru Lestariningsih, S.E.
+                    {{ title_name($bendahara_pengeluaran->pegawai->nama, $bendahara_pengeluaran->pegawai->gelar_depan, $bendahara_pengeluaran->pegawai->gelar_belakang) }}
                     <br>
-                    NIP. 198508032020122003
+                    NIP. {{ $bendahara_pengeluaran->pegawai->nip }}
                 </td>
             </tr>
         </table>
