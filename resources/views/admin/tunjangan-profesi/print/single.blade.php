@@ -36,7 +36,7 @@
                     <tr>
                         <td>MAK</td>
                         <td>:</td>
-                        <td>{{ isset($angkatan) ? $angkatan->jenis->mak : '511521' }}</td>
+                        <td>{{ $jenis->mak }}</td>
                     </tr>
                 </table>
             </td>

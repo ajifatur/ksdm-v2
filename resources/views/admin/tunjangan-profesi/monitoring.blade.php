@@ -31,7 +31,7 @@
                     <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
                         <select name="tahun" class="form-select form-select-sm">
                             <option value="0" disabled>--Pilih Tahun--</option>
-                            @for($y=date('Y'); $y>=2023; $y--)
+                            @for($y=(date('n') == 12 ? date('Y')+1 : date('Y')); $y>=2023; $y--)
                             <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endfor
                         </select>

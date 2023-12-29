@@ -32,9 +32,12 @@ class TunjanganProfesiPrintController extends Controller
 
         // Get SK
         if($angkatan->jenis_id == 1)
-            $sk = SK::where('jenis_id','=',2)->where('status','=',1)->first();
+            $sk = SK::where('jenis_id','=',2)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
         elseif($angkatan->jenis_id == 2 || $angkatan->jenis_id == 3)
-            $sk = SK::where('jenis_id','=',3)->where('status','=',1)->first();
+            $sk = SK::where('jenis_id','=',3)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
+
+        // Get jenis
+        $jenis = $angkatan ? JenisTunjanganProfesi::find($angkatan->jenis_id) : null;
 
         // Get tunjangan profesi
         $tunjangan = TunjanganProfesi::where('angkatan_id','=',$angkatan->id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
@@ -45,6 +48,7 @@ class TunjanganProfesiPrintController extends Controller
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
             'title' => $title,
+            'jenis' => $jenis,
             'nama' => 'Tunjangan '.$angkatan->jenis->deskripsi,
             'angkatan' => $angkatan,
             'sk' => $sk,
@@ -73,7 +77,7 @@ class TunjanganProfesiPrintController extends Controller
         elseif($id == 3) $jenis = 3;
 
         // Get SK
-        $sk = SK::where('jenis_id','=',$jenis)->where('status','=',1)->first();
+        $sk = SK::where('jenis_id','=',$jenis)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
 
         // Get tunjangan profesi
         $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($id) {
@@ -83,9 +87,13 @@ class TunjanganProfesiPrintController extends Controller
         // Set title
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
 
+        // Get jenis
+        $jenis = JenisTunjanganProfesi::find($id);
+
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
             'title' => $title,
+            'jenis' => $jenis,
             'nama' => 'Tunjangan '.$tunjangan[0]->angkatan->jenis->deskripsi,
             'sk' => $sk,
             'bulan' => $request->bulan,
@@ -109,7 +117,10 @@ class TunjanganProfesiPrintController extends Controller
 		ini_set("max_execution_time", "-1");
 
         // Get SK
-        $sk = SK::where('jenis_id','=',4)->where('status','=',1)->first();
+        $sk = SK::where('jenis_id','=',4)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
+
+        // Get jenis
+        $jenis = JenisTunjanganProfesi::find(4);
 
         // Get tunjangan profesi
         $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
@@ -122,6 +133,7 @@ class TunjanganProfesiPrintController extends Controller
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
             'title' => $title,
+            'jenis' => $jenis,
             'nama' => 'Tunjangan '.$tunjangan[0]->angkatan->jenis->deskripsi,
             'sk' => $sk,
             'bulan' => $request->bulan,
