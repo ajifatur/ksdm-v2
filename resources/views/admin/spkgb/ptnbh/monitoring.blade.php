@@ -15,7 +15,7 @@
                     <div>
                         <select name="tahun" class="form-select form-select-sm">
                             <option value="0" disabled>--Pilih Tahun--</option>
-                            @for($y=date('Y')+1; $y>=2023; $y--)
+                            @for($y=date('Y')+1; $y>=2020; $y--)
                             <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endfor
                         </select>

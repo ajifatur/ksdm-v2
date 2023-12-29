@@ -77,11 +77,7 @@
                     <td align="center" height="20">{{ ($key+1) }}</td>
                     <td>{{ strtoupper($t->nama) }}</td>
                     <td align="center">{{ $t->nip }}</td>
-                    @if(isset($angkatan))
-                        <td align="center">{{ $t->golongan ? $t->golongan->nama : '-' }}</td>
-                    @else
-                        <td align="center">{{ $t->golongan ? $t->golongan->id : '-' }}</td>
-                    @endif
+                    <td align="center">{{ $t->golongan ? $t->golongan->nama : '-' }}</td>
                     <td>{{ $t->unit ? $t->unit->nama : '-' }}</td>
                     @if(!isset($angkatan))
                     <td>{{ $t->angkatan->nama }}</td>
