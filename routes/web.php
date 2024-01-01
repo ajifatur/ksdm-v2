@@ -149,11 +149,14 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/tunjangan-profesi/csv/batch/{id}', 'TunjanganProfesiController@batch')->name('admin.tunjangan-profesi.csv.batch');
 	
 	// Tunjangan Profesi (Unit)
-    Route::get('/admin/tunjangan-profesi/unit/monitoring', 'TunjanganProfesiUnitController@monitoring')->name('admin.tunjangan-profesi.unit.monitoring');
+    Route::get('/admin/tunjangan-profesi/unit/recap', 'TunjanganProfesiUnitController@recap')->name('admin.tunjangan-profesi.unit.recap');
     Route::get('/admin/tunjangan-profesi/unit/export/{id}', 'TunjanganProfesiUnitController@export')->name('admin.tunjangan-profesi.unit.export');
 	
 	// Tunjangan Profesi (Bulan)
-    Route::get('/admin/tunjangan-profesi/bulan/monitoring', 'TunjanganProfesiBulanController@monitoring')->name('admin.tunjangan-profesi.bulan.monitoring');
+    Route::get('/admin/tunjangan-profesi/bulan/recap', 'TunjanganProfesiBulanController@recap')->name('admin.tunjangan-profesi.bulan.recap');
+
+	// Tunjangan Profesi (Kekurangan)
+    Route::get('/admin/tunjangan-profesi/kekurangan/monitoring', 'TunjanganProfesiKekuranganController@monitoring')->name('admin.tunjangan-profesi.kekurangan.monitoring');
 	
 	// Tunjangan Profesi (Mutasi)
     Route::get('/admin/tunjangan-profesi/mutasi', 'MutasiSerdosController@index')->name('admin.tunjangan-profesi.mutasi.index');

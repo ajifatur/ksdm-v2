@@ -17,12 +17,12 @@ use App\Models\Unit;
 class TunjanganProfesiUnitController extends Controller
 {
     /**
-     * Monitoring.
+     * Recap.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function monitoring(Request $request)
+    public function recap(Request $request)
     {
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
@@ -64,29 +64,23 @@ class TunjanganProfesiUnitController extends Controller
 		}
 		
 		$total_tunjangan = [];
-		$total_diterimakan = [];
 		foreach($jenis as $j) {
-			// Get tunjangan dan diterimakan
+			// Get tunjangan
 			$tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
 				return $query->where('jenis_id','=',$j->id);
 			})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->sum('tunjangan');
-			$diterimakan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
-				return $query->where('jenis_id','=',$j->id);
-			})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->sum('diterimakan');
 
 			// Push to array
 			array_push($total_tunjangan, $tunjangan);
-			array_push($total_diterimakan, $diterimakan);
 		}
 
         // View
-        return view('admin/tunjangan-profesi/unit/monitoring', [
+        return view('admin/tunjangan-profesi/unit/recap', [
             'unit' => $unit,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'data' => $data,
-            'total_tunjangan' => $total_tunjangan,
-            'total_diterimakan' => $total_diterimakan,
+            'total_tunjangan' => $total_tunjangan
         ]);
     }
 

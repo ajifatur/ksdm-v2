@@ -45,7 +45,7 @@ class TunjanganProfesiController extends Controller
         // Get tunjangan profesi
         $tunjangan = [];
         if($request->query('angkatan') != null && $request->query('angkatan') != 0)
-            $tunjangan = TunjanganProfesi::where('angkatan_id','=',$request->query('angkatan'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->get();
+            $tunjangan = TunjanganProfesi::where('angkatan_id','=',$request->query('angkatan'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kekurangan','=',0)->get();
 
         // View
         return view('admin/tunjangan-profesi/index', [
@@ -92,7 +92,7 @@ class TunjanganProfesiController extends Controller
         foreach($angkatan as $a) {
             if($a->jenis_id != 4) {
                 // Get tunjangan profesi
-                $tunjangan = TunjanganProfesi::where('angkatan_id','=',$a->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->get();
+                $tunjangan = TunjanganProfesi::where('angkatan_id','=',$a->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kekurangan','=',0)->get();
 
                 // Get pegawai non aktif
                 $pegawai_non_aktif = TunjanganProfesi::where('angkatan_id','=',$a->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->whereHas('pegawai', function (Builder $query) use ($tanggal) {
@@ -129,7 +129,7 @@ class TunjanganProfesiController extends Controller
             // Get tunjangan profesi
             $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
                 return $query->where('jenis_id','=',4);
-            })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->get();
+            })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kekurangan','=',0)->get();
 
             // Get pegawai non aktif
             $pegawai_non_aktif = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
@@ -444,6 +444,8 @@ class TunjanganProfesiController extends Controller
                     $tunjangan->pph = ($tunjangan->golongan_id == 4) ? (15 / 100) * $tunjangan->tunjangan : (5 / 100) * $tunjangan->tunjangan;
                     $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
                     $tunjangan->kekurangan = 0;
+                    $tunjangan->bulan_kurang = 0;
+                    $tunjangan->tahun_kurang = 0;
                     $tunjangan->save();
 
                     // Update pegawai
@@ -472,102 +474,6 @@ class TunjanganProfesiController extends Controller
         }
         var_dump($error);
         return;
-
-
-        // // Get tunjangan kehormatan profesor
-        // $tunjangan = TunjanganProfesi::whereHas('angkatan', function(Builder $query) {
-        //     return $query->where('jenis_id','=',1);
-        // })->whereIn('bulan',[1,2,3,4,5])->where('tahun','=',2023)->get();
-        // foreach($tunjangan as $t) {
-        //     // Update
-        //     if($t->diterimakan > $t->tunjangan) {
-        //         $tunj = TunjanganProfesi::find($t->id);
-        //         $tunj->tunjangan = 2 * $t->tunjangan;
-        //         $tunj->save();
-        //     }
-        // }
-        // return;
-
-        // Set jenis, bulan, tahun
-        $jenis = 1;
-        $bulan = 6;
-        $tahun = 2023;
-
-        // Set file
-        if($jenis == 1)
-		    $array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos Kehormatan Profesor.xlsx'));
-        elseif($jenis == 2)
-    		$array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos GB.xlsx'));
-        elseif($jenis == 3)
-    		$array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos Non GB.xlsx'));
-
-        $error = [];
-        if(count($array)>0) {
-            foreach($array[0] as $data) {
-                if($data[1] != null) {
-                    // Get pegawai
-                    $pegawai = Pegawai::where('nip','=',$data[5])->first();
-
-                    if($pegawai) {
-                        // Get angkatan
-                        // $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=',$data[6])->first();
-                        // if(!$angkatan) $angkatan = new Angkatan;
-                        // $angkatan->jenis_id = $jenis;
-                        // $angkatan->nama = $data[6];
-                        // $angkatan->save();
-
-                        // Get tunjangan profesi yang sudah ada
-                        $tp = $pegawai->tunjangan_profesi()->whereHas('angkatan', function(Builder $query) use ($jenis) {
-                            return $query->where('jenis_id','=',$jenis);
-                        })->first();
-
-                        // Get golongan
-                        // if($jenis == 3)
-                        //     $golongan = Golongan::where('nama','=',$data[7])->first();
-
-                        // if($tp) {
-                            // Simpan tunjangan
-                            $tunjangan = TunjanganProfesi::whereHas('angkatan', function(Builder $query) use ($jenis) {
-                                return $query->where('jenis_id','=',$jenis);
-                            })->where('pegawai_id','=',$pegawai->id)->where('bulan','=',$data[7])->where('tahun','=',$tahun)->first();
-                            if(!$tunjangan) $tunjangan = new TunjanganProfesi;
-                            $tunjangan->pegawai_id = $pegawai->id;
-                            $tunjangan->angkatan_id = $tp ? $tp->angkatan_id : 0;
-                            $tunjangan->unit_id = $tp ? $tp->unit_id : 0;
-                            $tunjangan->nip = $data[5];
-                            $tunjangan->nama = $data[1];
-                            $tunjangan->nomor_rekening = $data[3];
-                            $tunjangan->nama_rekening = $data[2];
-                            $tunjangan->bulan = $data[7];
-                            $tunjangan->tahun = $tahun;
-                            if($jenis == 1 || $jenis == 2) {
-                                $tunjangan->golongan_id = 4;
-                                $tunjangan->tunjangan = $jenis == 1 ? 2 * $data[6] : $data[6];
-                                $tunjangan->pph = mround((15/100) * $tunjangan->tunjangan, 1);
-                            }
-                            elseif($jenis == 3) {
-                                $pph = ($pegawai->golongan_id == 4) ? 15 : 5;
-                                $tunjangan->golongan_id = $pegawai->golongan_id;
-                                $tunjangan->tunjangan = (100 * $data[4]) / (100 - $pph);
-                                $tunjangan->pph = ($pph / 100) * $tunjangan->tunjangan;
-                            }
-                            $tunjangan->diterimakan = $data[4];
-                            $tunjangan->save();
-                        // }
-                        // else {
-                        //     array_push($error, [
-                        //         'nip' => $data[5],
-                        //         'nama' => $data[1],
-                        //         'bulan' => $data[7],
-                        //     ]);
-                        // }
-                    }
-                }
-            }
-        }
-        echo "<pre>";
-        print_r($error);
-        echo "</pre>";
     }
 	
     /**

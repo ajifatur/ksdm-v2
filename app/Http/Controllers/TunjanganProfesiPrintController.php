@@ -12,6 +12,7 @@ use App\Models\JenisTunjanganProfesi;
 use App\Models\Angkatan;
 use App\Models\Pegawai;
 use App\Models\SK;
+use App\Models\TTD;
 
 class TunjanganProfesiPrintController extends Controller
 {
@@ -26,6 +27,12 @@ class TunjanganProfesiPrintController extends Controller
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
+
+        // Set tanggal
+        $tanggal = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-01';
+
+        // Get bendahara pengeluaran
+        $bendahara_pengeluaran = TTD::where('kode','=','bpeng')->where('tanggal_mulai','<=',$tanggal)->where('tanggal_selesai','>=',$tanggal)->first();
 
         // Get angkatan
         $angkatan = Angkatan::whereIn('jenis_id',[1,2,3])->findOrFail($id);
@@ -54,7 +61,8 @@ class TunjanganProfesiPrintController extends Controller
             'sk' => $sk,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
-            'tunjangan' => $tunjangan
+            'tunjangan' => $tunjangan,
+            'bendahara_pengeluaran' => $bendahara_pengeluaran,
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);
         return $pdf->stream($title.'.pdf');
@@ -71,6 +79,12 @@ class TunjanganProfesiPrintController extends Controller
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
+
+        // Set tanggal
+        $tanggal = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-01';
+
+        // Get bendahara pengeluaran
+        $bendahara_pengeluaran = TTD::where('kode','=','bpeng')->where('tanggal_mulai','<=',$tanggal)->where('tanggal_selesai','>=',$tanggal)->first();
 
         if($id == 1) $jenis = 2;
         elseif($id == 2) $jenis = 3;
@@ -98,7 +112,8 @@ class TunjanganProfesiPrintController extends Controller
             'sk' => $sk,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
-            'tunjangan' => $tunjangan
+            'tunjangan' => $tunjangan,
+            'bendahara_pengeluaran' => $bendahara_pengeluaran,
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);
         return $pdf->stream($title.'.pdf');
@@ -115,6 +130,12 @@ class TunjanganProfesiPrintController extends Controller
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
+
+        // Set tanggal
+        $tanggal = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-01';
+
+        // Get bendahara pengeluaran
+        $bendahara_pengeluaran = TTD::where('kode','=','bpeng')->where('tanggal_mulai','<=',$tanggal)->where('tanggal_selesai','>=',$tanggal)->first();
 
         // Get SK
         $sk = SK::where('jenis_id','=',4)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
@@ -138,7 +159,8 @@ class TunjanganProfesiPrintController extends Controller
             'sk' => $sk,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
-            'tunjangan' => $tunjangan
+            'tunjangan' => $tunjangan,
+            'bendahara_pengeluaran' => $bendahara_pengeluaran,
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);
         return $pdf->stream($title.'.pdf');

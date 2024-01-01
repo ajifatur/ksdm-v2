@@ -118,9 +118,9 @@
                                 <br><br>
                                 Bendahara Pengeluaran
                                 <br><br><br><br>
-                                Daru Lestariningsih, S.E.
+                                {{ title_name($bendahara_pengeluaran->pegawai->nama, $bendahara_pengeluaran->pegawai->gelar_depan, $bendahara_pengeluaran->pegawai->gelar_belakang) }}
                                 <br>
-                                NIP. 198508032010122003
+                                NIP. {{ $bendahara_pengeluaran->pegawai->nip }}
                             </td>
                             <td width="30%">
                                 <br>
