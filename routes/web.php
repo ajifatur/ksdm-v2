@@ -136,6 +136,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/tunjangan-profesi/export', 'TunjanganProfesiController@export')->name('admin.tunjangan-profesi.export');
     Route::get('/admin/tunjangan-profesi/new', 'TunjanganProfesiController@new')->name('admin.tunjangan-profesi.new');
     Route::get('/admin/tunjangan-profesi/change', 'TunjanganProfesiController@change')->name('admin.tunjangan-profesi.change');
+    Route::get('/admin/tunjangan-profesi/no-supplier', 'TunjanganProfesiController@noSupplier')->name('admin.tunjangan-profesi.no-supplier');
 	
 	// Tunjangan Profesi (Print)
     Route::get('/admin/tunjangan-profesi/print/single/{id}', 'TunjanganProfesiPrintController@single')->name('admin.tunjangan-profesi.print.single');
@@ -144,9 +145,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/tunjangan-profesi/print/sptjm', 'TunjanganProfesiPrintController@sptjm')->name('admin.tunjangan-profesi.print.sptjm');
 	
 	// Tunjangan Profesi (CSV)
-    Route::get('/admin/tunjangan-profesi/csv/single/{id}', 'TunjanganProfesiController@single')->name('admin.tunjangan-profesi.csv.single');
-    Route::get('/admin/tunjangan-profesi/csv/non-pns', 'TunjanganProfesiController@nonPNS')->name('admin.tunjangan-profesi.csv.non-pns');
-    Route::get('/admin/tunjangan-profesi/csv/batch/{id}', 'TunjanganProfesiController@batch')->name('admin.tunjangan-profesi.csv.batch');
+    Route::get('/admin/tunjangan-profesi/csv/single/{id}', 'TunjanganProfesiCSVController@single')->name('admin.tunjangan-profesi.csv.single');
+    Route::get('/admin/tunjangan-profesi/csv/non-pns', 'TunjanganProfesiCSVController@nonPNS')->name('admin.tunjangan-profesi.csv.non-pns');
+    Route::get('/admin/tunjangan-profesi/csv/batch/{id}', 'TunjanganProfesiCSVController@batch')->name('admin.tunjangan-profesi.csv.batch');
 	
 	// Tunjangan Profesi (Unit)
     Route::get('/admin/tunjangan-profesi/unit/recap', 'TunjanganProfesiUnitController@recap')->name('admin.tunjangan-profesi.unit.recap');

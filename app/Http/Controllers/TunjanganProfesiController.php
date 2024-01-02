@@ -612,4 +612,45 @@ class TunjanganProfesiController extends Controller
             'tanggal' => $tanggal,
         ]);
     }
+
+    /**
+     * Belum ada data supplier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function noSupplier(Request $request)
+    {
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        // $array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/No Supplier.xlsx'));
+        // if(count($array)>0) {
+        //     foreach($array[0] as $data) {
+        //         if($data[0] != null) {
+        //             // Update pegawai
+        //             $pegawai = Pegawai::where('nip','=',$data[0])->first();
+        //             $pegawai->nama_supplier = $data[3];
+        //             $pegawai->norek_btn = $data[4];
+        //             $pegawai->nama_btn = $data[5];
+        //             $pegawai->save();
+
+        //             // Update tunjangan
+        //             $tunjangan = TunjanganProfesi::where('pegawai_id','=',$pegawai->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+        //             $tunjangan->nama = $data[3];
+        //             $tunjangan->nomor_rekening = $data[4];
+        //             $tunjangan->nama_rekening = $data[5];
+        //             $tunjangan->save();
+        //         }
+        //     }
+        // }
+        // return;
+
+        // Get tunjangan bulan ini
+        $tunjangan = TunjanganProfesi::where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('nama','=','')->get();
+		
+        // View
+        return view('admin/tunjangan-profesi/no-supplier', [
+            'tunjangan' => $tunjangan,
+        ]);
+    }
 }
