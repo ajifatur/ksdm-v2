@@ -19,7 +19,7 @@
     <tbody>
         @foreach($data as $d)
             <?php
-                $lebih_kurang = \App\Models\LebihKurang::where('pegawai_id','=',$d->pegawai->id)->where('bulan_proses','=',Request::query('bulan'))->where('tahun_proses','=',Request::query('tahun'))->where('triwulan_proses','=',0)->get();
+                $lebih_kurang = \App\Models\LebihKurang::where('pegawai_id','=',$d->pegawai->id)->where('bulan_proses','=',Request::query('bulan'))->where('tahun_proses','=',Request::query('tahun'))->where('triwulan_proses','=',0)->where('kekurangan','=',0)->get();
                 $dibayarkan = $d->remun_gaji + $lebih_kurang->sum('selisih');
             ?>
             <tr>
