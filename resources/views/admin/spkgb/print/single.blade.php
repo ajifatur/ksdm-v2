@@ -179,7 +179,11 @@
 		@if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
 			Sesuai dengan Peraturan Pemerintah Nomor 15 Tahun 2019, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
 		@else
-			Sesuai dengan Peraturan Rektor Nomor 16 Tahun 2023, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+			@if($spkgb->mutasi->tmt >= '2023-05-22')
+				Sesuai dengan Peraturan Rektor Nomor 16 Tahun 2023, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+			@else
+				Sesuai dengan Peraturan Rektor Nomor 21 Tahun 2016, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
+			@endif
 		@endif
 		<br><br><br>
 		<table id="sign" width="100%">

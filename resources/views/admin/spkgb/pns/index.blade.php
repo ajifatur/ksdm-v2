@@ -66,7 +66,7 @@
                                     <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
                                     <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                     <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
-                                    <td>{{ $p->golru ? $p->golru->nama : '-' }}
+                                    <td>{{ $p->golru ? $p->golru->nama : '-' }}</td>
                                     <td>
                                         <span class="d-none">{{ $p->tmt_golongan }}</span>
                                         {{ $tahun - date('Y', strtotime($p->tmt_golongan)) }} tahun 0 bulan
