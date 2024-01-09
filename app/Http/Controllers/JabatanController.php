@@ -103,15 +103,17 @@ class JabatanController extends Controller
                 if($data[1] == '-') {
                     $grup = GrupJabatan::where('nama','=',$data[0])->first();
                     if(!$grup) $grup = new GrupJabatan;
-                    $grup->jenis_id = ($jabatan_aktif && $jabatan_aktif->jenis_id != 0) ? $jabatan_aktif->jenis_id : 0;
+                    $grup->jenis_id = ($jabatan_aktif && $jabatan_aktif->jenis_id != 0) ? $jabatan_aktif->jenis_id : $data[4];
                     $grup->nama = $data[0];
+                    $grup->bup = $data[3];
                     $grup->save();
                 }
                 else {
                     $grup = GrupJabatan::where('nama','=',$data[1])->first();
                     if(!$grup) $grup = new GrupJabatan;
-                    $grup->jenis_id = ($jabatan_aktif && $jabatan_aktif->jenis_id != 0) ? $jabatan_aktif->jenis_id : 0;
+                    $grup->jenis_id = ($jabatan_aktif && $jabatan_aktif->jenis_id != 0) ? $jabatan_aktif->jenis_id : $data[4];
                     $grup->nama = $data[1];
+                    $grup->bup = $data[3];
                     $grup->save();
                 }
 
@@ -125,7 +127,7 @@ class JabatanController extends Controller
                 // Simpan data jabatan
                 $jabatan->grup_id = $grup->id;
                 $jabatan->sk_id = $sk->id;
-                $jabatan->jenis_id = $jabatan_aktif ? $jabatan_aktif->jenis_id : 0;
+                $jabatan->jenis_id = $jabatan_aktif ? $jabatan_aktif->jenis_id : $grup->jenis_id;
                 $jabatan->jabatan_dasar_id = $jabatan_dasar->id;
                 $jabatan->nama = $data[0];
                 $jabatan->sub = $data[1];
