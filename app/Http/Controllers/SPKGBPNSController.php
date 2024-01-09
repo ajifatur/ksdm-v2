@@ -423,7 +423,7 @@ class SPKGBPNSController extends Controller
 		foreach($pegawai as $key=>$p) {
 			// Get mutasi KP / KGB sebelumnya
 			$pegawai[$key]->mutasi_sebelum = $p->mutasi()->whereHas('jenis', function(Builder $query) {
-				return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
+				return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK']);
 			})->where('tmt','<',$tanggal)->first();
 
             // Get SPKGB

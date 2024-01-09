@@ -89,7 +89,7 @@ class SPKGBPTNBHController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap']))
+        if(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
             $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
         else
             $gaji_pokok = [];
@@ -293,7 +293,7 @@ class SPKGBPTNBHController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap']))
+        if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
             $gaji_pokok = Golru::find($spkgb->mutasi->golru_id)->gaji_pokok;
         else
             $gaji_pokok = [];
@@ -395,7 +395,7 @@ class SPKGBPTNBHController extends Controller
             // Get SPKGB
             $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                 return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap']);
+                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
                 });
             })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
                 return $query->has('perubahan')->where('bulan','=',$i)->where('tahun','=',$tahun);
@@ -431,7 +431,7 @@ class SPKGBPTNBHController extends Controller
 		$pegawai = Pegawai::whereHas('golru', function(Builder $query) use ($golru) {
 			return $query->whereIn('golru_id',$golru);
 		})->where('status_kerja_id','=',1)->whereHas('status_kepegawaian', function(Builder $query) {
-            return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap']);
+            return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
         })->whereIn('tmt_golongan',$tmt)->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
 		foreach($pegawai as $key=>$p) {
 			// Get mutasi KP / KGB sebelumnya

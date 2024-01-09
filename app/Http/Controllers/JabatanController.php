@@ -90,14 +90,30 @@ class JabatanController extends Controller
     public function import(Request $request)
     {
         // Get SK
-        $sk = SK::find(7);
+        $sk = SK::find(12);
 
-		$array = Excel::toArray(new JabatanImport, public_path('assets/spreadsheets/Jabatan_2_April.xlsx'));
+		$array = Excel::toArray(new JabatanImport, public_path('storage/Jabatan_2024_01.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {
                 // Get jabatan aktif
                 $jabatan_aktif = Jabatan::where('sk_id','=',1)->where('nama','=',$data[0])->where('sub','=',$data[1])->first();
+
+                // Get grup jabatan
+                if($data[1] == '-') {
+                    $grup = GrupJabatan::where('nama','=',$data[0])->first();
+                    if(!$grup) $grup = new GrupJabatan;
+                    $grup->jenis_id = ($jabatan_aktif && $jabatan_aktif->jenis_id != 0) ? $jabatan_aktif->jenis_id : 0;
+                    $grup->nama = $data[0];
+                    $grup->save();
+                }
+                else {
+                    $grup = GrupJabatan::where('nama','=',$data[1])->first();
+                    if(!$grup) $grup = new GrupJabatan;
+                    $grup->jenis_id = ($jabatan_aktif && $jabatan_aktif->jenis_id != 0) ? $jabatan_aktif->jenis_id : 0;
+                    $grup->nama = $data[1];
+                    $grup->save();
+                }
 
                 // Cek jabatan
                 $jabatan = Jabatan::where('sk_id','=',$sk->id)->where('nama','=',$data[0])->where('sub','=',$data[1])->first();
@@ -107,6 +123,7 @@ class JabatanController extends Controller
                 $jabatan_dasar = JabatanDasar::where('sk_id','=',$sk->id)->where('nama','=',$data[2])->first();
 
                 // Simpan data jabatan
+                $jabatan->grup_id = $grup->id;
                 $jabatan->sk_id = $sk->id;
                 $jabatan->jenis_id = $jabatan_aktif ? $jabatan_aktif->jenis_id : 0;
                 $jabatan->jabatan_dasar_id = $jabatan_dasar->id;

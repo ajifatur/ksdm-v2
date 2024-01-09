@@ -278,7 +278,7 @@ class PegawaiController extends Controller
     }
     
     /**
-     * Import TMT Golongan
+     * Import
      *
      * @return \Illuminate\Http\Response
      */
@@ -287,48 +287,48 @@ class PegawaiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-        // Get pegawai
-        $pegawai = Pegawai::where('jenis','=',2)->where('status_kerja_id','=',1)->get();
-        foreach($pegawai as $p) {
-            $peg = Pegawai::find($p->id);
-            $peg->nama = ucwords(strtolower($p->nama));
-            $peg->save();
+		$array = Excel::toArray(new PegawaiImport, public_path('storage/Konversi NPU.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[1] != null) {
+                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+                    // Pegawai BLU
+                    if($pegawai) {
+                        $pegawai->npu = $data[1];
+                        $pegawai->save();
+                    }
+                    // Pegawai Kontrak PPK
+                    else {
+                        $pegawai = new Pegawai;
+                        $pegawai->status_kepeg_id = 5; // Kontrak
+                        $pegawai->status_kerja_id = 1; // Aktif
+                        $pegawai->golongan_id = 0;
+                        $pegawai->golru_id = null;
+                        $pegawai->jabfung_id = 0;
+                        $pegawai->jabstruk_id = 0;
+                        $pegawai->unit_id = 0;
+                        $pegawai->jenis = 2; // Tendik
+                        $pegawai->nip = $data[1];
+                        $pegawai->npu = $data[1];
+                        $pegawai->nama = $data[2];
+                        $pegawai->gelar_depan = '';
+                        $pegawai->gelar_belakang = '';
+                        $pegawai->tanggal_lahir = substr($data[1],0,4).'-'.substr($data[1],4,2).'-'.substr($data[1],6,2);
+                        $pegawai->tempat_lahir = '';
+                        $pegawai->tmt_cpns = null;
+                        $pegawai->tmt_golongan = null;
+                        $pegawai->tmt_non_aktif = null;
+                        $pegawai->nama_supplier = null;
+                        $pegawai->nama_btn = null;
+                        $pegawai->norek_btn = null;
+                        $pegawai->save();
+                    }
+                }
+            }
         }
-
-		// $array = Excel::toArray(new PegawaiImport, public_path('storage/TMT Golongan Tendik.xlsx'));
-
-        // $error = [];
-        // if(count($array)>0) {
-        //     foreach($array[0] as $data) {
-        //         if($data[0] != null) {
-        //             $pegawai = Pegawai::where('nip','=',$data[0])->where('status_kerja_id','=',1)->first();
-        //             if($pegawai) {
-        //                 $pegawai->tmt_golongan = DateTimeExt::change($data[2]);
-        //                 $pegawai->save();
-        //             }
-        //             else array_push($error, $data[0].' - '.$data[1]);
-        //         }
-        //     }
-        // }
-        // var_dump($error);
-
-        // $array = Excel::toArray(new PegawaiImport, public_path('storage/TTL.xlsx'));
-
-        // $error = [];
-        // if(count($array)>0) {
-        //     foreach($array[0] as $data) {
-        //         if($data[0] != null) {
-        //             $pegawai = Pegawai::where('nip','=',$data[0])->first();
-        //             if($pegawai) {
-        //                 $pegawai->tanggal_lahir = DateTimeExt::change($data[1]);
-        //                 $pegawai->tempat_lahir = $data[2];
-        //                 $pegawai->save();
-        //             }
-        //             else array_push($error, $data[0]);
-        //         }
-        //     }
-        // }
-        // var_dump($error);
+        var_dump($error);
     }
 
     /**

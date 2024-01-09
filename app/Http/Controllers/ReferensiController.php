@@ -74,14 +74,24 @@ class ReferensiController extends Controller
     public function import(Request $request)
     {
         // Get SK
-        $sk = SK::find(7);
+        $sk = SK::find(12); // SK Remun Awal Tahun 2024
 
-		$array = Excel::toArray(new ReferensiImport, public_path('storage/Referensi_2_April.xlsx'));
+		$array = Excel::toArray(new ReferensiImport, public_path('storage/Referensi_2024_01.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {
                 // Get jabatan dasar
                 $jabatan_dasar = JabatanDasar::where('sk_id','=',$sk->id)->where('nama','=',$data[0])->first();
+                if(!$jabatan_dasar) $jabatan_dasar = new JabatanDasar;
+
+                // Simpan data jabatan dasar
+                $jabatan_dasar->sk_id = $sk->id;
+                $jabatan_dasar->nama = $data[0];
+                $jabatan_dasar->grade = $data[1];
+                $jabatan_dasar->nilai = $data[2];
+                $jabatan_dasar->koefisien = $data[3];
+                $jabatan_dasar->pir = $sk->pir;
+                $jabatan_dasar->save();
 
                 // Cek referensi layer 1
                 $referensi = Referensi::where('sk_id','=',$sk->id)->where('jabatan_dasar_id','=',$jabatan_dasar->id)->where('layer_id','=',1)->first();
@@ -91,11 +101,11 @@ class ReferensiController extends Controller
                 $referensi->sk_id = $sk->id;
                 $referensi->jabatan_dasar_id = $jabatan_dasar->id;
                 $referensi->layer_id = 1;
-                $referensi->remun_standar = $data[1];
-                $referensi->remun_gaji = $data[2];
-                $referensi->remun_insentif = $data[3];
-                $referensi->poin_standar = $data[4];
-                $referensi->harga_per_poin = $data[5];
+                $referensi->remun_standar = $data[6];
+                $referensi->remun_gaji = $data[7];
+                $referensi->remun_insentif = $data[8];
+                $referensi->poin_standar = $data[9];
+                $referensi->harga_per_poin = $data[10];
                 $referensi->save();
 
                 // Cek referensi layer 2
@@ -106,11 +116,11 @@ class ReferensiController extends Controller
                 $referensi->sk_id = $sk->id;
                 $referensi->jabatan_dasar_id = $jabatan_dasar->id;
                 $referensi->layer_id = 2;
-                $referensi->remun_standar = $data[6];
-                $referensi->remun_gaji = $data[7];
-                $referensi->remun_insentif = $data[8];
-                $referensi->poin_standar = $data[9];
-                $referensi->harga_per_poin = $data[10];
+                $referensi->remun_standar = $data[11];
+                $referensi->remun_gaji = $data[12];
+                $referensi->remun_insentif = $data[13];
+                $referensi->poin_standar = $data[14];
+                $referensi->harga_per_poin = $data[15];
                 $referensi->save();
 
                 // Cek referensi layer 3
@@ -121,11 +131,11 @@ class ReferensiController extends Controller
                 $referensi->sk_id = $sk->id;
                 $referensi->jabatan_dasar_id = $jabatan_dasar->id;
                 $referensi->layer_id = 3;
-                $referensi->remun_standar = $data[11];
-                $referensi->remun_gaji = $data[12];
-                $referensi->remun_insentif = $data[13];
-                $referensi->poin_standar = $data[14];
-                $referensi->harga_per_poin = $data[15];
+                $referensi->remun_standar = $data[16];
+                $referensi->remun_gaji = $data[17];
+                $referensi->remun_insentif = $data[18];
+                $referensi->poin_standar = $data[19];
+                $referensi->harga_per_poin = $data[20];
                 $referensi->save();
             }
         }
