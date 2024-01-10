@@ -498,6 +498,9 @@ class RemunGajiController extends Controller
 
         // Get SK
         $sk = SK::where('jenis_id','=',1)->where('awal_tahun','=',$tahun)->first();
+        
+        // Count SK pada tahun berjalan
+        $count_sk = SK::where('jenis_id','=',1)->whereYear('tanggal',$tahun)->count();
 
         // Get unit
         $unit = Unit::findOrFail($request->query('unit'));
@@ -522,6 +525,7 @@ class RemunGajiController extends Controller
             'bulan' => $bulan,
             'tahun' => $tahun,
             'sk' => $sk,
+            'count_sk' => $count_sk,
             'remun_gaji' => $remun_gaji
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);
