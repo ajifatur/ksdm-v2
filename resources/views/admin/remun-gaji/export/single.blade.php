@@ -22,7 +22,7 @@
                 $dibayarkan = $d->remun_gaji + $lebih_kurang->sum('selisih');
             ?>
             <tr>
-                <td>{{ $d->pegawai->nip }}</td>
+                <td>{{ $d->pegawai->npu != null ? $d->pegawai->npu : $d->pegawai->nip }}</td>
                 <td>{{ strtoupper($d->pegawai->nama) }}</td>
                 <td>BNI</td>
                 <td>{{ $dibayarkan }}</td>
