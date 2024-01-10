@@ -75,11 +75,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/remun-gaji/kekurangan/export/single', 'RemunGajiKekuranganExportController@single')->name('admin.remun-gaji.kekurangan.export.single');
     Route::get('/admin/remun-gaji/kekurangan/export/pusat', 'RemunGajiKekuranganExportController@pusat')->name('admin.remun-gaji.kekurangan.export.pusat');
     Route::get('/admin/remun-gaji/kekurangan/export/recap', 'RemunGajiKekuranganExportController@recap')->name('admin.remun-gaji.kekurangan.export.recap');
-    // Route::get('/admin/remun-gaji/kekurangan/monitoring', 'KekuranganRemunGajiController@monitoring')->name('admin.remun-gaji.kekurangan.monitoring');
-    // Route::get('/admin/remun-gaji/kekurangan/print', 'KekuranganRemunGajiController@print')->name('admin.remun-gaji.kekurangan.print');
-    // Route::get('/admin/remun-gaji/kekurangan/export/single', 'KekuranganRemunGajiExportController@single')->name('admin.remun-gaji.kekurangan.export.single');
-    // Route::get('/admin/remun-gaji/kekurangan/export/pusat', 'KekuranganRemunGajiExportController@pusat')->name('admin.remun-gaji.kekurangan.export.pusat');
-    // Route::get('/admin/remun-gaji/kekurangan/export/recap', 'KekuranganRemunGajiExportController@recap')->name('admin.remun-gaji.kekurangan.export.recap');
 
     // Remun Insentif
     Route::get('/admin/remun-insentif', 'RemunInsentifController@index')->name('admin.remun-insentif.index');
@@ -167,7 +162,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/tunjangan-profesi/mutasi/update', 'MutasiSerdosController@update')->name('admin.tunjangan-profesi.mutasi.update');
     Route::post('/admin/tunjangan-profesi/mutasi/delete', 'MutasiSerdosController@delete')->name('admin.tunjangan-profesi.mutasi.delete');
 
-    // Gaji Induk
+    // Gaji Induk ASN
     Route::get('/admin/gaji', 'GajiController@index')->name('admin.gaji.index');
     Route::get('/admin/gaji/monitoring', 'GajiController@monitoring')->name('admin.gaji.monitoring');
     Route::get('/admin/gaji/monthly', 'GajiController@monthly')->name('admin.gaji.monthly');
@@ -177,7 +172,11 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/gaji/import', 'GajiController@import')->name('admin.gaji.import');
     Route::get('/admin/gaji/change', 'GajiController@change')->name('admin.gaji.change');
 
-    // Uang Makan
+    // Gaji Induk Non ASN
+    Route::get('/admin/gaji-non-asn', 'GajiNonASNController@index')->name('admin.gaji-non-asn.index');
+    Route::get('/admin/gaji-non-asn/import', 'GajiNonASNController@import')->name('admin.gaji-non-asn.import');
+
+    // Uang Makan PNS
     Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
     Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
     Route::get('/admin/uang-makan/recap', 'UangMakanController@recap')->name('admin.uang-makan.recap');

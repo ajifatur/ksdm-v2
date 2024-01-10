@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class KekuranganRemunGaji extends Model
+class GajiNonASN extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class KekuranganRemunGaji extends Model
      *
      * @var string
      */
-    protected $table = 'tbl_kekurangan_remun_gaji';
+    protected $table = 'tbl_gaji_non_asn';
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +23,14 @@ class KekuranganRemunGaji extends Model
      */
     protected $fillable = [
     ];
+    
+    /**
+     * SK.
+     */
+    public function sk()
+    {
+        return $this->belongsTo(SK::class, 'sk_id');
+    }
     
     /**
      * Pegawai.
@@ -41,42 +49,10 @@ class KekuranganRemunGaji extends Model
     }
     
     /**
-     * Status Kepegawaian.
-     */
-    public function status_kepegawaian()
-    {
-        return $this->belongsTo(StatusKepegawaian::class, 'status_kepeg_id');
-    }
-    
-    /**
-     * Jabatan Dasar.
-     */
-    public function jabatan_dasar()
-    {
-        return $this->belongsTo(JabatanDasar::class, 'jabatan_dasar_id');
-    }
-    
-    /**
-     * Jabatan.
-     */
-    public function jabatan()
-    {
-        return $this->belongsTo(Jabatan::class, 'jabatan_id');
-    }
-    
-    /**
      * Unit.
      */
     public function unit()
     {
         return $this->belongsTo(Unit::class, 'unit_id');
-    }
-    
-    /**
-     * Layer.
-     */
-    public function layer()
-    {
-        return $this->belongsTo(Layer::class, 'layer_id');
     }
 }
