@@ -241,7 +241,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/jabatan-dasar/import', 'JabatanDasarController@import')->name('admin.jabatan-dasar.import');
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
-    // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
+    Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
     // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
     // Route::get('/admin/remun-gaji/mround', 'RemunGajiController@mround')->name('admin.remun-gaji.mround');
     // Route::get('/admin/remun-gaji/kekurangan/import', 'KekuranganRemunGajiController@import')->name('admin.remun-gaji.kekurangan.import');
@@ -257,6 +257,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/gaji-pokok/import', 'GajiPokokController@import')->name('admin.gaji-pokok.import');
     // Route::get('/admin/gaji/sync', 'GajiController@sync')->name('admin.gaji.sync');
     // Route::get('/admin/uang-makan/sync', 'UangMakanController@sync')->name('admin.uang-makan.sync');
+    // Route::get('/admin/prodi/import', 'ProdiController@import')->name('admin.prodi.import');
 });
 
 \Ajifatur\Helpers\RouteExt::auth();

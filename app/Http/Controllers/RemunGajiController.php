@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Excel;
+use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
@@ -21,6 +22,8 @@ use App\Models\MutasiDetail;
 use App\Models\SK;
 use App\Models\StatusKepegawaian;
 use App\Models\Referensi;
+use App\Models\Prodi;
+use App\Models\KoorprodiRemun;
 
 class RemunGajiController extends Controller
 {
@@ -394,46 +397,80 @@ class RemunGajiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		$array = Excel::toArray(new RemunGajiImport, public_path('assets/spreadsheets/Remun_Gaji_April.xlsx'));
+		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Remun_Gaji_2024_01.xlsx'));
+        $bulan = 1;
+        $tahun = 2024;
+        $sk = 12;
 
         $error = [];
         if(count($array)>0) {
             foreach($array[0] as $data) {
                 if($data[0] != null) {
                     // Get pegawai
-                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+                    $pegawai = Pegawai::where('nip','=',$data[1])->orWhere('npu','=',$data[1])->first();
 
                     // Cek remun gaji
-                    $remun_gaji = RemunGaji::where('pegawai_id','=',$pegawai->id)->where('bulan','=',4)->where('tahun','=',2023)->first();
+                    $remun_gaji = RemunGaji::where('pegawai_id','=',$pegawai->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
                     if(!$remun_gaji) $remun_gaji = new RemunGaji;
 
-                    // Get golongan
-                    $golongan = Golongan::where('nama','=',$data[1])->first();
-
                     // Get status kepegawaian
-                    $status_kepegawaian = StatusKepegawaian::where('nama','=',$data[4])->first();
+                    $status_kepegawaian = StatusKepegawaian::where('nama','=',$data[5])->first();
 
                     // Get jabatan
-                    $jabatan = Jabatan::where('sk_id','=',7)->where('nama','=',$data[2])->where('sub','=',$data[3])->first();
+                    if(!in_array($data[3], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C']))
+                        $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[3])->where('sub','=',$data[4])->first();
+                    else
+                        $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[3])->where('sub','=','-')->first();
 
                     // Get unit
-                    $unit = Unit::where('nama','=',$data[6])->first();
+                    $unit = Unit::where('nama','=',$data[7])->first();
 
                     // Simpan data remun gaji
                     $remun_gaji->pegawai_id = $pegawai->id;
                     $remun_gaji->status_kepeg_id = $status_kepegawaian->id;
-                    $remun_gaji->golru_id = null;
+                    $remun_gaji->golru_id = $pegawai->golru_id;
                     $remun_gaji->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
                     $remun_gaji->jabatan_id = $jabatan->id;
                     $remun_gaji->unit_id = $unit->id;
-                    $remun_gaji->layer_id = $unit->layer_id;
-                    $remun_gaji->bulan = 4;
-                    $remun_gaji->tahun = 2023;
+                    $remun_gaji->layer_id = $data[6] == 'TENDIK' ? 1 : $unit->layer_id;
+                    $remun_gaji->bulan = $bulan;
+                    $remun_gaji->tahun = $tahun;
                     $remun_gaji->kategori = $pegawai->jenis;
-                    $remun_gaji->remun_penerimaan = $data[9];
-                    $remun_gaji->remun_gaji = $data[10];
-                    $remun_gaji->remun_insentif = $data[11];
+                    $remun_gaji->remun_penerimaan = $data[10];
+                    $remun_gaji->remun_gaji = $data[11];
+                    $remun_gaji->remun_insentif = $data[12];
                     $remun_gaji->save();
+
+                    // Simpan koorprodi
+                    if(in_array($data[3], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C'])) {
+                        // Get prodi
+                        $prodi = Prodi::where('nama','=',str_replace('Koorprodi ', '', $data[4]))->first();
+                        if($prodi) {
+                            // Simpan koorprodi remun
+                            $koorprodi_remun = KoorprodiRemun::where('pegawai_id','=',$pegawai->id)->where('remun_gaji_id','=',$remun_gaji->id)->where('prodi_id','=',$prodi->id)->first();
+                            if(!$koorprodi_remun) $koorprodi_remun = new KoorprodiRemun;
+                            $koorprodi_remun->pegawai_id = $pegawai->id;
+                            $koorprodi_remun->remun_gaji_id = $remun_gaji->id;
+                            $koorprodi_remun->prodi_id = $prodi->id;
+                            $koorprodi_remun->save();
+                        }
+                        else {
+                            $explode = explode(';', $data[4]);
+                            foreach($explode as $e) {
+                                $prodis = Prodi::where('nama','=',str_replace('Koorprodi ', '', $e))->first();
+                                if($prodis) {
+                                    // Simpan koorprodi remun
+                                    $koorprodi_remun = KoorprodiRemun::where('pegawai_id','=',$pegawai->id)->where('remun_gaji_id','=',$remun_gaji->id)->where('prodi_id','=',$prodis->id)->first();
+                                    if(!$koorprodi_remun) $koorprodi_remun = new KoorprodiRemun;
+                                    $koorprodi_remun->pegawai_id = $pegawai->id;
+                                    $koorprodi_remun->remun_gaji_id = $remun_gaji->id;
+                                    $koorprodi_remun->prodi_id = $prodis->id;
+                                    $koorprodi_remun->save();
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
         }
@@ -459,6 +496,9 @@ class RemunGajiController extends Controller
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
 
+        // Get SK
+        $sk = SK::where('jenis_id','=',1)->where('awal_tahun','=',$tahun)->first();
+
         // Get unit
         $unit = Unit::findOrFail($request->query('unit'));
 
@@ -466,18 +506,22 @@ class RemunGajiController extends Controller
         $get_kategori = $kategori == 1 ? 'Dosen' : 'Tendik';
 
         // Remun Gaji
-        $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
+        if($tahun < 2024)
+            $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
+        else
+            $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->get();
 
         // Set title
         $title = 'Remun Gaji '.$unit->nama.' '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).')';
 
         // PDF
-        $pdf = \PDF::loadView('admin/remun-gaji/print', [
+        $pdf = PDF::loadView('admin/remun-gaji/print', [
             'title' => $title,
             'unit' => $unit,
             'kategori' => $kategori,
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'sk' => $sk,
             'remun_gaji' => $remun_gaji
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);

@@ -39,7 +39,10 @@ class RemunGajiExportController extends Controller
         $get_kategori = $kategori == 1 ? 'Dosen' : 'Tendik';
 
         // Remun Gaji
-        $remun_gaji = RemunGaji::where('unit_id','=',$unit)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
+        if($tahun < 2024)
+            $remun_gaji = RemunGaji::where('unit_id','=',$unit)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
+        else
+            $remun_gaji = RemunGaji::where('unit_id','=',$unit)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->get();
 
         // Return
         return Excel::download(new RemunGajiExport($remun_gaji), 'Remun Gaji '.$get_unit->nama.' '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).').xlsx');
@@ -69,7 +72,11 @@ class RemunGajiExportController extends Controller
         // Get remun gaji
         $remun_gaji = [];
         foreach($unit as $u) {
-            $rg = RemunGaji::where('unit_id','=',$u->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
+            if($tahun < 2024)
+                $rg = RemunGaji::where('unit_id','=',$u->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
+            else
+                $rg = RemunGaji::where('unit_id','=',$u->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->get();
+
             array_push($remun_gaji, $rg);
         }
 

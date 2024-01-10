@@ -56,7 +56,7 @@ function check_mutasi($pegawai, $bulan, $tahun) {
 <body>
     <div id="title">
         DAFTAR PERHITUNGAN PEMBAYARAN REMUNERASI KOMPONEN GAJI UNSUR TENAGA {{ $kategori == 1 ? 'PENDIDIK' : 'KEPENDIDIKAN' }} UNNES<br>
-        BERDASAR KEPUTUSAN REKTOR NOMOR B/72/UN37/HK/2023 TANGGAL 20 JANUARI 2023 BESERTA PERUBAHANNYA<br>
+        BERDASAR {{ $sk->nama }} TANGGAL {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($sk->tanggal)) }} BESERTA PERUBAHANNYA<br>
         BULAN {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($bulan)) }} {{ $tahun }} PADA {{ strtoupper($unit->nama) }}
     </div>
     <table style="width: 100%">
@@ -134,7 +134,15 @@ function check_mutasi($pegawai, $bulan, $tahun) {
                     @endif
 					--}}
                     <td>{{ $r->jabatan ? $r->jabatan->nama : '-' }}</td>
-                    <td>{{ $r->jabatan ? $r->jabatan->sub : '-' }}</td>
+                    @if($r->jabatan && in_array($r->jabatan->nama, ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C']))
+                        <td>
+                            @foreach($r->koorprodi as $koorprodi)
+                                Koorprodi {{ $koorprodi->prodi->nama }}<br>
+                            @endforeach
+                        </td>
+                    @else
+                        <td>{{ $r->jabatan ? $r->jabatan->sub : '-' }}</td>
+                    @endif
                     <td align="center">{{ $r->layer ? $r->layer->nama : '-' }}</td>
                     <td align="center">{{ $r->jabatan_dasar ? $r->jabatan_dasar->grade : '-' }}</td>
                     <td align="right">{{ $r->remun_gaji != $dibayarkan ? number_format($lebih_kurang->sum('terbayar'),0,'.','.') : '' }}</td>

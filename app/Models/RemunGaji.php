@@ -79,4 +79,12 @@ class RemunGaji extends Model
     {
         return $this->belongsTo(Layer::class, 'layer_id');
     }
+
+    /**
+     * Koorprodi.
+     */
+    public function koorprodi()
+    {
+        return $this->hasMany(KoorprodiRemun::class);
+    }
 }
