@@ -176,14 +176,16 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/gaji-non-asn', 'GajiNonASNController@index')->name('admin.gaji-non-asn.index');
     Route::get('/admin/gaji-non-asn/import', 'GajiNonASNController@import')->name('admin.gaji-non-asn.import');
 
-    // Uang Makan PNS
+    // Uang Makan ASN
     Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
     Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
     Route::get('/admin/uang-makan/recap', 'UangMakanController@recap')->name('admin.uang-makan.recap');
     Route::get('/admin/uang-makan/export', 'UangMakanController@export')->name('admin.uang-makan.export');
-    Route::get('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
-    Route::post('/admin/uang-makan/import', 'UangMakanController@import')->name('admin.uang-makan.import');
-    Route::post('/admin/uang-makan/import-old', 'UangMakanController@importOld')->name('admin.uang-makan.import-old');
+    Route::get('/admin/uang-makan/import/pns', 'UangMakanImportController@pns')->name('admin.uang-makan.import.pns');
+    Route::post('/admin/uang-makan/import/pns', 'UangMakanImportController@pns')->name('admin.uang-makan.import.pns');
+    Route::get('/admin/uang-makan/import/pppk', 'UangMakanImportController@pppk')->name('admin.uang-makan.import.pppk');
+    Route::post('/admin/uang-makan/import/pppk', 'UangMakanImportController@pppk')->name('admin.uang-makan.import.pppk');
+    Route::post('/admin/uang-makan/import/old', 'UangMakanImportController@old')->name('admin.uang-makan.import.old');
 
     // SPKGB PNS
     Route::get('/admin/spkgb/pns', 'SPKGBPNSController@index')->name('admin.spkgb.pns.index');
@@ -240,7 +242,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/jabatan/check', 'JabatanController@check')->name('admin.jabatan.check');
     // Route::get('/admin/jabatan-dasar/import', 'JabatanDasarController@import')->name('admin.jabatan-dasar.import');
     // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
-    Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
+    // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
     // Route::get('/admin/remun-gaji/import-mei', 'RemunGajiController@importMei')->name('admin.remun-gaji.import-mei');
     // Route::get('/admin/remun-gaji/mround', 'RemunGajiController@mround')->name('admin.remun-gaji.mround');
     // Route::get('/admin/remun-gaji/kekurangan/import', 'KekuranganRemunGajiController@import')->name('admin.remun-gaji.kekurangan.import');

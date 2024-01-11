@@ -1,16 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Uang Makan PNS')
+@section('title', 'Uang Makan '.($jenis == 1 ? 'PNS' : 'PPPK'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Uang Makan PNS</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Uang Makan {{ $jenis == 1 ? 'PNS' : 'PPPK' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="jenis" value="{{ $jenis }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="id" class="form-select form-select-sm">
@@ -56,6 +57,9 @@
                             <tr>
                                 <th width="5">No</th>
                                 <th>Nama / NIP</th>
+                                @if($jenis == 2)
+                                <th>Unit</th>
+                                @endif
                                 <th>Jenis</th>
                                 <th width="80">Jumlah Hari</th>
                                 <th width="80">Nominal Kotor</th>
@@ -68,6 +72,9 @@
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
                                 <td>{{ strtoupper($um->pegawai->nama) }}<br>{{ $um->pegawai->nip }}</td>
+                                @if($jenis == 2)
+                                <td>{{ $um->unit->nama }}</td>
+                                @endif
                                 <td>{{ $um->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($um->jmlhari) }}</td>
                                 <td align="right">{{ number_format($um->kotor) }}</td>
@@ -78,7 +85,7 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="3" align="center">Total</td>
+                                <td colspan="{{ $jenis == 2 ? 4 : 3 }}" align="center">Total</td>
                                 <td align="right">{{ number_format($uang_makan->sum('jmlhari')) }}</td>
                                 <td align="right">{{ number_format($uang_makan->sum('kotor')) }}</td>
                                 <td align="right">{{ number_format($uang_makan->sum('potongan')) }}</td>

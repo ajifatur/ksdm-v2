@@ -1,20 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Monitoring Uang Makan PNS')
+@section('title', 'Monitoring Uang Makan '.($jenis == 1 ? 'PNS' : 'PPPK'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Monitoring Uang Makan PNS</h1>
-    <div class="btn-group d-none">
-        <a href="#" class="btn btn-sm btn-primary btn-import"><i class="bi-upload me-1"></i> Import File</a>
-        <!-- <a href="#" class="btn btn-sm btn-secondary btn-import-old"><i class="bi-upload me-1"></i> Import File (Format Lama)</a> -->
-    </div>
+    <h1 class="h3 mb-2 mb-sm-0">Monitoring Uang Makan {{ $jenis == 1 ? 'PNS' : 'PPPK' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="jenis" value="{{ $jenis }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="bulan" class="form-select form-select-sm">
@@ -118,61 +115,6 @@
 	</div>
 </div>
 
-<div class="modal fade" id="modal-import-old" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Import File</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" action="{{ route('admin.uang-makan.import-old') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label>Anak Satker:</label>
-                        <select name="anak_satker" class="form-select form-select-sm" required>
-                            <option value="0" disabled selected>--Pilih Anak Satker--</option>
-                            @foreach($anak_satker as $a)
-                            <option value="{{ $a->kode }}">{{ $a->kode }} - {{ $a->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Bulan:</label>
-                        <select name="bulan" class="form-select form-select-sm">
-                            <option value="0" disabled selected>--Pilih--</option>
-                            @for($m=1; $m<=12; $m++)
-                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($m) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Tahun:</label>
-                        <select name="tahun" class="form-select form-select-sm">
-                            <option value="0" disabled>--Pilih--</option>
-                            @for($y=date('Y'); $y>=2022; $y--)
-                            <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div>
-                        <label>File:</label>
-                        <input type="file" name="file" class="form-control form-control-sm {{ $errors->has('file') ? 'border-danger' : '' }}" accept=".xls, .xlsx">
-                        <div class="small text-muted">File harus berekstensi .xls atau .xlsx</div>
-                        @if($errors->has('file'))
-                        <div class="small text-danger">{{ $errors->first('file') }}</div>
-                        @endif
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-sm btn-primary" type="submit">Submit</button>
-                    <button class="btn btn-sm btn-danger" type="button" data-bs-dismiss="modal">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @endsection
 
 @section('js')
@@ -182,12 +124,6 @@
     Spandiv.DataTable("#datatable", {
         orderAll: true,
         pageLength: -1
-    });
-
-    // Button Import
-    $(document).on("click", ".btn-import-old", function(e) {
-        e.preventDefault();
-        Spandiv.Modal("#modal-import-old").show();
     });
 </script>
 

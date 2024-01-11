@@ -1,16 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Rekap Uang Makan PNS')
+@section('title', 'Rekap Uang Makan '.($jenis == 1 ? 'PNS' : 'PPPK'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Rekap Uang Makan PNS</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Rekap Uang Makan {{ $jenis == 1 ? 'PNS' : 'PPPK' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="jenis" value="{{ $jenis }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="tahun" class="form-select form-select-sm">
