@@ -193,6 +193,7 @@ class UangMakanController extends Controller
 
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
+        $jenis = $request->query('jenis') ?: 1;
 
         // Get anak satker
         $anak_satker = AnakSatker::find($request->query('id'));
@@ -217,7 +218,9 @@ class UangMakanController extends Controller
         elseif(!$anak_satker) {
             if(in_array($request->kategori, [1,2])) {
                 // Get uang makan
-                $uang_makan = UangMakan::where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
+                $uang_makan = UangMakan::whereHas('anak_satker', function(Builder $query) use ($jenis) {
+                    return $query->where('jenis','=',$jenis);
+                })->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
                 if(count($uang_makan) <= 0) {
                     echo "Tidak ada data!";
@@ -227,11 +230,13 @@ class UangMakanController extends Controller
                 // Return
                 return Excel::download(new UangMakanExport([
                     'uang_makan' => $uang_makan,
-                ]), 'Uang-Makan '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
+                ]), 'Uang-Makan '.($jenis == 1 ? 'PNS' : 'PPPK').' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx');
             }
             else {
                 // Get uang makan
-                $uang_makan = UangMakan::where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
+                $uang_makan = UangMakan::whereHas('anak_satker', function(Builder $query) use ($jenis) {
+                    return $query->where('jenis','=',$jenis);
+                })->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
     
                 if(count($uang_makan) <= 0) {
                     echo "Tidak ada data!";
@@ -241,7 +246,7 @@ class UangMakanController extends Controller
                 // Return
                 return Excel::download(new UangMakanExport([
                     'uang_makan' => $uang_makan,
-                ]), 'Uang-Makan '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx');
+                ]), 'Uang-Makan '.($jenis == 1 ? 'PNS' : 'PPPK').' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx');
             }
         }
     }
