@@ -69,7 +69,7 @@
                         <td align="right">{{ number_format(array_sum($t_terbayar[$npu]),0,'.','.') }}</td>
                         <td align="right">{{ number_format(array_sum($t_seharusnya[$npu]),0,'.','.') }}</td>
                         <td align="right">{{ number_format(array_sum($t_selisih[$npu]),0,'.','.') }}</td>
-                        <td align="right">{{ number_format(array_sum($t_selisih[$npu]),0,'.','.') }}</td>
+                        <td align="right" bgcolor="yellow"><b>{{ number_format(array_sum($t_selisih[$npu]),0,'.','.') }}</b></td>
                         <td></td>
                     </tr>
                     @endif
