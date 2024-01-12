@@ -30,14 +30,14 @@
                 <th align="center" rowspan="2"><b>Nama / NPU</b></th>
                 <th align="center" rowspan="2" width="30"><b>Gol</b></th>
                 <th align="center" rowspan="2" width="50"><b>Status Kawin</b></th>
-                <th align="center" colspan="3"><b>Gaji Pokok, Tunj. Suami/Istri, Tunj. Anak</b></th>
-                <th align="center" rowspan="2" width="60"><b>Dibayarkan</b></th>
+                <th align="center" colspan="4"><b>Gaji Pokok, Tunj. Suami/Istri, Tunj. Anak</b></th>
                 <th align="center" rowspan="2" width="150"><b>Keterangan</b></th>
             </tr>
             <tr>
                 <th align="center" width="60"><b>Terbayar</b></th>
                 <th align="center" width="60"><b>Seharusnya</b></th>
                 <th align="center" width="60"><b>Selisih</b></th>
+                <th align="center" width="60"><b>Dibayarkan</b></th>
             </tr>
             <tr>
                 <th align="center"><em>1</em></th>
@@ -53,27 +53,42 @@
         </thead>
         <tbody>
             @php $i = 1; @endphp
-            @foreach($d as $j)
+            @foreach($d as $npu=>$j)
                 @php $k = 0; @endphp
                 @foreach($j as $key=>$data)
+                    @if($k == 0)
+                    <tr>
+                        <td align="center">{{ $i }}</td>
+                        <td>{{ strtoupper($data['pegawai']->nama) }}<br>{{ $data['pegawai']->npu != null ? $data['pegawai']->npu : $data['pegawai']->nip }}</td>
+                        @if($data['pegawai']->golongan)
+                        <td align="center">{{ $data['pegawai']->golongan->nama }}</td>
+                        @else
+                        <td align="center">-</td>
+                        @endif
+                        <td align="center">{{ $data['status_kawin'] }}</td>
+                        <td align="right">{{ number_format(array_sum($t_terbayar[$npu]),0,'.','.') }}</td>
+                        <td align="right">{{ number_format(array_sum($t_seharusnya[$npu]),0,'.','.') }}</td>
+                        <td align="right">{{ number_format(array_sum($t_selisih[$npu]),0,'.','.') }}</td>
+                        <td align="right">{{ number_format(array_sum($t_selisih[$npu]),0,'.','.') }}</td>
+                        <td></td>
+                    </tr>
+                    @endif
+
                     @php $x = 0; @endphp
                     @foreach($data['rincian'] as $key2=>$rincian)
                         @foreach($rincian as $key3=>$r)
                             @if($key3 == 0)
-                            <tr>
-                                @if($k == 0)
-                                    <td align="center">{{ $i }}</td>
-                                    <td>{{ strtoupper($data['pegawai']->nama) }}<br>{{ $data['pegawai']->npu != null ? $data['pegawai']->npu : $data['pegawai']->nip }}</td>
-                                    @if($data['pegawai']->golongan)
-                                    <td align="center">{{ $data['pegawai']->golongan->nama }}</td>
+                            <tr bgcolor="#e3e3e3">
+                                <td></td>
+                                <td colspan="2" align="center" height="20">
+                                    @if(count($rincian) > 1)
+                                        {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($rincian[count($rincian)-1]->bulan)) }} {{ $rincian[count($rincian)-1]->tahun }} s.d.
+                                        {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($r->bulan)) }} {{ $r->tahun }}
                                     @else
-                                    <td align="center">-</td>
+                                        {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($r->bulan)) }} {{ $r->tahun }}
                                     @endif
-                                @else
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                @endif
+                                    ( {{ count($rincian) }} X )
+                                </td>
                                 <td align="center">{{ $r->status_kawin }}</td>
                                 <td align="right">
                                     {{ number_format($r->gjpokok,0,'.','.') }}<br>
@@ -104,17 +119,7 @@
                                     <b>{{ number_format(($r->gjpokok_selisih + $r->tjistri_selisih + $r->tjanak_selisih) * count($rincian),0,'.','.') }}</b>
                                 </td>
                                 @if($x == 0)
-                                <td rowspan="{{ count($data['rincian']) }}">
-                                    {{ $data['keterangan'] }}<br>
-                                    <!-- TMT: {{ $data['tmt'] }}<br> -->
-                                    @if(count($rincian) > 1)
-                                        {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($rincian[count($rincian)-1]->bulan)) }} {{ $rincian[count($rincian)-1]->tahun }} s.d.
-                                        {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($r->bulan)) }} {{ $r->tahun }}
-                                    @else
-                                        {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($r->bulan)) }} {{ $r->tahun }}
-                                    @endif
-                                    ( {{ count($rincian) }} X )
-                                </td>
+                                <td rowspan="{{ count($data['rincian']) }}">{{ $data['keterangan'] }}<br>TMT: {{ $data['tmt'] }}</td>
                                 @endif
                             </tr>
                             @endif

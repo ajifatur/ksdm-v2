@@ -32,8 +32,14 @@ class TestExport extends StringValueBinder implements WithCustomValueBinder, Fro
     */
     public function bindValue(Cell $cell, $value)
     {
+        // if(is_numeric($value)) {
+        //     if($cell->getColumn() != 'C') {
+        //         $cell->setValueExplicit($value, DataType::TYPE_NUMERIC);
+        //         return true;
+        //     }
+        // }
         if(is_numeric($value)) {
-            if($cell->getColumn() != 'C') {
+            if($cell->getColumn() != 'A') {
                 $cell->setValueExplicit($value, DataType::TYPE_NUMERIC);
                 return true;
             }
@@ -49,7 +55,7 @@ class TestExport extends StringValueBinder implements WithCustomValueBinder, Fro
     public function view(): View
     {
     	// View
-    	return view('admin/test/export', [
+    	return view('admin/test/export-2', [
     		'data' => $this->data
     	]);
     }
@@ -60,20 +66,20 @@ class TestExport extends StringValueBinder implements WithCustomValueBinder, Fro
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
-                $event->sheet->getDelegate()->getStyle('A1:P3')->getFont()->setSize(12);
-                $event->sheet->getDelegate()->getStyle('A6:P6')->getFont()->setSize(8);
-                $event->sheet->getDelegate()->getStyle('A5:P'.(count($this->data) + 6))->getAlignment()->setWrapText(true);
-                $event->sheet->getDelegate()->getStyle('A5:P'.(count($this->data) + 6))->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                            'color' => ['argb' => '000000'],
-                        ],
-                    ]
-                ]);
-                $event->sheet->setAutoFilter('A5:P'.(count($this->data) + 6));
-            },
+            // AfterSheet::class => function(AfterSheet $event) {
+            //     $event->sheet->getDelegate()->getStyle('A1:P3')->getFont()->setSize(12);
+            //     $event->sheet->getDelegate()->getStyle('A6:P6')->getFont()->setSize(8);
+            //     $event->sheet->getDelegate()->getStyle('A5:P'.(count($this->data) + 6))->getAlignment()->setWrapText(true);
+            //     $event->sheet->getDelegate()->getStyle('A5:P'.(count($this->data) + 6))->applyFromArray([
+            //         'borders' => [
+            //             'allBorders' => [
+            //                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+            //                 'color' => ['argb' => '000000'],
+            //             ],
+            //         ]
+            //     ]);
+            //     $event->sheet->setAutoFilter('A5:P'.(count($this->data) + 6));
+            // },
         ];
     }
 }
