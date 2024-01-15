@@ -390,8 +390,172 @@ class GajiController extends Controller
             if(count($array)>0) {
                 foreach($array[0] as $key=>$data) {
                     if($data[1] != null) {
-                        // Import GPP Baru
-                        if($data[0] == $request->satker) {
+                        if($data[6] != 8) {
+                            // Import GPP Baru
+                            if($data[0] == $request->satker) {
+                                // Get jenis, anak satker, bulan, tahun
+                                if($key == 0) {
+                                    $jenis = JenisGaji::where('kode2','=',$data[6])->first();
+                                    $a = AnakSatker::where('kode','=',$data[1])->first();
+                                    $anak_satker = $a->nama;
+                                    $bulan = DateTimeExt::month((int)$data[3]);
+                                    $bulanAngka = (int)$data[3];
+                                    $tahun = $data[4];
+                                }
+
+                                // Get pegawai
+                                $pegawai = Pegawai::where('nip','=',$data[7])->first();
+
+                                // Jika pegawai tidak ditemukan
+                                if(!$pegawai) {
+                                    // Get pegawai non aktif
+                                    $pegawai_non_aktif = PegawaiNonAktif::where('nip','=',$data[7])->first();
+
+                                    // Simpan ke pegawai
+                                    $pegawai = new Pegawai;
+                                    $pegawai->status_kepeg_id = 1;
+                                    $pegawai->status_kerja_id = 2;
+                                    $pegawai->golongan_id = 0;
+                                    $pegawai->golru_id = null;
+                                    $pegawai->nip = $pegawai_non_aktif->nip;
+                                    $pegawai->jenis = $pegawai_non_aktif->jenis;
+                                    $pegawai->nama = $pegawai_non_aktif->nama;
+                                    $pegawai->gelar_depan = $pegawai_non_aktif->gelar_depan;
+                                    $pegawai->gelar_belakang = $pegawai_non_aktif->gelar_belakang;
+                                    $pegawai->tmt_non_aktif = null;
+                                    $pegawai->save();
+                                }
+                                
+                                // Get anak satker
+                                $a = AnakSatker::where('kode','=',$data[1])->first();
+
+                                // Get gaji
+                                $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$data[1])->where('bulan','=',$data[3])->where('tahun','=',$data[4])->where('nip','=',$data[7])->first();
+                                if(!$gaji) $gaji = new Gaji;
+
+                                // Simpan gaji induk
+                                $gaji->sk_id = $sk->id;
+                                $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
+                                $gaji->unit_id = $this->kdanak_to_unit($data[1]);
+                                $gaji->anak_satker_id = $a->id;
+                                $gaji->jenis_id = $jenis->id;
+                                $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
+                                $gaji->kdanak = $data[1];
+                                $gaji->bulan = $data[3];
+                                $gaji->tahun = $data[4];
+                                $gaji->nip = $data[7];
+                                $gaji->nama = $data[8];
+                                $gaji->gjpokok = $data[21];
+                                $gaji->tjistri = $data[22];
+                                $gaji->tjanak = $data[23];
+                                $gaji->tjupns = $data[24];
+                                $gaji->tjstruk = $data[25];
+                                $gaji->tjfungs = $data[26];
+                                $gaji->tjdaerah = $data[27];
+                                $gaji->tjpencil = $data[28];
+                                $gaji->tjlain = $data[29];
+                                $gaji->tjkompen = $data[30];
+                                $gaji->pembul = $data[31];
+                                $gaji->tjberas = $data[32];
+                                $gaji->tjpph = $data[33];
+                                $gaji->potpfkbul = $data[34];
+                                $gaji->potpfk2 = $data[35];
+                                $gaji->potpfk10 = $data[36];
+                                $gaji->potpph = $data[37];
+                                $gaji->potswrum = $data[38];
+                                $gaji->potkelbtj = $data[39];
+                                $gaji->potlain = $data[40];
+                                $gaji->pottabrum = $data[41];
+                                $gaji->bpjs = $data[48];
+                                $gaji->bpjs2 = $data[49];
+                                $gaji->nominal = $this->array_sum_range($data, 21, 33);
+                                $gaji->potongan = $this->array_sum_range($data, 34, 41) + $data[48] + $data[49];
+                                $gaji->save();
+                            }
+                            // Import GPP Lama
+                            else {
+                                // Get jenis, anak satker, bulan, tahun
+                                if($key == 0) {
+                                    $jenis = JenisGaji::where('kode2','=',$data[7])->first();
+                                    $a = AnakSatker::where('kode','=',$data[2])->first();
+                                    $anak_satker = $a->nama;
+                                    $bulan = DateTimeExt::month((int)$data[4]);
+                                    $bulanAngka = (int)$data[4];
+                                    $tahun = $data[5];
+                                }
+
+                                // Get pegawai
+                                $pegawai = Pegawai::where('nip','=',$data[8])->first();
+
+                                // Jika pegawai tidak ditemukan
+                                if(!$pegawai) {
+                                    // Get pegawai non aktif
+                                    $pegawai_non_aktif = PegawaiNonAktif::where('nip','=',$data[8])->first();
+
+                                    // Simpan ke pegawai
+                                    $pegawai = new Pegawai;
+                                    $pegawai->status_kepeg_id = 1;
+                                    $pegawai->status_kerja_id = 2;
+                                    $pegawai->golongan_id = 0;
+                                    $pegawai->golru_id = null;
+                                    $pegawai->nip = $pegawai_non_aktif->nip;
+                                    $pegawai->jenis = $pegawai_non_aktif->jenis;
+                                    $pegawai->nama = $pegawai_non_aktif->nama;
+                                    $pegawai->gelar_depan = $pegawai_non_aktif->gelar_depan;
+                                    $pegawai->gelar_belakang = $pegawai_non_aktif->gelar_belakang;
+                                    $pegawai->tmt_non_aktif = null;
+                                    $pegawai->save();
+                                }
+
+                                // Get anak satker
+                                $a = AnakSatker::where('kode','=',$data[2])->first();
+
+                                // Get gaji
+                                $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$data[2])->where('bulan','=',$data[4])->where('tahun','=',$data[5])->where('nip','=',$data[8])->first();
+                                if(!$gaji) $gaji = new Gaji;
+
+                                // Simpan gaji
+                                $gaji->sk_id = $sk->id;
+                                $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
+                                $gaji->unit_id = $this->kdanak_to_unit($data[2]);
+                                $gaji->anak_satker_id = $a->id;
+                                $gaji->jenis_id = $jenis->id;
+                                $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
+                                $gaji->kdanak = $data[2];
+                                $gaji->bulan = $data[4];
+                                $gaji->tahun = $data[5];
+                                $gaji->nip = $data[8];
+                                $gaji->nama = $data[9];
+                                $gaji->gjpokok = $data[22];
+                                $gaji->tjistri = $data[23];
+                                $gaji->tjanak = $data[24];
+                                $gaji->tjupns = $data[25];
+                                $gaji->tjstruk = $data[26];
+                                $gaji->tjfungs = $data[27];
+                                $gaji->tjdaerah = $data[28];
+                                $gaji->tjpencil = $data[29];
+                                $gaji->tjlain = $data[30];
+                                $gaji->tjkompen = $data[31];
+                                $gaji->pembul = $data[32];
+                                $gaji->tjberas = $data[33];
+                                $gaji->tjpph = $data[34];
+                                $gaji->potpfkbul = $data[35];
+                                $gaji->potpfk2 = $data[36];
+                                $gaji->potpfk10 = $data[37];
+                                $gaji->potpph = $data[38];
+                                $gaji->potswrum = $data[39];
+                                $gaji->potkelbtj = $data[40];
+                                $gaji->potlain = $data[41];
+                                $gaji->pottabrum = $data[42];
+                                $gaji->bpjs = array_key_exists(49, $data) ? $data[49] : 0;
+                                $gaji->bpjs2 = array_key_exists(50, $data) ? $data[50] : 0;
+                                $gaji->nominal = $this->array_sum_range($data, 22, 34);
+                                $gaji->potongan = $this->array_sum_range($data, 35, 42) + $gaji->bpjs + $gaji->bpjs2;
+                                $gaji->save();
+                            }
+                        }
+                        // Kekurangan gaji
+                        else {
                             // Get jenis, anak satker, bulan, tahun
                             if($key == 0) {
                                 $jenis = JenisGaji::where('kode2','=',$data[6])->first();
@@ -444,112 +608,31 @@ class GajiController extends Controller
                             $gaji->tahun = $data[4];
                             $gaji->nip = $data[7];
                             $gaji->nama = $data[8];
-                            $gaji->gjpokok = $data[21];
-                            $gaji->tjistri = $data[22];
-                            $gaji->tjanak = $data[23];
-                            $gaji->tjupns = $data[24];
-                            $gaji->tjstruk = $data[25];
-                            $gaji->tjfungs = $data[26];
-                            $gaji->tjdaerah = $data[27];
-                            $gaji->tjpencil = $data[28];
-                            $gaji->tjlain = $data[29];
-                            $gaji->tjkompen = $data[30];
-                            $gaji->pembul = $data[31];
-                            $gaji->tjberas = $data[32];
-                            $gaji->tjpph = $data[33];
-                            $gaji->potpfkbul = $data[34];
-                            $gaji->potpfk2 = $data[35];
-                            $gaji->potpfk10 = $data[36];
-                            $gaji->potpph = $data[37];
-                            $gaji->potswrum = $data[38];
-                            $gaji->potkelbtj = $data[39];
-                            $gaji->potlain = $data[40];
-                            $gaji->pottabrum = $data[41];
-                            $gaji->bpjs = $data[48];
-                            $gaji->bpjs2 = $data[49];
-                            $gaji->nominal = $this->array_sum_range($data, 21, 33);
-                            $gaji->potongan = $this->array_sum_range($data, 34, 41) + $data[48] + $data[49];
-                            $gaji->save();
-                        }
-                        // Import GPP Lama
-                        else {
-                            // Get jenis, anak satker, bulan, tahun
-                            if($key == 0) {
-                                $jenis = JenisGaji::where('kode2','=',$data[7])->first();
-                                $a = AnakSatker::where('kode','=',$data[2])->first();
-                                $anak_satker = $a->nama;
-                                $bulan = DateTimeExt::month((int)$data[4]);
-                                $bulanAngka = (int)$data[4];
-                                $tahun = $data[5];
-                            }
-
-                            // Get pegawai
-                            $pegawai = Pegawai::where('nip','=',$data[8])->first();
-
-                            // Jika pegawai tidak ditemukan
-                            if(!$pegawai) {
-                                // Get pegawai non aktif
-                                $pegawai_non_aktif = PegawaiNonAktif::where('nip','=',$data[8])->first();
-
-                                // Simpan ke pegawai
-                                $pegawai = new Pegawai;
-                                $pegawai->status_kepeg_id = 1;
-                                $pegawai->status_kerja_id = 2;
-                                $pegawai->golongan_id = 0;
-                                $pegawai->golru_id = null;
-                                $pegawai->nip = $pegawai_non_aktif->nip;
-                                $pegawai->jenis = $pegawai_non_aktif->jenis;
-                                $pegawai->nama = $pegawai_non_aktif->nama;
-                                $pegawai->gelar_depan = $pegawai_non_aktif->gelar_depan;
-                                $pegawai->gelar_belakang = $pegawai_non_aktif->gelar_belakang;
-                                $pegawai->tmt_non_aktif = null;
-                                $pegawai->save();
-                            }
-
-                            // Get anak satker
-                            $a = AnakSatker::where('kode','=',$data[2])->first();
-
-                            // Get gaji
-                            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$data[2])->where('bulan','=',$data[4])->where('tahun','=',$data[5])->where('nip','=',$data[8])->first();
-                            if(!$gaji) $gaji = new Gaji;
-
-                            // Simpan gaji
-                            $gaji->sk_id = $sk->id;
-                            $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
-                            $gaji->unit_id = $this->kdanak_to_unit($data[2]);
-                            $gaji->anak_satker_id = $a->id;
-                            $gaji->jenis_id = $jenis->id;
-                            $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
-                            $gaji->kdanak = $data[2];
-                            $gaji->bulan = $data[4];
-                            $gaji->tahun = $data[5];
-                            $gaji->nip = $data[8];
-                            $gaji->nama = $data[9];
-                            $gaji->gjpokok = $data[22];
-                            $gaji->tjistri = $data[23];
-                            $gaji->tjanak = $data[24];
-                            $gaji->tjupns = $data[25];
-                            $gaji->tjstruk = $data[26];
-                            $gaji->tjfungs = $data[27];
-                            $gaji->tjdaerah = $data[28];
-                            $gaji->tjpencil = $data[29];
-                            $gaji->tjlain = $data[30];
-                            $gaji->tjkompen = $data[31];
-                            $gaji->pembul = $data[32];
-                            $gaji->tjberas = $data[33];
-                            $gaji->tjpph = $data[34];
-                            $gaji->potpfkbul = $data[35];
-                            $gaji->potpfk2 = $data[36];
-                            $gaji->potpfk10 = $data[37];
-                            $gaji->potpph = $data[38];
-                            $gaji->potswrum = $data[39];
-                            $gaji->potkelbtj = $data[40];
-                            $gaji->potlain = $data[41];
-                            $gaji->pottabrum = $data[42];
-                            $gaji->bpjs = array_key_exists(49, $data) ? $data[49] : 0;
-                            $gaji->bpjs2 = array_key_exists(50, $data) ? $data[50] : 0;
-                            $gaji->nominal = $this->array_sum_range($data, 22, 34);
-                            $gaji->potongan = $this->array_sum_range($data, 35, 42) + $gaji->bpjs + $gaji->bpjs2;
+                            $gaji->gjpokok = $data[23];
+                            $gaji->tjistri = $data[24];
+                            $gaji->tjanak = $data[25];
+                            $gaji->tjupns = $data[26];
+                            $gaji->tjstruk = $data[27];
+                            $gaji->tjfungs = $data[28];
+                            $gaji->tjdaerah = $data[29];
+                            $gaji->tjpencil = $data[30];
+                            $gaji->tjlain = $data[31];
+                            $gaji->tjkompen = $data[32];
+                            $gaji->pembul = $data[33];
+                            $gaji->tjberas = $data[34];
+                            $gaji->tjpph = $data[35];
+                            $gaji->potpfkbul = $data[36];
+                            $gaji->potpfk2 = $data[37];
+                            $gaji->potpfk10 = $data[38];
+                            $gaji->potpph = $data[39];
+                            $gaji->potswrum = $data[40];
+                            $gaji->potkelbtj = 0;
+                            $gaji->potlain = 0;
+                            $gaji->pottabrum = 0;
+                            $gaji->bpjs = $data[42];
+                            $gaji->bpjs2 = $data[43];
+                            $gaji->nominal = $this->array_sum_range($data, 23, 35);
+                            $gaji->potongan = $this->array_sum_range($data, 36, 40) + $data[42] + $data[43];
                             $gaji->save();
                         }
                     }

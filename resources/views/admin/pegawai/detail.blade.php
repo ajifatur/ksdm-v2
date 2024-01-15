@@ -11,7 +11,7 @@
 	<div class="col-12">
 		<div class="card">
             <div class="card-header d-sm-flex justify-content-between">
-                <div><i class="bi-person me-1"></i> {{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }} ({{ $pegawai->nip }})</div>
+                <div><i class="bi-person me-1"></i> {{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }} ({{ $pegawai->npu != null ? $pegawai->npu : $pegawai->nip }})</div>
                 <!-- <div class="btn-group">
                     <a href="#" class="btn btn-sm btn-primary"><i class="bi-file-pdf me-1"></i> Cetak DRH</a>
                 </div> -->
