@@ -576,7 +576,7 @@ class MutasiController extends Controller
                 $mutasi->pegawai_id = $request->pegawai_id;
                 $mutasi->sk_id = $request->sk_id;
                 $mutasi->jenis_id = $request->jenis_mutasi;
-                $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
+                // $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
                 $mutasi->golru_id = $golru->id;
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->uraian = $jenis_mutasi->nama.' '.$golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';

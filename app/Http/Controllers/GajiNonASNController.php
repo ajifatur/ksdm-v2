@@ -15,6 +15,7 @@ use App\Models\Pegawai;
 use App\Models\Golru;
 use App\Models\SK;
 use App\Models\Mutasi;
+use App\Models\Unit;
 
 class GajiNonASNController extends Controller
 {
@@ -26,16 +27,32 @@ class GajiNonASNController extends Controller
      */
     public function index(Request $request)
     {
-        // Get mutasi peralihan BLU ke PTNBH
-        $mutasi = Mutasi::where('jenis_id','=',13)->get();
-        foreach($mutasi as $key=>$m) {
-            // Get gaji
-            $mutasi[$key]->gaji = GajiNonASN::where('pegawai_id','=',$m->pegawai_id)->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
-        }
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $id = $request->query('id') ?: 0;
+
+        // Get unit
+        $u = Unit::find($id);
+
+        // Get unit
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('nama','!=','-')->orderBy('num_order','asc')->get();
+
+        // Get gaji
+        $gaji = [];
+        if($id != 0)
+            $gaji = GajiNonASN::where('unit_id','=',$u->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
 
         // View
         return view('admin/gaji-non-asn/index', [
-            'mutasi' => $mutasi,
+            'unit' => $unit,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'gaji' => $gaji,
         ]);
     }
 
@@ -47,92 +64,56 @@ class GajiNonASNController extends Controller
      */
     public function monitoring(Request $request)
     {
-        // Get jenis
-        $jenis = JenisGaji::find($request->query('jenis'));
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
-        $tahun_bulan_grup = [];
-        if($jenis->grup == 1) {
-            // Get tahun grup
-            $tahun_grup = Gaji::where('jenis_id','=',$jenis->id)->orderBy('tahun','desc')->groupBy('tahun')->pluck('tahun')->toArray();
-
-            // Get bulan grup
-            foreach($tahun_grup as $t) {
-                $bulan_grup = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$t)->orderBy('bulan','desc')->groupBy('bulan')->pluck('bulan')->toArray();
-                array_push($tahun_bulan_grup, [
-                    'tahun' => $t,
-                    'bulan' => $bulan_grup
-                ]);
-            }
-
-            // Get bulan dan tahun
-            $bulan = $request->query('bulan') ?: (int)$tahun_bulan_grup[0]['bulan'][0];
-            $tahun = $request->query('tahun') ?: $tahun_bulan_grup[0]['tahun'];
-        }
-        elseif($jenis->grup == 0) {
-            // Get bulan dan tahun
-            $bulan = $request->query('bulan') ?: date('n');
-            $tahun = $request->query('tahun') ?: date('Y');
-        }
-
-        // Get jenis gaji
-        $jenis_gaji = JenisGaji::all();
-
-        // Get anak satker
-        $anak_satker = AnakSatker::all();
+        // Get unit
+        $unit = Unit::where(function($query) use ($tanggal) {
+			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
+		})->where(function($query) use ($tanggal) {
+			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
+		})->where('nama','!=','-')->orderBy('num_order','asc')->get();
 
         $data = [];
         $total = [
             'dosen_jumlah' => 0,
             'dosen_nominal' => 0,
-            'dosen_potongan' => 0,
             'tendik_jumlah' => 0,
             'tendik_nominal' => 0,
-            'tendik_potongan' => 0,
         ];
-        foreach($anak_satker as $a) {
+        foreach($unit as $u) {
             // Get gaji
-            if($jenis)
-                $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$a->kode)->get();
-            else
-                $gaji = Gaji::where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$a->kode)->get();
-
+            $gaji = GajiNonASN::where('unit_id','=',$u->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
 
             // Set angka
             $dosen_jumlah = $gaji->where('jenis','=',1)->count();
             $dosen_nominal = $gaji->where('jenis','=',1)->sum('nominal');
-            $dosen_potongan = $gaji->where('jenis','=',1)->sum('potongan');
             $tendik_jumlah = $gaji->where('jenis','=',2)->count();
             $tendik_nominal = $gaji->where('jenis','=',2)->sum('nominal');
-            $tendik_potongan = $gaji->where('jenis','=',2)->sum('potongan');
 
             // Push data
             array_push($data, [
-                'anak_satker' => $a,
+                'unit' => $u,
                 'dosen_jumlah' => $dosen_jumlah,
                 'dosen_nominal' => $dosen_nominal,
-                'dosen_potongan' => $dosen_potongan,
                 'tendik_jumlah' => $tendik_jumlah,
                 'tendik_nominal' => $tendik_nominal,
-                'tendik_potongan' => $tendik_potongan,
             ]);
 
             // Count total
             $total['dosen_jumlah'] += $dosen_jumlah;
             $total['dosen_nominal'] += $dosen_nominal;
-            $total['dosen_potongan'] += $dosen_potongan;
             $total['tendik_jumlah'] += $tendik_jumlah;
             $total['tendik_nominal'] += $tendik_nominal;
-            $total['tendik_potongan'] += $tendik_potongan;
         }
 
         // View
-        return view('admin/gaji/monitoring', [
-            'anak_satker' => $anak_satker,
-            'jenis' => $jenis,
+        return view('admin/gaji-non-asn/monitoring', [
+            'unit' => $unit,
             'bulan' => $bulan,
             'tahun' => $tahun,
-            'tahun_bulan_grup' => $tahun_bulan_grup,
-            'jenis_gaji' => $jenis_gaji,
+            'tanggal' => $tanggal,
             'data' => $data,
             'total' => $total,
         ]);
@@ -493,4 +474,25 @@ class GajiNonASNController extends Controller
 
         return $anak;
     }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    // public function index(Request $request)
+    // {
+    //     // Get mutasi peralihan BLU ke PTNBH
+    //     $mutasi = Mutasi::where('jenis_id','=',13)->get();
+    //     foreach($mutasi as $key=>$m) {
+    //         // Get gaji
+    //         $mutasi[$key]->gaji = GajiNonASN::where('pegawai_id','=',$m->pegawai_id)->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
+    //     }
+
+    //     // View
+    //     return view('admin/gaji-non-asn/index', [
+    //         'mutasi' => $mutasi,
+    //     ]);
+    // }
 }
