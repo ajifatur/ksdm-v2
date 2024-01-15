@@ -56,9 +56,13 @@
                         <div class="table-responsive">
                             <table class="table table-sm table-hover table-striped mt-3">
                                 <tr>
-                                    <td width="20%"><strong>NIP</strong></td>
+                                    <td width="20%"><strong>NIP / NPU</strong></td>
                                     <td width="5">:</td>
-                                    <td>{{ $pegawai->nip }}</td>
+                                    @if($pegawai->npu != null)
+                                        <td>{{ $pegawai->npu }} ({{ $pegawai->nip}})</td>
+                                    @else
+                                        <td>{{ $pegawai->nip }}</td>
+                                    @endif
                                 </tr>
                                 <tr>
                                     <td><strong>Nama</strong></td>
