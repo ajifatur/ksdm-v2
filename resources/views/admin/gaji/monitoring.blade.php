@@ -112,22 +112,43 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td align="center">Total</td>
-                                <td align="right">{{ number_format($total['dosen_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total['dosen_nominal']) }}</td>
-                                <td align="right">{{ number_format($total['dosen_potongan']) }}</td>
-                                <td align="right">{{ number_format($total['tendik_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total['tendik_nominal']) }}</td>
-                                <td align="right">{{ number_format($total['tendik_potongan']) }}</td>
-                                <td align="right">{{ number_format($total['dosen_jumlah'] + $total['tendik_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total['dosen_nominal'] + $total['tendik_nominal']) }}</td>
-                                <td align="right">{{ number_format($total['dosen_potongan'] + $total['tendik_potongan']) }}</td>
+                                <td align="center">Total (PNS)</td>
+                                <td align="right">{{ number_format($total_pns['dosen_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total_pns['dosen_nominal']) }}</td>
+                                <td align="right">{{ number_format($total_pns['dosen_potongan']) }}</td>
+                                <td align="right">{{ number_format($total_pns['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total_pns['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total_pns['tendik_potongan']) }}</td>
+                                <td align="right">{{ number_format($total_pns['dosen_jumlah'] + $total_pns['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total_pns['dosen_nominal'] + $total_pns['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total_pns['dosen_potongan'] + $total_pns['tendik_potongan']) }}</td>
                                 <td align="center">
                                     @if($jenis)
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 1, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 1, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center">Total (PPPK)</td>
+                                <td align="right">{{ number_format($total_pppk['dosen_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['dosen_nominal']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['dosen_potongan']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['tendik_potongan']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['dosen_jumlah'] + $total_pppk['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['dosen_nominal'] + $total_pppk['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total_pppk['dosen_potongan'] + $total_pppk['tendik_potongan']) }}</td>
+                                <td align="center">
+                                    @if($jenis)
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 2, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 2, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
                                     </div>
                                     @endif
                                 </td>

@@ -98,7 +98,15 @@ class GajiController extends Controller
         $anak_satker = AnakSatker::all();
 
         $data = [];
-        $total = [
+        $total_pns = [
+            'dosen_jumlah' => 0,
+            'dosen_nominal' => 0,
+            'dosen_potongan' => 0,
+            'tendik_jumlah' => 0,
+            'tendik_nominal' => 0,
+            'tendik_potongan' => 0,
+        ];
+        $total_pppk = [
             'dosen_jumlah' => 0,
             'dosen_nominal' => 0,
             'dosen_potongan' => 0,
@@ -133,13 +141,24 @@ class GajiController extends Controller
                 'tendik_potongan' => $tendik_potongan,
             ]);
 
-            // Count total
-            $total['dosen_jumlah'] += $dosen_jumlah;
-            $total['dosen_nominal'] += $dosen_nominal;
-            $total['dosen_potongan'] += $dosen_potongan;
-            $total['tendik_jumlah'] += $tendik_jumlah;
-            $total['tendik_nominal'] += $tendik_nominal;
-            $total['tendik_potongan'] += $tendik_potongan;
+            if($a->jenis == 1) {
+                // Count total PNS
+                $total_pns['dosen_jumlah'] += $dosen_jumlah;
+                $total_pns['dosen_nominal'] += $dosen_nominal;
+                $total_pns['dosen_potongan'] += $dosen_potongan;
+                $total_pns['tendik_jumlah'] += $tendik_jumlah;
+                $total_pns['tendik_nominal'] += $tendik_nominal;
+                $total_pns['tendik_potongan'] += $tendik_potongan;
+            }
+            elseif($a->jenis == 2) {
+                // Count total PPPK
+                $total_pppk['dosen_jumlah'] += $dosen_jumlah;
+                $total_pppk['dosen_nominal'] += $dosen_nominal;
+                $total_pppk['dosen_potongan'] += $dosen_potongan;
+                $total_pppk['tendik_jumlah'] += $tendik_jumlah;
+                $total_pppk['tendik_nominal'] += $tendik_nominal;
+                $total_pppk['tendik_potongan'] += $tendik_potongan;
+            }
         }
 
         // View
@@ -151,7 +170,8 @@ class GajiController extends Controller
             'tahun_bulan_grup' => $tahun_bulan_grup,
             'jenis_gaji' => $jenis_gaji,
             'data' => $data,
-            'total' => $total,
+            'total_pns' => $total_pns,
+            'total_pppk' => $total_pppk,
         ]);
     }
 
@@ -266,6 +286,7 @@ class GajiController extends Controller
 
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
+        $status = $request->query('status') ?: 1;
 
         // Get jenis
         $jenis = JenisGaji::findOrFail($request->query('jenis'));
@@ -282,7 +303,7 @@ class GajiController extends Controller
         // Jika anak satker dan kategori diketahui
         if($anak_satker && $kategori != '') {
             // Get gaji
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
+            $gaji = Gaji::wwhere('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
             // Set nama file
             $filename = $jenis->kode.' '.$anak_satker->nama.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
@@ -290,18 +311,22 @@ class GajiController extends Controller
         // Jika anak satker tidak diketahui dan kategori diketahui
         elseif(!$anak_satker && $kategori != '') {
             // Get gaji
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
+            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use ($status) {
+                return $query->where('jenis','=',$status);
+            })->where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
             // Set nama file
-            $filename = $jenis->kode.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
+            $filename = $jenis->kode.' '.($status == 1 ? 'PNS' : 'PPPK').' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
         }
         // Jika anak satker dan kategori tidak diketahui
         else {
             // Get gaji
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
+            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use ($status) {
+                return $query->where('jenis','=',$status);
+            })->where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
 
             // Set nama file
-            $filename = $jenis->kode.' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx';
+            $filename = $jenis->kode.' '.($status == 1 ? 'PNS' : 'PPPK').' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx';
         }
 
         if(count($gaji) <= 0) {
