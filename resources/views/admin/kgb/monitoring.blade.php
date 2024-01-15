@@ -39,7 +39,7 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td align="center">Total</td>
+                                <td align="center" colspan="3">Total</td>
                                 <td align="right">{{ number_format($total) }}</td>
                                 <td></td>
                             </tr>

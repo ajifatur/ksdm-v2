@@ -102,7 +102,7 @@ class MutasiController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if($pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2)
+        if(in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
             $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
         else
             $gaji_pokok = [];
@@ -149,8 +149,8 @@ class MutasiController extends Controller
         $validator = Validator::make($request->all(), [
             'uraian' => $jenis_mutasi->nama == 'Mutasi Jabatan' ? 'required' : '',
             'jenis_mutasi' => 'required',
-            'golru' => $pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2 ? 'required' : '',
-            'gaji_pokok' => $pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2 ? 'required' : '',
+            'golru' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
+            'gaji_pokok' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
             'tmt' => 'required',
             'no_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
             'tanggal_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
@@ -394,13 +394,13 @@ class MutasiController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if($pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2)
+        if(in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
             $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
         else
             $gaji_pokok = [];
 
         // Get jabatan
-        $jabatan = Jabatan::where('sk_id','=',$sk->id)->orderBy('nama','asc')->get();
+        $jabatan = $sk ? Jabatan::where('sk_id','=',$sk->id)->orderBy('nama','asc')->get() : Jabatan::orderBy('nama','asc')->get();
 
         // Get unit
         $unit = Unit::where('nama','!=','-')->orderBy('num_order','asc')->get();
@@ -444,8 +444,8 @@ class MutasiController extends Controller
         $validator = Validator::make($request->all(), [
             'uraian' => $jenis_mutasi->nama == 'Mutasi Jabatan' ? 'required' : '',
             'jenis_mutasi' => 'required',
-            'golru' => $pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2 ? 'required' : '',
-            'gaji_pokok' => $pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2 ? 'required' : '',
+            'golru' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
+            'gaji_pokok' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
             'tmt' => $mutasi->bulan == 6 && $mutasi->tahun == 2023 ? '' : 'required',
             'no_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
             'tanggal_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',

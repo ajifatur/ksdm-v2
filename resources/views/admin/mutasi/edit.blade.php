@@ -15,11 +15,11 @@
                     @csrf
                     <input type="hidden" name="id" value="{{ $mutasi->id }}">
                     <input type="hidden" name="pegawai_id" value="{{ $pegawai->id }}">
-                    <input type="hidden" name="sk_id" value="{{ $sk->id }}">
+                    <input type="hidden" name="sk_id" value="{{ $sk ? $sk->id : 0 }}">
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Nama</label>
                         <div class="col-lg-10 col-md-9">
-                            <input type="text" name="nama" class="form-control form-control-sm" value="{{ $pegawai->nama }} - {{ $pegawai->nip }}" disabled>
+                            <input type="text" name="nama" class="form-control form-control-sm" value="{{ $pegawai->nama }} - {{ $pegawai->npu != null ? $pegawai->npu : $pegawai->nip }}" disabled>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -70,7 +70,7 @@
                             @endforeach
                         </div>
                     </div>
-                    @if($pegawai->status_kepeg_id == 1 || $pegawai->status_kepeg_id == 2)
+                    @if(in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Golru <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">

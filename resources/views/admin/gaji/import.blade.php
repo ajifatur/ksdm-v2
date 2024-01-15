@@ -11,12 +11,6 @@
 	<div class="col-12">
         <div class="card">
             <div class="card-body">
-                <div class="alert alert-warning fade show" role="alert">
-                    <div class="alert-message">
-                        <div class="fw-bold"><i class="bi-info-circle-fill me-1"></i> Info</div>
-                        Bisa untuk mengimport {{ $jenis }}.
-                    </div>
-                </div>
                 <form method="post" action="{{ route('admin.gaji.import') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row mb-3">

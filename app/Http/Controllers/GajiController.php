@@ -303,7 +303,7 @@ class GajiController extends Controller
         // Jika anak satker dan kategori diketahui
         if($anak_satker && $kategori != '') {
             // Get gaji
-            $gaji = Gaji::wwhere('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
+            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
 
             // Set nama file
             $filename = $jenis->kode.' '.$anak_satker->nama.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
@@ -350,14 +350,8 @@ class GajiController extends Controller
     public function import(Request $request)
     {
         if($request->method() == "GET") {
-            // Get jenis
-            $jenis = JenisGaji::where('kode','!=','KG')->pluck('nama')->toArray();
-            $jenis = implode(', ', $jenis);
-
             // View
-            return view('admin/gaji/import', [
-                'jenis' => $jenis
-            ]);
+            return view('admin/gaji/import');
         }
         elseif($request->method() == "POST") {
             ini_set("memory_limit", "-1");
