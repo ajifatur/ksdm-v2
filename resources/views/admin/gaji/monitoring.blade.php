@@ -104,6 +104,8 @@
                                         @if($jenis)
                                         <a href="{{ route('admin.gaji.export', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                         <a href="{{ route('admin.gaji.export', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.print', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.gaji.print', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
                                         @endif
                                     </div>
                                 </td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Excel;
+use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -271,6 +272,48 @@ class GajiController extends Controller
             'jenis_gaji' => $jenis_gaji,
             'kategori_gaji' => $kategori_gaji,
         ]);
+    }
+
+    /**
+     * Print.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  id
+     * @return \Illuminate\Http\Response
+     */
+    public function print(Request $request, $id)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $kategori = $request->query('kategori');
+
+        // Get jenis
+        $jenis = JenisGaji::findOrFail($request->query('jenis'));
+
+        // Get anak satker
+        $anak_satker = AnakSatker::find($id);
+
+        // Get gaji
+        $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('jenis','=',$kategori)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$anak_satker->kode)->get();
+
+        // Set title
+        $title = $jenis->nama.' '.($anak_satker->jenis == 1 ? 'PNS' : 'PPPK').' '.($anak_satker->jenis == 1 ? $anak_satker->nama : '').' '.($kategori == 1 ? 'Dosen' : 'Tendik').' ('.$tahun.' '.DateTimeExt::month($bulan).')';
+
+        // PDF
+        $pdf = PDF::loadView('admin/gaji/print', [
+            'title' => $title,
+            'jenis' => $jenis,
+            'kategori' => $kategori,
+            'anak_satker' => $anak_satker,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'gaji' => $gaji,
+        ]);
+        $pdf->setPaper([0, 0 , 935, 612]);
+        return $pdf->stream($title.'.pdf');
     }
 
     /**
