@@ -42,6 +42,20 @@ class SPKGBPNSController extends Controller
             $tahun = date('Y', strtotime($tanggal));
         }
 
+        // Get SPKGB tambahan
+        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($bulan, $tahun) {
+            return $query->whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama', ['PNS','CPNS']);
+                });
+            })->where('bulan','=',$bulan)->where('tahun','=',$tahun);
+        })->whereNotIn('pegawai_id', array_merge(
+            $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
+            $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
+            $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27], [2,3,4], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
+            $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26], [1], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
+        ))->get();
+
         // View
         return view('admin/spkgb/pns/index', [
             'pegawai' => [
@@ -52,6 +66,7 @@ class SPKGBPNSController extends Controller
             ],
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'spkgb' => $spkgb,
         ]);
     }
 

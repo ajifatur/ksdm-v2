@@ -95,6 +95,37 @@
                                 </tr>
                                 @endforeach
                             @endforeach
+                            @foreach($spkgb as $s)
+                                <tr>
+                                    <td>{{ strtoupper($s->pegawai->nama) }}<br>{{ $s->pegawai->nip }}</td>
+                                    <td>{{ $s->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
+                                    <td>{{ $s->unit ? $s->unit->nama : '-' }}</td>
+                                    <td>{{ $s->mutasi->golru ? $s->mutasi->golru->nama : '-' }}</td>
+                                    <td>
+                                        <span class="d-none">{{ $s->pegawai->tmt_golongan }}</span>
+                                        {{ $s->mutasi->perubahan->mk_tahun }} tahun 0 bulan
+                                    </td>
+                                    <td>
+                                        @if($s->mutasi_sebelum)
+                                            {{ $s->mutasi_sebelum->jenis->nama }} {{ $s->mutasi_sebelum ? $s->mutasi_sebelum->golru->nama : '' }}
+                                            <br>
+                                            {{ $s->mutasi_sebelum->perubahan ? '('.$s->mutasi_sebelum->perubahan->mk_tahun.' tahun '.$s->mutasi_sebelum->perubahan->mk_bulan.' bulan)' : '' }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td align="right">{{ $s->mutasi_sebelum->gaji_pokok ? number_format($s->mutasi_sebelum->gaji_pokok->gaji_pokok) : '-' }}</td>
+                                    <td align="right">{{ $s->mutasi->gaji_pokok ? number_format($s->mutasi->gaji_pokok->gaji_pokok) : '-' }}</td>
+                                    <td align="center">
+                                        <div class="btn-group">
+                                            @if($s->mutasi)
+                                                <a href="{{ route('admin.spkgb.pns.edit', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.spkgb.print.single', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
