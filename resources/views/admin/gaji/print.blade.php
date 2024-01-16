@@ -17,7 +17,7 @@
 <body>
     <div id="title">
         DAFTAR PERHITUNGAN PEMBAYARAN {{ strtoupper($jenis->nama) }} {{ $anak_satker->jenis == 1 ? 'PNS' : 'PPPK'}} UNIVERSITAS NEGERI SEMARANG<br>
-        BULAN {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($bulan)) }} {{ $tahun }} {{ $anak_satker->jenis == 1 ? 'PADA '.$anak_satker->nama : '' }} ({{ $kategori == 1 ? 'DOSEN' : 'TENDIK' }})
+        BULAN {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($bulan)) }} {{ $tahun }} {{ $anak_satker->jenis == 1 ? 'PADA '.strtoupper($anak_satker->nama) : '' }} ({{ $kategori == 1 ? 'DOSEN' : 'TENDIK' }})
     </div>
     <table style="width: 100%" id="data">
         <thead class="bg-light">

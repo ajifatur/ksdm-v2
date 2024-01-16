@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Excel;
+use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -175,6 +176,44 @@ class UangMakanController extends Controller
             'total_nominal_kotor' => $total_nominal_kotor,
             'total_nominal_bersih' => $total_nominal_bersih,
         ]);
+    }
+
+    /**
+     * Print.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  id
+     * @return \Illuminate\Http\Response
+     */
+    public function print(Request $request, $id)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $kategori = $request->query('kategori');
+
+        // Get anak satker
+        $anak_satker = AnakSatker::find($id);
+
+        // Get uang makan
+        $uang_makan = UangMakan::where('jenis','=',$kategori)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$anak_satker->kode)->get();
+
+        // Set title
+        $title = 'Uang Makan '.($anak_satker->jenis == 1 ? 'PNS' : 'PPPK').' '.($anak_satker->jenis == 1 ? $anak_satker->nama : '').' '.($kategori == 1 ? 'Dosen' : 'Tendik').' ('.$tahun.' '.DateTimeExt::month($bulan).')';
+
+        // PDF
+        $pdf = PDF::loadView('admin/uang-makan/print', [
+            'title' => $title,
+            'kategori' => $kategori,
+            'anak_satker' => $anak_satker,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'uang_makan' => $uang_makan,
+        ]);
+        $pdf->setPaper([0, 0 , 935, 612]);
+        return $pdf->stream($title.'.pdf');
     }
 
     /**

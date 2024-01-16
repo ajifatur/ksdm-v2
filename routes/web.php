@@ -183,6 +183,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');
     Route::get('/admin/uang-makan/monitoring', 'UangMakanController@monitoring')->name('admin.uang-makan.monitoring');
     Route::get('/admin/uang-makan/recap', 'UangMakanController@recap')->name('admin.uang-makan.recap');
+    Route::get('/admin/uang-makan/print/{id}', 'UangMakanController@print')->name('admin.uang-makan.print');
     Route::get('/admin/uang-makan/export', 'UangMakanController@export')->name('admin.uang-makan.export');
     Route::get('/admin/uang-makan/import/pns', 'UangMakanImportController@pns')->name('admin.uang-makan.import.pns');
     Route::post('/admin/uang-makan/import/pns', 'UangMakanImportController@pns')->name('admin.uang-makan.import.pns');
