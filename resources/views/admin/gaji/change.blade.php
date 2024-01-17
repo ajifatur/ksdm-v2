@@ -1,16 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Perubahan Gaji Induk')
+@section('title', 'Perubahan Gaji Induk '.($status == 1 ? 'PNS' : 'PPPK'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Perubahan Gaji Induk</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Perubahan Gaji Induk {{ $status == 1 ? 'PNS' : 'PPPK' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="status" value="{{ $status }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="bulan" class="form-select form-select-sm">

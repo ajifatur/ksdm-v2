@@ -31,6 +31,7 @@ class GajiController extends Controller
     {
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
+        $status = $request->query('status');
         $id = $request->query('id') ?: 0;
 
         // Get jenis
@@ -40,15 +41,19 @@ class GajiController extends Controller
         $as = AnakSatker::find($id);
 
         // Get anak satker
-        $anak_satker = AnakSatker::all();
+        $anak_satker = AnakSatker::where('jenis','=',$status)->get();
 
         // Get gaji
         $gaji = [];
-        if($id != 0)
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$as->kode)->get();
+        if($id != 0) {
+            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $as) {
+                return $query->where('jenis','=',$status)->where('id','=',$as->id);
+            })->where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+        }
 
         // View
         return view('admin/gaji/index', [
+            'status' => $status,
             'jenis' => $jenis,
             'anak_satker' => $anak_satker,
             'bulan' => $bulan,
@@ -65,17 +70,22 @@ class GajiController extends Controller
      */
     public function monitoring(Request $request)
     {
-        // Get jenis
+        // Get jenis dan status
         $jenis = JenisGaji::find($request->query('jenis'));
+        $status = $request->query('status');
 
         $tahun_bulan_grup = [];
         if($jenis->grup == 1) {
             // Get tahun grup
-            $tahun_grup = Gaji::where('jenis_id','=',$jenis->id)->orderBy('tahun','desc')->groupBy('tahun')->pluck('tahun')->toArray();
+            $tahun_grup = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
+                return $query->where('jenis','=',$status);
+            })->where('jenis_id','=',$jenis->id)->orderBy('tahun','desc')->groupBy('tahun')->pluck('tahun')->toArray();
 
             // Get bulan grup
             foreach($tahun_grup as $t) {
-                $bulan_grup = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$t)->orderBy('bulan','desc')->groupBy('bulan')->pluck('bulan')->toArray();
+                $bulan_grup = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
+                    return $query->where('jenis','=',$status);
+                })->where('jenis_id','=',$jenis->id)->where('tahun','=',$t)->orderBy('bulan','desc')->groupBy('bulan')->pluck('bulan')->toArray();
                 array_push($tahun_bulan_grup, [
                     'tahun' => $t,
                     'bulan' => $bulan_grup
@@ -83,8 +93,14 @@ class GajiController extends Controller
             }
 
             // Get bulan dan tahun
-            $bulan = $request->query('bulan') ?: (int)$tahun_bulan_grup[0]['bulan'][0];
-            $tahun = $request->query('tahun') ?: $tahun_bulan_grup[0]['tahun'];
+            if(count($tahun_bulan_grup) > 0) {
+                $bulan = $request->query('bulan') ?: (int)$tahun_bulan_grup[0]['bulan'][0];
+                $tahun = $request->query('tahun') ?: $tahun_bulan_grup[0]['tahun'];
+            }
+            else {
+                $bulan = $request->query('bulan') ?: date('n');
+                $tahun = $request->query('tahun') ?: date('Y');
+            }
         }
         elseif($jenis->grup == 0) {
             // Get bulan dan tahun
@@ -96,18 +112,10 @@ class GajiController extends Controller
         $jenis_gaji = JenisGaji::all();
 
         // Get anak satker
-        $anak_satker = AnakSatker::all();
+        $anak_satker = AnakSatker::where('jenis','=',$status)->get();
 
         $data = [];
-        $total_pns = [
-            'dosen_jumlah' => 0,
-            'dosen_nominal' => 0,
-            'dosen_potongan' => 0,
-            'tendik_jumlah' => 0,
-            'tendik_nominal' => 0,
-            'tendik_potongan' => 0,
-        ];
-        $total_pppk = [
+        $total = [
             'dosen_jumlah' => 0,
             'dosen_nominal' => 0,
             'dosen_potongan' => 0,
@@ -117,10 +125,16 @@ class GajiController extends Controller
         ];
         foreach($anak_satker as $a) {
             // Get gaji
-            if($jenis)
-                $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$a->kode)->get();
-            else
-                $gaji = Gaji::where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->where('kdanak','=',$a->kode)->get();
+            if($jenis) {
+                $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $a) {
+                    return $query->where('jenis','=',$status)->where('id','=',$a->id);
+                })->where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+            }
+            else {
+                $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $a) {
+                    return $query->where('jenis','=',$status)->where('id','=',$a->id);
+                })->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+            }
 
 
             // Set angka
@@ -142,37 +156,26 @@ class GajiController extends Controller
                 'tendik_potongan' => $tendik_potongan,
             ]);
 
-            if($a->jenis == 1) {
-                // Count total PNS
-                $total_pns['dosen_jumlah'] += $dosen_jumlah;
-                $total_pns['dosen_nominal'] += $dosen_nominal;
-                $total_pns['dosen_potongan'] += $dosen_potongan;
-                $total_pns['tendik_jumlah'] += $tendik_jumlah;
-                $total_pns['tendik_nominal'] += $tendik_nominal;
-                $total_pns['tendik_potongan'] += $tendik_potongan;
-            }
-            elseif($a->jenis == 2) {
-                // Count total PPPK
-                $total_pppk['dosen_jumlah'] += $dosen_jumlah;
-                $total_pppk['dosen_nominal'] += $dosen_nominal;
-                $total_pppk['dosen_potongan'] += $dosen_potongan;
-                $total_pppk['tendik_jumlah'] += $tendik_jumlah;
-                $total_pppk['tendik_nominal'] += $tendik_nominal;
-                $total_pppk['tendik_potongan'] += $tendik_potongan;
-            }
+            // Total
+            $total['dosen_jumlah'] += $dosen_jumlah;
+            $total['dosen_nominal'] += $dosen_nominal;
+            $total['dosen_potongan'] += $dosen_potongan;
+            $total['tendik_jumlah'] += $tendik_jumlah;
+            $total['tendik_nominal'] += $tendik_nominal;
+            $total['tendik_potongan'] += $tendik_potongan;
         }
 
         // View
         return view('admin/gaji/monitoring', [
             'anak_satker' => $anak_satker,
             'jenis' => $jenis,
+            'status' => $status,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'tahun_bulan_grup' => $tahun_bulan_grup,
             'jenis_gaji' => $jenis_gaji,
             'data' => $data,
-            'total_pns' => $total_pns,
-            'total_pppk' => $total_pppk,
+            'total' => $total,
         ]);
     }
 
@@ -187,7 +190,9 @@ class GajiController extends Controller
         // Check the access
         // has_access(__METHOD__, Auth::user()->role_id);
 
+        // Get tahun dan status
         $tahun = $request->query('tahun') ?: date('Y');
+        $status = $request->query('status') ?: 1;
 
         // Get jenis
         $jenis = JenisGaji::find($request->query('jenis'));
@@ -196,7 +201,7 @@ class GajiController extends Controller
         $jenis_gaji = JenisGaji::all();
 
         // Get anak satker
-        $anak_satker_all = AnakSatker::all();
+        $anak_satker_all = AnakSatker::where('jenis','=',$status)->get();
 
         // Get anak satker
         $anak_satker = AnakSatker::find($request->query('id'));
@@ -204,10 +209,16 @@ class GajiController extends Controller
         // Get gaji
         $gaji = [];
         if($anak_satker) {
-            if($jenis)
-                $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->get();
-            else
-                $gaji = Gaji::where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->get();
+            if($jenis) {
+                $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $anak_satker) {
+                    return $query->where('jenis','=',$status)->where('id','=',$anak_satker->id);
+                })->where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->get();
+            }
+            else {
+                $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $anak_satker) {
+                    return $query->where('jenis','=',$status)->where('id','=',$anak_satker->id);
+                })->where('tahun','=',$tahun)->get();
+            }
         }
 
         // Get kategori gaji
@@ -216,6 +227,7 @@ class GajiController extends Controller
         // View
         return view('admin/gaji/monthly', [
             'tahun' => $tahun,
+            'status' => $status,
             'anak_satker_all' => $anak_satker_all,
             'anak_satker' => $anak_satker,
             'gaji' => $gaji,
@@ -236,8 +248,8 @@ class GajiController extends Controller
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
 
-        // Get tipe
-        $tipe = $request->query('tipe');
+        // Get status
+        $status = $request->query('status');
 
         // Get tahun
         $tahun = $request->query('tahun') ?: date('Y');
@@ -249,13 +261,13 @@ class GajiController extends Controller
         $jenis_gaji = JenisGaji::all();
 
         // Get anak satker
-        $anak_satker = AnakSatker::where('jenis','=',$tipe)->get();
+        $anak_satker = AnakSatker::where('jenis','=',$status)->get();
 
         // Get gaji
         $gaji = [];
         if($jenis && in_array($request->query('kategori'), [1,2])) {
-            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use ($tipe) {
-                return $query->where('jenis','=',$tipe);
+            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use ($status) {
+                return $query->where('jenis','=',$status);
             })->where('jenis_id','=',$jenis->id)->where('jenis','=',$request->query('kategori'))->where('tahun','=',$tahun)->get();
         }
 
@@ -264,7 +276,7 @@ class GajiController extends Controller
 
         // View
         return view('admin/gaji/annually', [
-            'tipe' => $tipe,
+            'status' => $status,
             'tahun' => $tahun,
             'anak_satker' => $anak_satker,
             'gaji' => $gaji,
@@ -393,8 +405,13 @@ class GajiController extends Controller
     public function import(Request $request)
     {
         if($request->method() == "GET") {
+            // Get status
+            $status = $request->query('status') ?: 1;
+
             // View
-            return view('admin/gaji/import');
+            return view('admin/gaji/import', [
+                'status' => $status
+            ]);
         }
         elseif($request->method() == "POST") {
             ini_set("memory_limit", "-1");
@@ -701,15 +718,20 @@ class GajiController extends Controller
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
         $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $status = $request->query('status') ?: 1;
 
         // Get gaji bulan ini
-        $gaji_bulan_ini = Gaji::where('jenis_id','=',1)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+        $gaji_bulan_ini = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
+            return $query->where('jenis','=',$status);
+        })->where('jenis_id','=',1)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
 
         // Set tanggal sebelumnya
         $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
 
         // Get gaji bulan sebelumnya
-        $gaji_bulan_sebelumnya = Gaji::where('jenis_id','=',1)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->pluck('pegawai_id')->toArray();
+        $gaji_bulan_sebelumnya = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
+            return $query->where('jenis','=',$status);
+        })->where('jenis_id','=',1)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->pluck('pegawai_id')->toArray();
 
         // Pegawai masuk
         $cek_bulan_ini = [];
@@ -739,7 +761,9 @@ class GajiController extends Controller
 		$perubahan_unit = [];
 		foreach($gaji_bulan_ini as $g) {
 			// Get gaji bulan sebelumnya
-			$gs = Gaji::where('jenis_id','=',1)->where('pegawai_id','=',$g->pegawai_id)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
+			$gs = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
+                return $query->where('jenis','=',$status);
+            })->where('jenis_id','=',1)->where('pegawai_id','=',$g->pegawai_id)->where('bulan','=',date('m', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
 			if($gs) {
 				if($g->gjpokok != $gs->gjpokok) array_push($perubahan_gjpokok, ['pegawai' => $g->pegawai, 'sebelum' => $gs->gjpokok, 'sesudah' => $g->gjpokok]);
 				if($g->tjfungs != $gs->tjfungs) array_push($perubahan_tjfungs, ['pegawai' => $g->pegawai, 'sebelum' => $gs->tjfungs, 'sesudah' => $g->tjfungs]);
@@ -753,6 +777,7 @@ class GajiController extends Controller
         return view('admin/gaji/change', [
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'status' => $status,
             'gaji_bulan_ini' => $gaji_bulan_ini,
             'gaji_bulan_sebelumnya' => $gaji_bulan_sebelumnya,
             'pegawai_on' => $pegawai_on,

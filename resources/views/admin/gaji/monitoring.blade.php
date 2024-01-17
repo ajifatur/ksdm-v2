@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Monitoring '.($jenis ? $jenis->nama : 'Gaji').' ASN')
+@section('title', 'Monitoring '.($jenis ? $jenis->nama : 'Gaji').' '.($status == 1 ? 'PNS' : 'PPPK'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Monitoring {{ $jenis ? $jenis->nama : 'Gaji' }} ASN</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Monitoring {{ $jenis ? $jenis->nama : 'Gaji' }} {{ $status == 1 ? 'PNS' : 'PPPK' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -13,6 +13,7 @@
             @if($jenis && $jenis->grup == 1)
                 <form method="get" action="">
                     <input type="hidden" name="jenis" value="{{ Request::query('jenis') }}">
+                    <input type="hidden" name="status" value="{{ $status }}">
                     <input type="hidden" name="bulan" value="{{ $bulan }}">
                     <input type="hidden" name="tahun" value="{{ $tahun }}">
                     <div class="card-header d-sm-flex justify-content-end align-items-center">
@@ -29,6 +30,7 @@
             @else
                 <form method="get" action="">
                     <input type="hidden" name="jenis" value="{{ Request::query('jenis') }}">
+                    <input type="hidden" name="status" value="{{ $status }}">
                     <div class="card-header d-sm-flex justify-content-center align-items-center">
                         <div>
                             <select name="bulan" class="form-select form-select-sm">
@@ -68,7 +70,7 @@
                                 <th colspan="3">Dosen</th>
                                 <th colspan="3">Tendik</th>
                                 <th colspan="3">Total</th>
-                                <th rowspan="2" width="60">Opsi</th>
+                                <th colspan="3">Opsi</th>
                             </tr>
                             <tr>
                                 <th width="80">Pegawai</th>
@@ -80,6 +82,9 @@
                                 <th width="80">Pegawai</th>
                                 <th width="80">Nominal</th>
                                 <th width="80">Potongan</th>
+                                <th width="30">Lihat</th>
+                                <th width="30">Excel</th>
+                                <th width="30">PDF</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,12 +103,22 @@
                                 <td align="center">
                                     <div class="btn-group">
                                         @if($jenis)
-                                        <a href="{{ route('admin.gaji.index', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
+                                        <a href="{{ route('admin.gaji.index', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'status' => $status, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
                                         @endif
-                                        <a href="{{ route('admin.gaji.monthly', ['id' => $d['anak_satker']->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Lihat Rekap Bulanan"><i class="bi-calendar-check"></i></a>
+                                        <a href="{{ route('admin.gaji.monthly', ['id' => $d['anak_satker']->id, 'status' => $status, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Lihat Rekap Bulanan"><i class="bi-calendar-check"></i></a>
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
                                         @if($jenis)
                                         <a href="{{ route('admin.gaji.export', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                         <a href="{{ route('admin.gaji.export', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        @if($jenis)
                                         <a href="{{ route('admin.gaji.print', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
                                         <a href="{{ route('admin.gaji.print', ['id' => $d['anak_satker']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
                                         @endif
@@ -114,43 +129,22 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td align="center">Total (PNS)</td>
-                                <td align="right">{{ number_format($total_pns['dosen_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total_pns['dosen_nominal']) }}</td>
-                                <td align="right">{{ number_format($total_pns['dosen_potongan']) }}</td>
-                                <td align="right">{{ number_format($total_pns['tendik_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total_pns['tendik_nominal']) }}</td>
-                                <td align="right">{{ number_format($total_pns['tendik_potongan']) }}</td>
-                                <td align="right">{{ number_format($total_pns['dosen_jumlah'] + $total_pns['tendik_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total_pns['dosen_nominal'] + $total_pns['tendik_nominal']) }}</td>
-                                <td align="right">{{ number_format($total_pns['dosen_potongan'] + $total_pns['tendik_potongan']) }}</td>
-                                <td align="center">
+                                <td align="center">Total</td>
+                                <td align="right">{{ number_format($total['dosen_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_nominal']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_potongan']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_potongan']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_jumlah'] + $total['tendik_jumlah']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_nominal'] + $total['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_potongan'] + $total['tendik_potongan']) }}</td>
+                                <td align="center" colspan="3">
                                     @if($jenis)
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 1, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 1, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
-                                    </div>
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center">Total (PPPK)</td>
-                                <td align="right">{{ number_format($total_pppk['dosen_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['dosen_nominal']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['dosen_potongan']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['tendik_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['tendik_nominal']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['tendik_potongan']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['dosen_jumlah'] + $total_pppk['tendik_jumlah']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['dosen_nominal'] + $total_pppk['tendik_nominal']) }}</td>
-                                <td align="right">{{ number_format($total_pppk['dosen_potongan'] + $total_pppk['tendik_potongan']) }}</td>
-                                <td align="center">
-                                    @if($jenis)
-                                    <div class="btn-group">
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 2, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 2, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
                                     </div>
                                     @endif
                                 </td>
