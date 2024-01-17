@@ -190,6 +190,12 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/uang-makan/import/pppk', 'UangMakanImportController@pppk')->name('admin.uang-makan.import.pppk');
     Route::post('/admin/uang-makan/import/old', 'UangMakanImportController@old')->name('admin.uang-makan.import.old');
 
+    // Uang Lembur ASN
+    Route::get('/admin/uang-lembur', 'UangLemburController@index')->name('admin.uang-lembur.index');
+    Route::get('/admin/uang-lembur/monitoring', 'UangLemburController@monitoring')->name('admin.uang-lembur.monitoring');
+    Route::get('/admin/uang-lembur/import', 'UangLemburController@import')->name('admin.uang-lembur.import');
+    Route::post('/admin/uang-lembur/import', 'UangLemburController@import')->name('admin.uang-lembur.import');
+
     // SPKGB PNS
     Route::get('/admin/spkgb/pns', 'SPKGBPNSController@index')->name('admin.spkgb.pns.index');
     Route::get('/admin/spkgb/pns/monitoring', 'SPKGBPNSController@monitoring')->name('admin.spkgb.pns.monitoring');
