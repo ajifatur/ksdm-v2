@@ -74,7 +74,7 @@
                 <h1 class="mt-1 mb-3">{{ number_format($remun_insentif_total) }}</h1>
                 <div>
                     <span class="badge {{ $remun_insentif > 0 ? 'badge-primary-light' : 'badge-danger-light' }}"> <i class="mdi mdi-arrow-bottom-right"></i> {{ number_format($remun_insentif) }} </span>
-                    <span class="text-muted">pada Triwulan {{ $remun_insentif_terakhir->triwulan }}</span>
+                    <span class="text-muted">pada Triwulan {{ $remun_insentif_terakhir->triwulan }} Tahun {{ $remun_insentif_terakhir->tahun }}</span>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col mt-0">
-                        <h5 class="card-title">Gaji PNS {{ date('Y') }}</h5>
+                        <h5 class="card-title">Gaji ASN {{ date('Y') }}</h5>
                     </div>
                     <div class="col-auto">
                         <div class="stat text-primary">Rp</div>
@@ -103,7 +103,26 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col mt-0">
-                        <h5 class="card-title">Uang Makan PNS {{ date('Y') }}</h5>
+                        <h5 class="card-title">Gaji Non ASN {{ date('Y') }}</h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="stat text-primary">Rp</div>
+                    </div>
+                </div>
+                <h1 class="mt-1 mb-3">{{ number_format($gaji_non_asn_total) }}</h1>
+                <div>
+                    <span class="badge {{ $gaji_non_asn > 0 ? 'badge-primary-light' : 'badge-danger-light' }}"> <i class="mdi mdi-arrow-bottom-right"></i> {{ number_format($gaji_non_asn) }} </span>
+                    <span class="text-muted">pada bulan ini</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col mt-0">
+                        <h5 class="card-title">Uang Makan ASN {{ date('Y') }}</h5>
                     </div>
                     <div class="col-auto">
                         <div class="stat text-primary">Rp</div>
@@ -156,7 +175,7 @@
         </div>
     </div>
 </div>
-<hr class="my-0">
+<!-- <hr class="my-0">
 <h1 class="h3 my-3">Sub-Sistem</h1>
 <div class="row">
     <div class="col-md-6 mb-3">
@@ -175,7 +194,7 @@
             </div>
         </a>
     </div>
-</div>
+</div> -->
 
 @endsection
 

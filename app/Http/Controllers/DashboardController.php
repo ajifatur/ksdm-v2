@@ -12,6 +12,7 @@ use App\Models\RemunInsentif;
 use App\Models\LebihKurang;
 use App\Models\TunjanganProfesi;
 use App\Models\Gaji;
+use App\Models\GajiNonASN;
 use App\Models\UangMakan;
 
 class DashboardController extends Controller
@@ -46,9 +47,13 @@ class DashboardController extends Controller
         $remun_insentif_total = RemunInsentif::where('tahun','=',date('Y'))->whereIn('triwulan',[1,2,3,4])->sum('remun_insentif') + LebihKurang::where('tahun_proses','=',date('Y'))->where('triwulan_proses','!=',0)->sum('selisih');
         $remun_insentif = RemunInsentif::where('triwulan','=',$remun_insentif_terakhir->triwulan)->whereIn('triwulan',[1,2,3,4])->where('tahun','=',date('Y'))->sum('remun_insentif') + LebihKurang::where('triwulan_proses','=',$remun_insentif_terakhir->triwulan)->where('tahun_proses','=',date('Y'))->sum('selisih');
 
-        // Sum gaji induk
+        // Sum gaji induk ASN
         $gaji_induk_total = Gaji::where('tahun','=',date('Y'))->sum('nominal') - Gaji::where('tahun','=',date('Y'))->sum('potongan');
         $gaji_induk = Gaji::where('bulan','=',(date('n') < 10 ? '0'.date('n') : date('n')))->where('tahun','=',date('Y'))->sum('nominal') - Gaji::where('bulan','=',(date('n') < 10 ? '0'.date('n') : date('n')))->where('tahun','=',date('Y'))->sum('potongan');
+
+        // Sum gaji induk Non ASN
+        $gaji_non_asn_total = GajiNonASN::where('tahun','=',date('Y'))->sum('nominal');
+        $gaji_non_asn = GajiNonASN::where('bulan','=',date('n'))->where('tahun','=',date('Y'))->sum('nominal');
 
         // Sum uang makan
         $uang_makan_terakhir = UangMakan::latest('tahun')->latest('bulan')->first();
@@ -82,6 +87,8 @@ class DashboardController extends Controller
             'remun_insentif' => $remun_insentif,
             'gaji_induk_total' => $gaji_induk_total,
             'gaji_induk' => $gaji_induk,
+            'gaji_non_asn_total' => $gaji_non_asn_total,
+            'gaji_non_asn' => $gaji_non_asn,
             'uang_makan_terakhir' => $uang_makan_terakhir,
             'uang_makan_total' => $uang_makan_total,
             'uang_makan' => $uang_makan,
