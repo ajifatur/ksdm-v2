@@ -193,6 +193,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Uang Lembur ASN
     Route::get('/admin/uang-lembur', 'UangLemburController@index')->name('admin.uang-lembur.index');
     Route::get('/admin/uang-lembur/monitoring', 'UangLemburController@monitoring')->name('admin.uang-lembur.monitoring');
+    Route::get('/admin/uang-lembur/recap', 'UangLemburController@recap')->name('admin.uang-lembur.recap');
     Route::get('/admin/uang-lembur/import', 'UangLemburController@import')->name('admin.uang-lembur.import');
     Route::post('/admin/uang-lembur/import', 'UangLemburController@import')->name('admin.uang-lembur.import');
 

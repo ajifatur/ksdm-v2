@@ -32,6 +32,7 @@
                             <tr>
                                 <th>NIP</th>
                                 <th>Nama</th>
+                                <th>Status Kepeg.</th>
                                 <th>Golru</th>
                                 <th>MKG</th>
                                 <th>MK Tahun</th>
@@ -43,8 +44,9 @@
                         <tbody>
                             @foreach($mutasi as $m)
                             <tr>
-                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">`{{ $m->pegawai->nip }}</a></td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">`{{ $m->pegawai->npu != null ? $m->pegawai->npu : $m->pegawai->nip }}</a></td>
                                 <td>{{ strtoupper($m->pegawai->nama) }}</td>
+                                <td>{{ $m->pegawai->status_kepegawaian->nama }}</td>
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
                                 <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
                                 <td>{{ $m->perubahan ? $m->perubahan->mk_tahun : '' }}</td>

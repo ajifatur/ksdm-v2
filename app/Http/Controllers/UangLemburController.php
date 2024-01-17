@@ -113,6 +113,43 @@ class UangLemburController extends Controller
     }
 
     /**
+     * Recap.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function recap(Request $request)
+    {
+        // Get tahun
+        $tahun = $request->query('tahun') ?: date('Y');
+
+        // Get uang makan
+        $uang_lembur = [];
+        for($i=1; $i<=12; $i++) {
+            array_push($uang_lembur, [
+                'bulan' => DateTimeExt::month($i),
+                'pegawai' => UangLembur::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->count(),
+                'nominal_kotor' => UangLembur::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->sum('kotor'),
+                'nominal_bersih' => UangLembur::where('bulan','=',($i < 10 ? '0'.$i : $i))->where('tahun','=',$tahun)->sum('bersih'),
+            ]);
+        }
+
+        // Total
+        $total_pegawai = UangLembur::where('tahun','=',$tahun)->count();
+        $total_nominal_kotor = UangLembur::where('tahun','=',$tahun)->sum('kotor');
+        $total_nominal_bersih = UangLembur::where('tahun','=',$tahun)->sum('bersih');
+
+        // View
+        return view('admin/uang-lembur/recap', [
+            'tahun' => $tahun,
+            'uang_lembur' => $uang_lembur,
+            'total_pegawai' => $total_pegawai,
+            'total_nominal_kotor' => $total_nominal_kotor,
+            'total_nominal_bersih' => $total_nominal_bersih,
+        ]);
+    }
+
+    /**
      * Import
      *
      * @return \Illuminate\Http\Response
