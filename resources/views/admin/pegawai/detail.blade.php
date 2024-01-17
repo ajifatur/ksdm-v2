@@ -35,14 +35,14 @@
                         <button class="nav-link {{ Request::query('tunjangan_profesi') == 1 ? 'active' : '' }}" id="tunjangan-tab" data-bs-toggle="tab" data-bs-target="#tunjangan" type="button" role="tab" aria-controls="tunjangan" aria-selected="false">Tunjangan Profesi</button>
                     </li>
                     @endif
-                    @if(count($pegawai->gaji) > 0)
+                    @if(count($pegawai->gaji) > 0 || count($pegawai->gaji_non_asn) > 0)
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="gaji-pns-tab" data-bs-toggle="tab" data-bs-target="#gaji-pns" type="button" role="tab" aria-controls="gaji-pns" aria-selected="false">Gaji ASN</button>
+                        <button class="nav-link" id="gaji-tab" data-bs-toggle="tab" data-bs-target="#gaji" type="button" role="tab" aria-controls="gaji" aria-selected="false">Gaji {{ count($pegawai->gaji) > 0 ? 'ASN' : 'Non ASN' }}</button>
                     </li>
                     @endif
                     @if(count($pegawai->uang_makan) > 0)
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="uang-makan-pns-tab" data-bs-toggle="tab" data-bs-target="#uang-makan-pns" type="button" role="tab" aria-controls="uang-makan-pns" aria-selected="false">Uang Makan PNS</button>
+                        <button class="nav-link" id="uang-makan-pns-tab" data-bs-toggle="tab" data-bs-target="#uang-makan-pns" type="button" role="tab" aria-controls="uang-makan-pns" aria-selected="false">Uang Makan ASN</button>
                     </li>
                     @endif
                     @if(count($pegawai->slks) > 0)
@@ -386,75 +386,128 @@
                         </div>
                     </div>
                     @endif
-                    @if(count($pegawai->gaji) > 0)
-                    <div class="tab-pane fade" id="gaji-pns" role="tabpanel" aria-labelledby="gaji-pns-tab">
+                    @if(count($pegawai->gaji) > 0 || count($pegawai->gaji_non_asn) > 0)
+                    <div class="tab-pane fade" id="gaji" role="tabpanel" aria-labelledby="gaji-tab">
                         @if(Session::get('message'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <div class="alert-message">{{ Session::get('message') }}</div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         @endif
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover table-striped table-bordered">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th rowspan="2" width="5">No</th>
-                                        <th rowspan="2">Bulan, Tahun</th>
-                                        <th rowspan="2">Anak Satker,<br>Unit</th>
-                                        <th colspan="4">Penghasilan</th>
-                                        <th colspan="3">Potongan</th>
-                                        <th rowspan="2" width="130">Gaji Bersih</th>
-                                    </tr>
-                                    <tr>
-                                        <th width="130">Gaji Pokok,<br>Tunj. Istri,<br>Tunj. Anak</th>
-                                        <th width="130">Tunj. Fungsional,<br>Tunj. Struktural,<br>Tunj. Umum</th>
-                                        <th width="130">Tunj. Beras,<br>Tunj. Kh. Pajak,<br>Pembulatan</th>
-                                        <th width="130">Jumlah Penghasilan Kotor</th>
-                                        <th width="130">IWP,<br>BPJS,<br>BPJS2</th>
-                                        <th width="130">Pajak Penghasilan</th>
-                                        <th width="130">Jumlah Potongan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($pegawai->gaji as $key=>$g)
-                                    <tr>
-                                        <td>{{ ($key+1) }}</td>
-                                        <td>
-                                            {{ \Ajifatur\Helpers\DateTimeExt::month((int)$g->bulan) }} {{ $g->tahun }}
-                                            <br>
-                                            <span class="text-success">({{ $g->jenis_gaji->nama }})</span>
-                                        </td>
-										<td>
-											{{ $g->anak_satker ? $g->anak_satker->nama.' ('.$g->anak_satker->kode.')' : '' }}
-											<br>
-											{{ $g->unit ? $g->unit->nama : '-' }}
-										</td>
-                                        <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
-                                        <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjstruk) }}<br>{{ number_format($g->tjupns) }}</td>
-                                        <td align="right">{{ number_format($g->tjberas) }}<br>{{ number_format($g->tjpph) }}<br>{{ number_format($g->pembul) }}</td>
-                                        <td align="right">{{ number_format($g->nominal) }}</td>
-                                        <td align="right">{{ number_format($g->potpfk10) }}<br>{{ number_format($g->bpjs) }}<br>{{ number_format($g->bpjs2) }}</td>
-                                        <td align="right">{{ number_format($g->potpph) }}</td>
-                                        <td align="right">{{ number_format($g->potongan) }}</td>
-                                        <td align="right">{{ number_format($g->nominal - $g->potongan) }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot class="bg-light fw-bold">
-                                    <tr>
-                                        <td colspan="3" align="center">Total</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('gjpokok') + $pegawai->gaji()->sum('tjistri') + $pegawai->gaji()->sum('tjanak')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('tjfungs') + $pegawai->gaji()->sum('tjstruk') + $pegawai->gaji()->sum('tjupns')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('tjberas') + $pegawai->gaji()->sum('tjpph') + $pegawai->gaji()->sum('pembul')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('nominal')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('potpfk10') + $pegawai->gaji()->sum('bpjs') + $pegawai->gaji()->sum('bpjs2')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('potpph')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('potongan')) }}</td>
-                                        <td align="right">{{ number_format($pegawai->gaji()->sum('nominal') - $pegawai->gaji()->sum('potongan')) }}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                        @if(count($pegawai->gaji) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover table-striped table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th rowspan="2" width="5">No</th>
+                                            <th rowspan="2">Bulan, Tahun</th>
+                                            <th rowspan="2">Anak Satker,<br>Unit</th>
+                                            <th colspan="4">Penghasilan</th>
+                                            <th colspan="3">Potongan</th>
+                                            <th rowspan="2" width="130">Gaji Bersih</th>
+                                        </tr>
+                                        <tr>
+                                            <th width="130">Gaji Pokok,<br>Tunj. Istri,<br>Tunj. Anak</th>
+                                            <th width="130">Tunj. Fungsional,<br>Tunj. Struktural,<br>Tunj. Umum</th>
+                                            <th width="130">Tunj. Beras,<br>Tunj. Kh. Pajak,<br>Pembulatan</th>
+                                            <th width="130">Jumlah Penghasilan Kotor</th>
+                                            <th width="130">IWP,<br>BPJS,<br>BPJS2</th>
+                                            <th width="130">Pajak Penghasilan</th>
+                                            <th width="130">Jumlah Potongan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pegawai->gaji as $key=>$g)
+                                        <tr>
+                                            <td>{{ ($key+1) }}</td>
+                                            <td>
+                                                {{ \Ajifatur\Helpers\DateTimeExt::month((int)$g->bulan) }} {{ $g->tahun }}
+                                                <br>
+                                                <span class="text-success">({{ $g->jenis_gaji->nama }})</span>
+                                            </td>
+                                            <td>
+                                                {{ $g->anak_satker ? $g->anak_satker->nama.' ('.$g->anak_satker->kode.')' : '' }}
+                                                <br>
+                                                {{ $g->unit ? $g->unit->nama : '-' }}
+                                            </td>
+                                            <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
+                                            <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjstruk) }}<br>{{ number_format($g->tjupns) }}</td>
+                                            <td align="right">{{ number_format($g->tjberas) }}<br>{{ number_format($g->tjpph) }}<br>{{ number_format($g->pembul) }}</td>
+                                            <td align="right">{{ number_format($g->nominal) }}</td>
+                                            <td align="right">{{ number_format($g->potpfk10) }}<br>{{ number_format($g->bpjs) }}<br>{{ number_format($g->bpjs2) }}</td>
+                                            <td align="right">{{ number_format($g->potpph) }}</td>
+                                            <td align="right">{{ number_format($g->potongan) }}</td>
+                                            <td align="right">{{ number_format($g->nominal - $g->potongan) }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="bg-light fw-bold">
+                                        <tr>
+                                            <td colspan="3" align="center">Total</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('gjpokok') + $pegawai->gaji()->sum('tjistri') + $pegawai->gaji()->sum('tjanak')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('tjfungs') + $pegawai->gaji()->sum('tjstruk') + $pegawai->gaji()->sum('tjupns')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('tjberas') + $pegawai->gaji()->sum('tjpph') + $pegawai->gaji()->sum('pembul')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('nominal')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('potpfk10') + $pegawai->gaji()->sum('bpjs') + $pegawai->gaji()->sum('bpjs2')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('potpph')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('potongan')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji()->sum('nominal') - $pegawai->gaji()->sum('potongan')) }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        @elseif(count($pegawai->gaji_non_asn) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover table-striped table-bordered">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th rowspan="2" width="5">No</th>
+                                            <th rowspan="2">Bulan, Tahun</th>
+                                            <th rowspan="2">Unit</th>
+                                            <th colspan="3">Penghasilan</th>
+                                            <th colspan="3">Iuran</th>
+                                            <th rowspan="2" width="130">Gaji Bersih</th>
+                                        </tr>
+                                        <tr>
+                                            <th width="130">Gaji Pokok,<br>Tunj. Istri,<br>Tunj. Anak</th>
+                                            <th width="130">Tunj. Fungsional,<br>Tunj. Umum,<br>Tunj. Beras</th>
+                                            <th width="130">Jumlah Penghasilan Kotor</th>
+                                            <th width="130">BPJS Kesehatan (1%)</th>
+                                            <th width="130">BPJS Ketenagakerjaan (3%)</th>
+                                            <th width="130">Jumlah Iuran</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pegawai->gaji_non_asn as $key=>$g)
+                                        <tr>
+                                            <td>{{ ($key+1) }}</td>
+                                            <td>{{ \Ajifatur\Helpers\DateTimeExt::month((int)$g->bulan) }} {{ $g->tahun }}</td>
+                                            <td>{{ $g->unit ? $g->unit->nama : '-' }}</td>
+                                            <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
+                                            <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}</td>
+                                            <td align="right">{{ number_format($g->nominal) }}</td>
+                                            <td align="right">{{ number_format($g->bpjskes1) }}</td>
+                                            <td align="right">{{ number_format($g->bpjsket3) }}</td>
+                                            <td align="right">{{ number_format($g->bpjskes1 + $g->bpjsket3) }}</td>
+                                            <td align="right">{{ number_format($g->nominal) }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="bg-light fw-bold">
+                                        <tr>
+                                            <td colspan="3" align="center">Total</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('gjpokok') + $pegawai->gaji_non_asn()->sum('tjistri') + $pegawai->gaji_non_asn()->sum('tjanak')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('tjfungs') + $pegawai->gaji_non_asn()->sum('tjumum') + $pegawai->gaji_non_asn()->sum('tjberas')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('nominal')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bpjskes1')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bpjsket3')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bpjskes1') + $pegawai->gaji_non_asn()->sum('bpjsket3')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('nominal')) }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        @endif
                     </div>
                     @endif
                     @if(count($pegawai->uang_makan) > 0)

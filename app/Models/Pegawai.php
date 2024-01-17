@@ -145,6 +145,14 @@ class Pegawai extends Model
     }
 
     /**
+     * Gaji Non ASN
+     */
+    public function gaji_non_asn()
+    {
+        return $this->hasMany(GajiNonASN::class)->orderBy('tahun','desc')->orderBy('bulan','desc');
+    }
+
+    /**
      * Uang Makan.
      */
     public function uang_makan()

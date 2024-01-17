@@ -77,7 +77,7 @@
                                 <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
                                 <td>{{ $g->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
-                                <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjupns) }}<br>{{ number_format($g->tjberas) }}</td>
+                                <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}</td>
                                 <td align="right">{{ number_format($g->nominal) }}</td>
                                 <td align="right">{{ number_format($g->bpjskes1) }}</td>
                                 <td align="right">{{ number_format($g->bpjsket3) }}</td>
