@@ -318,7 +318,7 @@ class MutasiController extends Controller
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->bulan = date('n', strtotime(DateTimeExt::change($request->tmt)));
                 $mutasi->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt)));
-                $mutasi->uraian = $jenis_mutasi->nama.' '.$golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
+                $mutasi->uraian = $jenis_mutasi->nama;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = 0;
                 $mutasi->remun_gaji = 0;
