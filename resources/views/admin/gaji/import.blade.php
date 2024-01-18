@@ -13,6 +13,7 @@
             <div class="card-body">
                 <form method="post" action="{{ route('admin.gaji.import') }}" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="status" value="{{ $status }}">
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Satker <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">

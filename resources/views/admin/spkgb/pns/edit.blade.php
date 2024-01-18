@@ -109,7 +109,7 @@
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">No. SK <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            <input type="text" name="no_sk" class="form-control form-control-sm {{ $errors->has('no_sk') ? 'border-danger' : '' }}" value="{{ $spkgb->mutasi_sebelum->perubahan->no_sk }}">
+                            <input type="text" name="no_sk" class="form-control form-control-sm {{ $errors->has('no_sk') ? 'border-danger' : '' }}" value="{{ $spkgb->mutasi_sebelum->perubahan ? $spkgb->mutasi_sebelum->perubahan->no_sk : '' }}">
                             @if($errors->has('no_sk'))
                             <div class="small text-danger">{{ $errors->first('no_sk') }}</div>
                             @endif
@@ -119,7 +119,7 @@
                         <label class="col-lg-2 col-md-3 col-form-label">Tanggal SK <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <div class="input-group">
-                                <input type="text" name="tanggal_sk" class="form-control form-control-sm {{ $errors->has('tanggal_sk') ? 'border-danger' : '' }}" value="{{ date('d/m/Y', strtotime($spkgb->mutasi_sebelum->perubahan->tanggal_sk)) }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
+                                <input type="text" name="tanggal_sk" class="form-control form-control-sm {{ $errors->has('tanggal_sk') ? 'border-danger' : '' }}" value="{{ $spkgb->mutasi_sebelum->perubahan ? date('d/m/Y', strtotime($spkgb->mutasi_sebelum->perubahan->tanggal_sk)) : '' }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
                                 <span class="input-group-text"><i class="bi-calendar2"></i></span>
                             </div>
                             @if($errors->has('tanggal_sk'))
@@ -148,7 +148,7 @@
                                         <select name="mk_tahun" class="form-select form-select-sm {{ $errors->has('mk_tahun') ? 'border-danger' : '' }}">
                                             <option value="" disabled selected>--Pilih Masa Kerja Tahun--</option>
                                             @for($i=0; $i<=50; $i++)
-                                            <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan->mk_tahun == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                            <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan && $spkgb->mutasi_sebelum->perubahan->mk_tahun == $i ? 'selected' : '' }}>{{ $i }}</option>
                                             @endfor
                                         </select>
                                         <span class="input-group-text">Tahun</span>
@@ -159,7 +159,7 @@
                                         <select name="mk_bulan" class="form-select form-select-sm {{ $errors->has('mk_bulan') ? 'border-danger' : '' }}">
                                             <option value="" disabled selected>--Pilih Masa Kerja Bulan--</option>
                                             @for($i=0; $i<=11; $i++)
-                                            <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan->mk_bulan == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                            <option value="{{ $i }}" {{ $spkgb->mutasi_sebelum->perubahan && $spkgb->mutasi_sebelum->perubahan->mk_bulan == $i ? 'selected' : '' }}>{{ $i }}</option>
                                             @endfor
                                         </select>
                                         <span class="input-group-text">Bulan</span>
@@ -178,7 +178,7 @@
                             <select name="pejabat" class="form-select form-select-sm {{ $errors->has('pejabat') ? 'border-danger' : '' }}">
                                 <option value="" disabled selected>--Pilih Pejabat--</option>
                                 @foreach($pejabat as $p)
-                                <option value="{{ $p->id }}" {{ $spkgb->mutasi_sebelum->perubahan->pejabat_id == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                                <option value="{{ $p->id }}" {{ $spkgb->mutasi_sebelum->perubahan && $spkgb->mutasi_sebelum->perubahan->pejabat_id == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('pejabat'))

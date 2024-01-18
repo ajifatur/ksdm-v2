@@ -106,7 +106,7 @@ class SPKGBPNSController extends Controller
 
         // Get mutasi sebelum
         $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
-            return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
+            return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK']);
         })->where('tmt','<',$tanggal)->first();
 
         // Set masa kerja baru
@@ -323,6 +323,9 @@ class SPKGBPNSController extends Controller
      */
     public function update(Request $request)
     {
+        // Get SK
+        $sk_gaji_pns = SK::where('jenis_id','=',5)->where('status','=',1)->first();
+
         // Validation
         $validator = Validator::make($request->all(), [
             'no_sk_baru' => 'required',
@@ -347,7 +350,7 @@ class SPKGBPNSController extends Controller
             $spkgb = SPKGB::findOrFail($request->id);
 
             // Get gaji pokok
-            $gaji_pokok = GajiPokok::find($request->gaji_pokok);
+            $gaji_pokok = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->find($request->gaji_pokok);
 
             // Get jenis mutasi
             $jenis_mutasi = JenisMutasi::find($request->jenis_mutasi);
@@ -365,6 +368,9 @@ class SPKGBPNSController extends Controller
 
             // Update perubahan sebelum
             $perubahan_sebelum = $mutasi_sebelum->perubahan;
+            if(!$perubahan_sebelum) $perubahan_sebelum = new Perubahan;
+            $perubahan_sebelum->mutasi_id = $mutasi_sebelum->id;
+            $perubahan_sebelum->sk_id = $gaji_pokok->sk_id;
             $perubahan_sebelum->pejabat_id = $request->pejabat;
             $perubahan_sebelum->no_sk = $request->no_sk;
             $perubahan_sebelum->tanggal_sk = DateTimeExt::change($request->tanggal_sk);
@@ -447,7 +453,7 @@ class SPKGBPNSController extends Controller
 			})->where('tmt','=',$tanggal)->first();
 
             // Get gaji pokok lama
-            $pegawai[$key]->gaji_pokok_lama = $p->mutasi()->where('tmt','<',$tanggal)->first() ? $p->mutasi()->where('tmt','<',$tanggal)->first()->gaji_pokok : $p->mutasi()->first()->gaji_pokok;
+            $pegawai[$key]->gaji_pokok_lama = $pegawai[$key]->mutasi_sebelum ? $pegawai[$key]->mutasi_sebelum->gaji_pokok : $p->mutasi()->first()->gaji_pokok;
 
             // Set masa kerja baru
             $mk_baru = $tahun - date('Y', strtotime($p->tmt_golongan));

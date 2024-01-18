@@ -700,7 +700,7 @@ class GajiController extends Controller
             File::delete(public_path('storage/spreadsheets/gaji/'.$new));
 
             // Redirect
-            return redirect()->route('admin.gaji.monitoring', ['jenis' => $jenis->id, 'bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
+            return redirect()->route('admin.gaji.monitoring', ['jenis' => $jenis->id, 'status' => $request->status, 'bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
         }
     }
 

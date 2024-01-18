@@ -11,7 +11,7 @@
 	<div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="post" action="{{ route('admin.mutasi.update') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('admin.mutasi.store') }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="id" value="{{ $mutasi->id }}">
                     <input type="hidden" name="pegawai_id" value="{{ $pegawai->id }}">
@@ -55,10 +55,10 @@
                                 <input type="hidden" name="unit_id[]" value="{{ $d->unit_id }}">
                                 <div class="mb-2">
                                     <div class="input-group">
-                                        <input type="text" class="form-control form-control-sm" value="{{ $d->jabatan->nama }}{{ $d->jabatan->sub != '-' ? ' - '.$d->jabatan->sub : '' }}" disabled>
+                                        <input type="text" class="form-control form-control-sm" value="{{ $d->jabatan->sub != '-' ? $d->jabatan->sub : $d->jabatan->nama }}" disabled>
                                         <input type="text" class="form-control form-control-sm" value="{{ $d->unit->nama }}" disabled>
                                         <button class="btn btn-outline-primary btn-add" title="Tambah"><i class="bi-plus"></i></button>
-                                        <button class="btn btn-outline-warning btn-edit" title="Edit" data-id="{{ $key }}" data-detail="{{ $d->id }}" data-jabatan="{{ $d->jabatan_id }}" data-unit="{{ $d->unit_id }}"><i class="bi-pencil"></i></button>
+                                        <button class="btn btn-outline-warning btn-edit" title="Edit" data-id="{{ $key }}" data-detail="{{ $d->id }}" data-jabatan="{{ $d->jabatan_id }}" data-jabatanremun="{{ $d->jabatan_remun }}" data-unit="{{ $d->unit_id }}"><i class="bi-pencil"></i></button>
                                         @if(count($mutasi->detail) <= 1)
                                             <button class="btn btn-outline-danger btn-delete" data-id="{{ $key }}" title="Hapus" disabled><i class="bi-trash"></i></button>
                                         @else
@@ -70,7 +70,7 @@
                             @endforeach
                         </div>
                     </div>
-                    @if(in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+                    @if($pegawai->status_kepegawaian->golru == 1)
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Golru <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     @endif
-                    <div class="{{ $mutasi->jenis->nama == 'Mutasi Pangkat' || $mutasi->jenis->nama == 'KGB' ? '' : 'd-none' }}" id="perubahan">
+                    <div class="{{ $mutasi->jenis->remun == 0 && $mutasi->jenis->serdos == 0 ? '' : 'd-none' }}" id="perubahan">
                         <div class="row mb-3">
                             <label class="col-lg-2 col-md-3 col-form-label">No. SK <span class="text-danger">*</span></label>
                             <div class="col-lg-10 col-md-9">
@@ -158,6 +158,54 @@
                                 </select>
                                 @if($errors->has('pejabat'))
                                 <div class="small text-danger">{{ $errors->first('pejabat') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="{{ $mutasi->jenis->remun == 0 && $mutasi->jenis->serdos == 1 ? '' : 'd-none' }}" id="serdos">
+                        <div class="row mb-3">
+                            <label class="col-lg-2 col-md-3 col-form-label">Angkatan <span class="text-danger">*</span></label>
+                            <div class="col-lg-10 col-md-9">
+                                <select name="angkatan" class="form-select form-select-sm {{ $errors->has('angkatan') ? 'border-danger' : '' }}">
+                                    <option value="" disabled selected>--Pilih--</option>
+                                    @for($i=1; $i<=3; $i++)
+                                        <?php $label = ['', 'Kehormatan Profesor', 'Profesi GB', 'Profesi Non GB']; ?>
+                                        <optgroup label="{{ $label[$i] }}">
+                                            @foreach($angkatan[$i]['data'] as $a)
+                                            <option value="{{ $a->id }}" {{ count($mutasi->detail) > 0 && $mutasi->detail()->first()->angkatan_id == $a->id ? 'selected' : '' }}>{{ $a->nama }}</option>
+                                            @endforeach
+                                        <optgroup>
+                                    @endfor
+                                </select>
+                                @if($errors->has('angkatan'))
+                                <div class="small text-danger">{{ $errors->first('angkatan') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-lg-2 col-md-3 col-form-label">Nama Supplier <span class="text-danger">*</span></label>
+                            <div class="col-lg-10 col-md-9">
+                                <input type="text" name="nama_supplier" class="form-control form-control-sm {{ $errors->has('nama_supplier') ? 'border-danger' : '' }}" value="{{ $pegawai->nama_supplier }}">
+                                @if($errors->has('nama_supplier'))
+                                <div class="small text-danger">{{ $errors->first('nama_supplier') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-lg-2 col-md-3 col-form-label">Nomor Rekening <span class="text-danger">*</span></label>
+                            <div class="col-lg-10 col-md-9">
+                                <input type="text" name="nomor_rekening" class="form-control form-control-sm {{ $errors->has('nomor_rekening') ? 'border-danger' : '' }}" value="{{ $pegawai->norek_btn }}">
+                                @if($errors->has('nomor_rekening'))
+                                <div class="small text-danger">{{ $errors->first('nomor_rekening') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="col-lg-2 col-md-3 col-form-label">Nama Pemilik Rekening <span class="text-danger">*</span></label>
+                            <div class="col-lg-10 col-md-9">
+                                <input type="text" name="nama_rekening" class="form-control form-control-sm {{ $errors->has('nama_rekening') ? 'border-danger' : '' }}" value="{{ $pegawai->nama_btn }}">
+                                @if($errors->has('nama_rekening'))
+                                <div class="small text-danger">{{ $errors->first('nama_rekening') }}</div>
                                 @endif
                             </div>
                         </div>
@@ -236,20 +284,31 @@
     // Jenis Mutasi
     Spandiv.Select2("select[name=jenis_mutasi]");
     $(document).on("change", "select[name=jenis_mutasi]", function(e) {
+        var remun = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("remun");
+        var serdos = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("serdos");
         if($(this).val() == 1) {
             $("#jabatan-unit").removeClass("d-none");
             $("#uraian").removeClass("d-none");
             $("#perubahan").addClass("d-none");
+            $("#serdos").addClass("d-none");
         }
-        else if($(this).val() == 10 || $(this).val() == 11 || $(this).val() == 12) {
+        else if(remun == 0 && serdos == 0) {
             $("#jabatan-unit").addClass("d-none");
             $("#uraian").addClass("d-none");
             $("#perubahan").removeClass("d-none");
+            $("#serdos").addClass("d-none");
+        }
+        else if(remun == 0 && serdos == 1) {
+            $("#jabatan-unit").addClass("d-none");
+            $("#uraian").addClass("d-none");
+            $("#perubahan").addClass("d-none");
+            $("#serdos").removeClass("d-none");
         }
         else {
             $("#jabatan-unit").addClass("d-none");
             $("#uraian").addClass("d-none");
             $("#perubahan").addClass("d-none");
+            $("#serdos").addClass("d-none");
         }
     });
 
@@ -277,6 +336,9 @@
     // Pejabat
     Spandiv.Select2("select[name=pejabat]");
 
+    // Angkatan
+    Spandiv.Select2("select[name=angkatan]");
+
     // TMT
     Spandiv.DatePicker("input[name=tmt]");
     Spandiv.DatePicker("input[name=tanggal_sk]");
@@ -302,7 +364,10 @@
         e.preventDefault();
 		$("#modal-jabatan-unit").find("input[name=key]").val($(this).data("id"));
 		$("#modal-jabatan-unit").find("input[name=id]").val($(this).data("detail"));
-		$("#modal-jabatan-unit").find("select[name=jabatan]").val($(this).data("jabatan"));
+        if($(this).data("jabatanremun") != 0)
+            $("#modal-jabatan-unit").find("select[name=jabatan]").val($(this).data("jabatanremun"));
+        else
+            $("#modal-jabatan-unit").find("select[name=jabatan]").val($(this).data("jabatan"));
 		$("#modal-jabatan-unit").find("select[name=unit]").val($(this).data("unit"));
         Spandiv.Select2("select[name=jabatan]", {
             dropdownParent: "#modal-jabatan-unit"

@@ -13,20 +13,21 @@ use Ajifatur\Helpers\DateTimeExt;
 use App\Imports\MutasiImport;
 use App\Models\Mutasi;
 use App\Models\MutasiDetail;
+use App\Models\Angkatan;
+use App\Models\GajiPokok;
+use App\Models\Golongan;
+use App\Models\Golru;
 use App\Models\Jabatan;
 use App\Models\JenisMutasi;
 use App\Models\LebihKurang;
 use App\Models\Pegawai;
-use App\Models\RemunGaji;
-use App\Models\Referensi;
-use App\Models\SK;
-use App\Models\Unit;
-use App\Models\Golongan;
-use App\Models\Golru;
-use App\Models\GajiPokok;
-use App\Models\StatusKepegawaian;
 use App\Models\Perubahan;
 use App\Models\Pejabat;
+use App\Models\Referensi;
+use App\Models\RemunGaji;
+use App\Models\SK;
+use App\Models\StatusKepegawaian;
+use App\Models\Unit;
 
 class MutasiController extends Controller
 {
@@ -80,17 +81,25 @@ class MutasiController extends Controller
      */
     public function create($id)
     {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
         // Get pegawai
         $pegawai = Pegawai::findOrFail($id);
 
         // Get SK
-        $sk = SK::where('jenis_id','=',1)->where('status','=',1)->first();
+        $sk = SK::whereHas('jenis', function(Builder $query) {
+            return $query->where('nama','=','Remun Gaji');
+        })->where('status','=',1)->first();
 
         // Get mutasi
-        $mutasi = Mutasi::where('pegawai_id','=',$pegawai->id)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+        $mutasi = $pegawai->mutasi()->first();
+
+        // Get jabatan remun
+        if($mutasi->jenis->remun == 0) {
+            foreach($mutasi->detail as $key=>$d) {
+                // Get grup
+                $grup = $d->jabatan->grup()->first();
+                $mutasi->detail[$key]->jabatan_remun = $grup->jabatan()->where('sk_id','=',$sk->id)->first() ? $grup->jabatan()->where('sk_id','=',$sk->id)->first()->id : 0;
+            }
+        }
 
         // Get jenis mutasi
         $jenis_mutasi = JenisMutasi::orderBy('num_order','asc')->get();
@@ -102,7 +111,7 @@ class MutasiController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if(in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+        if($pegawai->status_kepegawaian->golru == 1)
             $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
         else
             $gaji_pokok = [];
@@ -116,6 +125,12 @@ class MutasiController extends Controller
         // Get pejabat
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
 
+        // Get angkatan
+        $angkatan = [];
+        for($i=1; $i<=3; $i++) {
+            $angkatan[$i]['data'] = Angkatan::where('jenis_id','=',$i)->orderBy('nama','asc')->get();
+        }
+
         // View
         return view('admin/mutasi/create', [
             'pegawai' => $pegawai,
@@ -128,6 +143,7 @@ class MutasiController extends Controller
             'golru' => $golru,
             'gaji_pokok' => $gaji_pokok,
             'pejabat' => $pejabat,
+            'angkatan' => $angkatan,
         ]);
     }
 
@@ -145,18 +161,25 @@ class MutasiController extends Controller
         // Get jenis mutasi
         $jenis_mutasi = JenisMutasi::find($request->jenis_mutasi);
 
+        // Get mutasi
+        $mutasi = Mutasi::find($request->id);
+
         // Validation
         $validator = Validator::make($request->all(), [
             'uraian' => $jenis_mutasi->nama == 'Mutasi Jabatan' ? 'required' : '',
             'jenis_mutasi' => 'required',
-            'golru' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
-            'gaji_pokok' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
+            'golru' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
+            'gaji_pokok' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
             'tmt' => 'required',
-            'no_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'tanggal_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'mk_tahun' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'mk_bulan' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'pejabat' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
+            'no_sk' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
+            'tanggal_sk' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
+            'mk_tahun' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
+            'mk_bulan' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
+            'pejabat' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
+            'angkatan' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
+            'nama_supplier' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
+            'nomor_rekening' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
+            'nama_rekening' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
         ]);
         
         // Check errors
@@ -182,28 +205,39 @@ class MutasiController extends Controller
                     }
                 }
 
-                // Get unit
+                // Get unit pada jabatan tertinggi
                 $unit = Unit::find($request->unit_id[$index]);
 
                 // Get referensi
                 $referensi = Referensi::where('sk_id','=',$request->sk_id)->where('jabatan_dasar_id','=',$jabatan_tertinggi->jabatan_dasar_id)->where('layer_id','=',$unit->layer_id)->first();
 
-                // Simpan mutasi
-                $mutasi = new Mutasi;
+                // Simpan / update mutasi
+                if(!$mutasi || $request->id == 0) $mutasi = new Mutasi;
                 $mutasi->pegawai_id = $request->pegawai_id;
                 $mutasi->sk_id = $request->sk_id;
                 $mutasi->jenis_id = $request->jenis_mutasi;
                 $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
                 $mutasi->golru_id = $request->golru;
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
-                $mutasi->bulan = 0;
-                $mutasi->tahun = 0;
+                $mutasi->bulan = $request->id == 0 ? 0 : $mutasi->bulan;
+                $mutasi->tahun = $request->id == 0 ? 0 : $mutasi->tahun;
                 $mutasi->uraian = $request->uraian;
-                $mutasi->tmt = DateTimeExt::change($request->tmt);
+                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
                 $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
                 $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
+                $mutasi->kolektif = 0;
                 $mutasi->save();
+
+                // Delete mutasi detail
+                if($request->id == 0) {
+                    foreach($mutasi->detail()->pluck('id')->toArray() as $detail_id) {
+                        if(!in_array($detail_id, array_filter($request->detail_id))) {
+                            $mutasi_detail = MutasiDetail::find($detail_id);
+                            $mutasi_detail->delete();
+                        }
+                    }
+                }
 
                 foreach($request->jabatan_id as $key=>$jabatan_id) {
                     // Get jabatan dan unit
@@ -217,6 +251,7 @@ class MutasiController extends Controller
                     $mutasi_detail->jabatan_id = $jabatan_mutasi->id;
                     $mutasi_detail->unit_id = $unit_mutasi->id;
                     $mutasi_detail->layer_id = $unit_mutasi->layer_id;
+                    $mutasi_detail->angkatan_id = 0;
                     $mutasi_detail->status = $key == $index ? 1 : 0;
                     $mutasi_detail->save();
 					
@@ -242,37 +277,39 @@ class MutasiController extends Controller
                 $status_kepegawaian = StatusKepegawaian::find(1);
 
                 // Get mutasi pegawai
-                $m = $pegawai->mutasi()->where('jenis_id','=',1)->first();
+                $m = $pegawai->mutasi()->where('jenis_id','=',1)->latest('tahun')->latest('bulan')->latest('tmt')->first();
                 $mutasi_detail = $m->detail()->where('status','=',1)->first();
 
                 // Get referensi
                 $referensi = Referensi::where('sk_id','=',$request->sk_id)->where('jabatan_dasar_id','=',$mutasi_detail->jabatan_dasar_id)->where('layer_id','=',$mutasi_detail->layer_id)->first();
 
-                // Simpan mutasi
-                $mutasi = new Mutasi;
+                // Simpan / update mutasi
+                if(!$mutasi || $request->id == 0) $mutasi = new Mutasi;
                 $mutasi->pegawai_id = $request->pegawai_id;
                 $mutasi->sk_id = $request->sk_id;
                 $mutasi->jenis_id = $request->jenis_mutasi;
                 $mutasi->status_kepeg_id = $status_kepegawaian->id;
                 $mutasi->golru_id = $request->golru;
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
+                $mutasi->bulan = $request->id == 0 ? 0 : $mutasi->bulan;
+                $mutasi->tahun = $request->id == 0 ? 0 : $mutasi->tahun;
                 $mutasi->uraian = $jenis_mutasi->nama;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
-                $mutasi->remun_gaji = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
-                $mutasi->remun_insentif = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
+                $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
+                $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
                 $mutasi->save();
             }
-            // Jika mutasi pangkat, KGB, atau PMK
-            elseif($jenis_mutasi->nama == 'Mutasi Pangkat' || $jenis_mutasi->nama == 'KGB' || $jenis_mutasi->nama == 'PMK') {
+            // Jika remun = 0 dan serdos = 1
+            elseif($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) {
                 // Get golru
                 $golru = Golru::find($request->golru);
 
                 // Get gaji pokok
                 $gaji_pokok = GajiPokok::find($request->gaji_pokok);
 
-                // Simpan mutasi
-                $mutasi = new Mutasi;
+                // Simpan / update mutasi
+                if(!$mutasi || $request->id == 0) $mutasi = new Mutasi;
                 $mutasi->pegawai_id = $request->pegawai_id;
                 $mutasi->sk_id = $request->sk_id;
                 $mutasi->jenis_id = $request->jenis_mutasi;
@@ -282,7 +319,57 @@ class MutasiController extends Controller
                 $mutasi->bulan = date('n', strtotime(DateTimeExt::change($request->tmt)));
                 $mutasi->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt)));
                 $mutasi->uraian = $jenis_mutasi->nama.' '.$golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
-                $mutasi->tmt = DateTimeExt::change($request->tmt);
+                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
+                $mutasi->remun_penerimaan = 0;
+                $mutasi->remun_gaji = 0;
+                $mutasi->remun_insentif = 0;
+                $mutasi->save();
+
+                // Update pegawai
+                $pegawai->nama_supplier = $request->nama_supplier;
+                $pegawai->norek_btn = $request->nomor_rekening;
+                $pegawai->nama_btn = $request->nama_rekening;
+                $pegawai->save();
+
+                // Get mutasi pegawai
+                if($request->id == 0) {
+                    $m = $pegawai->mutasi()->where('jenis_id','=',1)->first();
+                    if($m) {
+                        foreach($m->detail as $d) {
+                            // Simpan mutasi detail
+                            $detail = new MutasiDetail;
+                            $detail->mutasi_id = $mutasi->id;
+                            $detail->jabatan_id = $d->jabatan_id;
+                            $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
+                            $detail->unit_id = $d->unit_id;
+                            $detail->layer_id = $d->layer_id;
+                            $detail->angkatan_id = $request->angkatan;
+                            $detail->status = $d->status;
+                            $detail->save();
+                        }
+                    }
+                }
+            }
+            // Jika remun = 0 dan serdos = 0
+            elseif($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) {
+                // Get golru
+                $golru = Golru::find($request->golru);
+
+                // Get gaji pokok
+                $gaji_pokok = GajiPokok::find($request->gaji_pokok);
+
+                // Simpan / update mutasi
+                if(!$mutasi || $request->id == 0) $mutasi = new Mutasi;
+                $mutasi->pegawai_id = $request->pegawai_id;
+                $mutasi->sk_id = $request->sk_id;
+                $mutasi->jenis_id = $request->jenis_mutasi;
+                $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
+                $mutasi->golru_id = $golru->id;
+                $mutasi->gaji_pokok_id = $request->gaji_pokok;
+                $mutasi->bulan = date('n', strtotime(DateTimeExt::change($request->tmt)));
+                $mutasi->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt)));
+                $mutasi->uraian = $jenis_mutasi->nama.' '.$golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
+                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = 0;
                 $mutasi->remun_gaji = 0;
                 $mutasi->remun_insentif = 0;
@@ -300,18 +387,21 @@ class MutasiController extends Controller
                 $pegawai->save();
 
                 // Get mutasi pegawai
-                $m = $pegawai->mutasi()->where('jenis_id','=',1)->first();
-                if($m) {
-                    foreach($m->detail as $d) {
-                        // Simpan mutasi detail
-                        $detail = new MutasiDetail;
-                        $detail->mutasi_id = $mutasi->id;
-                        $detail->jabatan_id = $d->jabatan_id;
-                        $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
-                        $detail->unit_id = $d->unit_id;
-                        $detail->layer_id = $d->layer_id;
-                        $detail->status = $d->status;
-                        $detail->save();
+                if($request->id == 0) {
+                    $m = $pegawai->mutasi()->where('jenis_id','=',1)->first();
+                    if($m) {
+                        foreach($m->detail as $d) {
+                            // Simpan mutasi detail
+                            $detail = new MutasiDetail;
+                            $detail->mutasi_id = $mutasi->id;
+                            $detail->jabatan_id = $d->jabatan_id;
+                            $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
+                            $detail->unit_id = $d->unit_id;
+                            $detail->layer_id = $d->layer_id;
+                            $detail->angkatan_id = 0;
+                            $detail->status = $d->status;
+                            $detail->save();
+                        }
                     }
                 }
 
@@ -330,18 +420,18 @@ class MutasiController extends Controller
             }
             // Jika lainnya
             else {
-                // Simpan mutasi
-                $mutasi = new Mutasi;
+                // Simpan / update mutasi
+                if(!$mutasi || $request->id == 0) $mutasi = new Mutasi;
                 $mutasi->pegawai_id = $request->pegawai_id;
                 $mutasi->sk_id = $request->sk_id;
                 $mutasi->jenis_id = $request->jenis_mutasi;
                 $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
                 $mutasi->golru_id = $request->golru;
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
-                $mutasi->bulan = 0;
-                $mutasi->tahun = 0;
+                $mutasi->bulan = $request->id == 0 ? 0 : $mutasi->bulan;
+                $mutasi->tahun = $request->id == 0 ? 0 : $mutasi->tahun;
                 $mutasi->uraian = $jenis_mutasi->nama;
-                $mutasi->tmt = DateTimeExt::change($request->tmt);
+                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = 0;
                 $mutasi->remun_gaji = 0;
                 $mutasi->remun_insentif = 0;
@@ -381,11 +471,19 @@ class MutasiController extends Controller
         $pegawai = Pegawai::findOrFail($id);
 
         // Get SK
-        // $sk = SK::where('jenis_id','=',1)->where('status','=',1)->first();
         $sk = SK::find($mutasi->sk_id);
 
         // Get jenis mutasi
         $jenis_mutasi = JenisMutasi::orderBy('num_order','asc')->get();
+
+        // Get jabatan remun
+        if($mutasi->jenis->remun == 0) {
+            foreach($mutasi->detail as $key=>$d) {
+                // Get grup
+                $grup = $d->jabatan->grup()->first();
+                $mutasi->detail[$key]->jabatan_remun = $grup->jabatan()->where('sk_id','=',$sk->id)->first() ? $grup->jabatan()->where('sk_id','=',$sk->id)->first()->id : 0;
+            }
+        }
 
         // Get status kepegawaian
         $status_kepegawaian = StatusKepegawaian::get();
@@ -394,10 +492,10 @@ class MutasiController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if(in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
-            $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
-        else
-            $gaji_pokok = [];
+        if($pegawai->status_kepegawaian->golru == 1)
+        $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
+    else
+        $gaji_pokok = [];
 
         // Get jabatan
         $jabatan = $sk ? Jabatan::where('sk_id','=',$sk->id)->orderBy('nama','asc')->get() : Jabatan::orderBy('nama','asc')->get();
@@ -407,6 +505,12 @@ class MutasiController extends Controller
 
         // Get pejabat
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
+
+        // Get angkatan
+        $angkatan = [];
+        for($i=1; $i<=3; $i++) {
+            $angkatan[$i]['data'] = Angkatan::where('jenis_id','=',$i)->orderBy('nama','asc')->get();
+        }
 
         // View
         return view('admin/mutasi/edit', [
@@ -420,225 +524,8 @@ class MutasiController extends Controller
             'golru' => $golru,
             'gaji_pokok' => $gaji_pokok,
             'pejabat' => $pejabat,
+            'angkatan' => $angkatan,
         ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request)
-    {
-        // Get mutasi
-        $mutasi = Mutasi::findOrFail($request->id);
-
-        // Get jenis mutasi
-        $jenis_mutasi = JenisMutasi::findOrFail($request->jenis_mutasi);
-
-        // Get pegawai
-        $pegawai = Pegawai::find($request->pegawai_id);
-
-        // Validation
-        $validator = Validator::make($request->all(), [
-            'uraian' => $jenis_mutasi->nama == 'Mutasi Jabatan' ? 'required' : '',
-            'jenis_mutasi' => 'required',
-            'golru' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
-            'gaji_pokok' => in_array($pegawai->status_kepegawaian->nama, ['PNS','CPNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']) ? 'required' : '',
-            'tmt' => $mutasi->bulan == 6 && $mutasi->tahun == 2023 ? '' : 'required',
-            'no_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'tanggal_sk' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'mk_tahun' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'mk_bulan' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-            'pejabat' => in_array($jenis_mutasi->nama, ['Mutasi Pangkat','KGB','PMK']) ? 'required' : '',
-        ]);
-        
-        // Check errors
-        if($validator->fails()) {
-            // Back to form page with validation error messages
-            return redirect()->back()->withErrors($validator->errors())->withInput();
-        }
-        else {
-            // Jika mutasi jabatan
-            if($jenis_mutasi->nama == 'Mutasi Jabatan') {
-                $jabatan_tertinggi = Jabatan::find($request->jabatan_id[0]);
-                $index = 0;
-                if(count($request->jabatan_id) > 1) {
-                    foreach($request->jabatan_id as $key=>$jabatan_id) {
-                        // Get jabatan
-                        $jabatan = Jabatan::find($jabatan_id);
-
-                        // Compare
-                        if($jabatan_tertinggi->jabatan_dasar->nilai * $jabatan_tertinggi->jabatan_dasar->koefisien * $jabatan_tertinggi->jabatan_dasar->pir < $jabatan->jabatan_dasar->nilai * $jabatan->jabatan_dasar->koefisien * $jabatan->jabatan_dasar->pir) {
-                            $jabatan_tertinggi = $jabatan;
-                            $index = $key;
-                        }
-                    }
-                }
-
-                // Get unit
-                $unit = Unit::find($request->unit_id[$index]);
-
-                // Get referensi
-                $referensi = Referensi::where('sk_id','=',$request->sk_id)->where('jabatan_dasar_id','=',$jabatan_tertinggi->jabatan_dasar_id)->where('layer_id','=',$unit->layer_id)->first();
-
-                // Simpan mutasi
-                $mutasi->pegawai_id = $request->pegawai_id;
-                $mutasi->sk_id = $request->sk_id;
-                $mutasi->jenis_id = $request->jenis_mutasi;
-                $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
-                $mutasi->golru_id = $request->golru;
-                $mutasi->gaji_pokok_id = $request->gaji_pokok;
-                $mutasi->uraian = $request->uraian;
-                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
-                $mutasi->remun_penerimaan = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
-                // $mutasi->remun_gaji = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
-                // $mutasi->remun_insentif = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
-                $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
-                $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
-                $mutasi->save();
-
-                // Delete mutasi detail
-                foreach($mutasi->detail()->pluck('id')->toArray() as $detail_id) {
-                    if(!in_array($detail_id, array_filter($request->detail_id))) {
-                        $mutasi_detail = MutasiDetail::find($detail_id);
-                        $mutasi_detail->delete();
-                    }
-                }
-
-                // Update / add mutasi detail berdasarkan detail_id
-                foreach($request->detail_id as $key=>$detail_id) {
-                    // Get jabatan dan unit
-                    $jabatan_mutasi = Jabatan::find($request->jabatan_id[$key]);
-                    $unit_mutasi = Unit::find($request->unit_id[$key]);
-
-                    // Simpan mutasi detail
-                    $mutasi_detail = $detail_id != null ? MutasiDetail::find($detail_id) : new MutasiDetail;
-                    $mutasi_detail->mutasi_id = $mutasi->id;
-                    $mutasi_detail->jabatan_dasar_id = $jabatan_mutasi->jabatan_dasar_id;
-                    $mutasi_detail->jabatan_id = $jabatan_mutasi->id;
-                    $mutasi_detail->unit_id = $unit_mutasi->id;
-                    $mutasi_detail->layer_id = $unit_mutasi->layer_id;
-                    $mutasi_detail->status = $key == $index ? 1 : 0;
-                    $mutasi_detail->save();
-					
-					// Update jabfung_id dan unit_id pada pegawai
-					if($jabatan_mutasi->jenis_id == 1) {
-						$pegawai = Pegawai::find($request->pegawai_id);
-						$pegawai->jabfung_id = $jabatan_mutasi->grup_id;
-						$pegawai->unit_id = $unit_mutasi->id;
-						$pegawai->save();
-					}
-					
-					// Update jabstruk_id pada pegawai
-					if($jabatan_mutasi->jenis_id == 2) {
-						$pegawai = Pegawai::find($request->pegawai_id);
-						$pegawai->jabstruk_id = $jabatan_mutasi->grup_id;
-						$pegawai->save();
-					}
-                }
-            }
-            // Jika mutasi CPNS ke PNS
-            elseif($jenis_mutasi->nama == 'Mutasi CPNS ke PNS') {
-                // Get status kepegawaian
-                $status_kepegawaian = StatusKepegawaian::find(1);
-
-                // Get mutasi pegawai
-                $m = $pegawai->mutasi()->where('jenis_id','=',1)->latest('tahun')->latest('bulan')->latest('tmt')->first();
-                $mutasi_detail = $m->detail()->where('status','=',1)->first();
-
-                // Get referensi
-                $referensi = Referensi::where('sk_id','=',$request->sk_id)->where('jabatan_dasar_id','=',$mutasi_detail->jabatan_dasar_id)->where('layer_id','=',$mutasi_detail->layer_id)->first();
-
-                // Simpan mutasi
-                $mutasi->pegawai_id = $request->pegawai_id;
-                $mutasi->sk_id = $request->sk_id;
-                $mutasi->jenis_id = $request->jenis_mutasi;
-                $mutasi->status_kepeg_id = $status_kepegawaian->id;
-                $mutasi->golru_id = $request->golru;
-                $mutasi->gaji_pokok_id = $request->gaji_pokok;
-                $mutasi->uraian = $jenis_mutasi->nama;
-                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
-                $mutasi->remun_penerimaan = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
-                $mutasi->remun_gaji = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_gaji, 1);
-                $mutasi->remun_insentif = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_insentif, 1);
-                $mutasi->save();
-            }
-            elseif($jenis_mutasi->nama == 'Mutasi Pangkat' || $jenis_mutasi->nama == 'KGB' || $jenis_mutasi->nama == 'PMK') {
-                // Get golru
-                $golru = Golru::find($request->golru);
-
-                // Get gaji pokok
-                $gaji_pokok = GajiPokok::find($request->gaji_pokok);
-
-                // Simpan mutasi
-                $mutasi->pegawai_id = $request->pegawai_id;
-                $mutasi->sk_id = $request->sk_id;
-                $mutasi->jenis_id = $request->jenis_mutasi;
-                // $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
-                $mutasi->golru_id = $golru->id;
-                $mutasi->gaji_pokok_id = $request->gaji_pokok;
-                $mutasi->uraian = $jenis_mutasi->nama.' '.$golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
-                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
-                $mutasi->remun_penerimaan = 0;
-                $mutasi->remun_gaji = 0;
-                $mutasi->remun_insentif = 0;
-                $mutasi->save();
-
-                // Set TMT golongan
-                $tmt_golongan = date('Y-m-d', strtotime("-".$request->mk_tahun." year", strtotime($mutasi->tmt)));
-                $tmt_golongan = date('Y-m-d', strtotime("-".$request->mk_bulan." month", strtotime($tmt_golongan)));
-
-                // Update pegawai
-                $pegawai = Pegawai::find($request->pegawai_id);
-                $pegawai->golongan_id = $golru->golongan_id;
-                $pegawai->golru_id = $golru->id;
-                $pegawai->tmt_golongan = $tmt_golongan;
-                $pegawai->save();
-
-                // Simpan perubahan
-                $perubahan = $mutasi->perubahan;
-                if(!$perubahan) $perubahan = new Perubahan;
-                $perubahan->mutasi_id = $mutasi->id;
-                $perubahan->sk_id = $gaji_pokok->sk_id;
-                $perubahan->pejabat_id = $request->pejabat;
-                $perubahan->no_sk = $request->no_sk;
-                $perubahan->tanggal_sk = DateTimeExt::change($request->tanggal_sk);
-                $perubahan->mk_tahun = $request->mk_tahun;
-                $perubahan->mk_bulan = $request->mk_bulan;
-                $perubahan->tmt = DateTimeExt::change($request->tmt);
-                $perubahan->save();
-            }
-            // Jika lainnya
-            else {
-                // Simpan mutasi
-                $mutasi->pegawai_id = $request->pegawai_id;
-                $mutasi->sk_id = $request->sk_id;
-                $mutasi->jenis_id = $request->jenis_mutasi;
-                $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
-                $mutasi->golru_id = $request->golru;
-                $mutasi->gaji_pokok_id = $request->gaji_pokok;
-                $mutasi->uraian = $jenis_mutasi->nama;
-                $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
-                $mutasi->remun_penerimaan = 0;
-                $mutasi->remun_gaji = 0;
-                $mutasi->remun_insentif = 0;
-                $mutasi->save();
-
-                // Jika sanksi
-                if($jenis_mutasi->nama != 'Sanksi') {
-                    // Simpan pegawai
-                    $pegawai = Pegawai::find($request->pegawai_id);
-                    $pegawai->status_kerja_id = $request->jenis_mutasi;
-                    $pegawai->tmt_non_aktif = DateTimeExt::change($request->tmt);
-                    $pegawai->save();
-                }
-            }
-
-            // Redirect
-            return redirect()->route('admin.pegawai.detail', ['id' => $request->pegawai_id, 'mutasi' => 1])->with(['message' => 'Berhasil mengupdate data.']);
-        }
     }
     
     /**
