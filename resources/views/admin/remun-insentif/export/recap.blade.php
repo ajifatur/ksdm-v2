@@ -13,6 +13,7 @@
             <th align="center" width="40"><b>SUB NAMA</b></th>
             <th align="center" width="15"><b>REMUN GAJI</b></th>
             <th align="center" width="15"><b>DIBAYARKAN</b></th>
+            <th align="center" width="20"><b>KETERANGAN</b></th>
 
         </tr>
     </thead>
@@ -39,6 +40,7 @@
                 <td>{{ $d->jabatan ? $d->jabatan->sub : '-' }}</td>
                 <td>{{ $d->remun_insentif }}</td>
                 <td>{{ $d->remun_insentif }}</td>
+                <td>{{ $d->keterangan }}</td>
             </tr>
         @endforeach
     </tbody>
