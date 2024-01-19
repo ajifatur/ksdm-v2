@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Edit SPKGB Pegawai PTNBH')
+@section('title', 'Edit SPKGB Pegawai Tetap Non ASN')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Edit SPKGB Pegawai PTNBH</h1>
+    <h1 class="h3 mb-0">Edit SPKGB Pegawai Tetap Non ASN</h1>
 </div>
 <div class="row">
 	<div class="col-12">

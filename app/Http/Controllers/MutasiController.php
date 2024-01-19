@@ -493,9 +493,9 @@ class MutasiController extends Controller
 
         // Get gaji pokok
         if($pegawai->status_kepegawaian->golru == 1)
-        $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
-    else
-        $gaji_pokok = [];
+            $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
+        else
+            $gaji_pokok = [];
 
         // Get jabatan
         $jabatan = $sk ? Jabatan::where('sk_id','=',$sk->id)->orderBy('nama','asc')->get() : Jabatan::orderBy('nama','asc')->get();
