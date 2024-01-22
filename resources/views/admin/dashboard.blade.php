@@ -175,26 +175,6 @@
         </div>
     </div>
 </div>
-<!-- <hr class="my-0">
-<h1 class="h3 my-3">Sub-Sistem</h1>
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <a href="#" class="card text-dark bg-white border btn-bypass" data-url="https://simama.spandiv.xyz/">
-            <div class="card-body">
-                <h5 class="card-title">SIMAMA</h5>
-                <p class="card-text">Sistem Informasi Manajemen Data Wredatama</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-6 mb-3">
-        <a href="{{ route('admin.presensi.index') }}" class="card text-dark bg-white border">
-            <div class="card-body">
-                <h5 class="card-title">SIUMPAN</h5>
-                <p class="card-text">Sistem Informasi Presensi untuk Uang Makan PNS dan PPPK</p>
-            </div>
-        </a>
-    </div>
-</div> -->
 
 @endsection
 
