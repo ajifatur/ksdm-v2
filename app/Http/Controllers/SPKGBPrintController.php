@@ -21,6 +21,7 @@ use App\Models\JenisMutasi;
 use App\Models\Golru;
 use App\Models\GajiPokok;
 use App\Models\Pejabat;
+use App\Models\Unit;
 
 class SPKGBPrintController extends Controller
 {
@@ -65,29 +66,53 @@ class SPKGBPrintController extends Controller
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $jenis = $request->query('jenis') ?: 0;
 
         // Get SPKGB
         if($request->query('type') == 1) {
-            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
-                return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama',['PNS','CPNS']);
-                });
-            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
-                return $query->has('perubahan')->where('tmt','=',$tanggal);
-            })->orderBy('unit_id','asc')->get();
+            if($jenis != 0) {
+                $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
+                    return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
+                        return $query->whereIn('nama',['PNS','CPNS']);
+                    });
+                })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                    return $query->has('perubahan')->where('tmt','=',$tanggal);
+                })->with('unit')->orderBy(
+                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                )->orderBy(
+                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                )->get();
+            }
+            else {
+                $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                    return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                        return $query->whereIn('nama',['PNS','CPNS']);
+                    });
+                })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                    return $query->has('perubahan')->where('tmt','=',$tanggal);
+                })->with('unit')->orderBy(
+                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                )->orderBy(
+                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                )->get();
+            }
         }
         elseif($request->query('type') == 2) {
             $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                 return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap']);
+                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
                 });
             })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                 return $query->has('perubahan')->where('tmt','=',$tanggal);
-            })->orderBy('unit_id','asc')->get();
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
         }
 
         // Set title
-        $title = 'Batch SPKGB '.$tahun.' '.DateTimeExt::month($bulan);
+        $title = 'Batch SPKGB '.(in_array($jenis, [1,2]) ? $jenis == 1 ? 'Dosen' : 'Tendik' : '').' '.$tahun.' '.DateTimeExt::month($bulan);
 		
         // PDF
         $pdf = PDF::loadView('admin/spkgb/print/batch', [
@@ -124,16 +149,24 @@ class SPKGBPrintController extends Controller
                 });
             })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                 return $query->has('perubahan')->where('tmt','=',$tanggal);
-            })->orderBy('unit_id','asc')->get();
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
         }
         elseif($request->query('type') == 2) {
             $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                 return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap']);
+                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
                 });
             })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                 return $query->has('perubahan')->where('tmt','=',$tanggal);
-            })->orderBy('unit_id','asc')->get();
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
         }
 
         // Set title

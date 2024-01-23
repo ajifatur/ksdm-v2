@@ -204,6 +204,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::post('/admin/spkgb/pns/store', 'SPKGBPNSController@store')->name('admin.spkgb.pns.store');
     Route::get('/admin/spkgb/pns/edit/{id}', 'SPKGBPNSController@edit')->name('admin.spkgb.pns.edit');
     Route::post('/admin/spkgb/pns/update', 'SPKGBPNSController@update')->name('admin.spkgb.pns.update');
+    Route::get('/admin/spkgb/pns/export', 'SPKGBPNSController@export')->name('admin.spkgb.pns.export');
 
     // SPKGB Pegawai PTNBH
     Route::get('/admin/spkgb/ptnbh', 'SPKGBPTNBHController@index')->name('admin.spkgb.ptnbh.index');

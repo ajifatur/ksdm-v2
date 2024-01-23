@@ -7,9 +7,8 @@ use Excel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\MutasiImport;
+use App\Exports\SPKGBExport;
 use App\Models\Pegawai;
 use App\Models\Mutasi;
 use App\Models\MutasiDetail;
@@ -20,6 +19,7 @@ use App\Models\JenisMutasi;
 use App\Models\Golru;
 use App\Models\GajiPokok;
 use App\Models\Pejabat;
+use App\Models\Unit;
 
 class SPKGBPNSController extends Controller
 {
@@ -400,10 +400,30 @@ class SPKGBPNSController extends Controller
     {
         $tahun = $request->query('tahun') ?: date('Y');
         $data = [];
-        $total = 0;
+        $total['dosen'] = 0;
+        $total['tendik'] = 0;
+        $total['semua'] = 0;
         for($i=1; $i<=12; $i++) {
-            // Get SPKGB
-            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+            // Count SPKGB Dosen
+            $spkgb_dosen = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->where('jenis','=',1)->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
+                return $query->has('perubahan')->where('bulan','=',$i)->where('tahun','=',$tahun);
+            })->count();
+
+            // Count SPKGB Tendik
+            $spkgb_tendik = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->where('jenis','=',2)->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
+                return $query->has('perubahan')->where('bulan','=',$i)->where('tahun','=',$tahun);
+            })->count();
+
+            // Count SPKGB
+            $spkgb_semua = SPKGB::whereHas('pegawai', function(Builder $query) {
                 return $query->whereHas('status_kepegawaian', function(Builder $query) {
                     return $query->whereIn('nama',['PNS','CPNS']);
                 });
@@ -412,13 +432,17 @@ class SPKGBPNSController extends Controller
             })->count();
 
             // Increment total
-            $total += $spkgb;
+            $total['dosen'] += $spkgb_dosen;
+            $total['tendik'] += $spkgb_tendik;
+            $total['semua'] += $spkgb_semua;
 
             // Push to array
             array_push($data, [
                 'bulan' => $i,
                 'nama' => DateTimeExt::month($i),
-                'spkgb' => $spkgb
+                'spkgb_dosen' => $spkgb_dosen,
+                'spkgb_tendik' => $spkgb_tendik,
+                'spkgb_semua' => $spkgb_semua,
             ]);
         }
 
@@ -428,6 +452,60 @@ class SPKGBPNSController extends Controller
             'data' => $data,
             'total' => $total
         ]);
+    }
+
+    /**
+     * Export to Excel.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function export(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
+
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $jenis = $request->query('jenis') ?: 0;
+
+        if($jenis != 0) {
+            // Get SPKGB
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
+                return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
+        }
+        else {
+            // Get SPKGB
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama',['PNS','CPNS']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
+
+        }
+
+        // Return
+        return Excel::download(new SPKGBExport([
+            'spkgb' => $spkgb,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+        ]), 'Template Siradi SPKGB '.(in_array($jenis, [1,2]) ? $jenis == 1 ? 'Dosen' : 'Tendik' : '').' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx');
     }
 
     public function get_pegawai($mkg, $golru, $tahun, $bulan, $tanggal) {
