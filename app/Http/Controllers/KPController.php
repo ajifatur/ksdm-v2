@@ -51,48 +51,67 @@ class KPController extends Controller
 		
 		// Get data
         $data = [];
-        $total = 0;
+        $total['dosen_asn'] = 0;
+        $total['tendik_asn'] = 0;
+        $total['asn'] = 0;
+        $total['dosen_non_asn'] = 0;
+        $total['tendik_non_asn'] = 0;
+        $total['non_asn'] = 0;
         foreach($tmt as $t) {
-            // Get KP dosen
-            $dosen = Mutasi::whereHas('jenis', function(Builder $query) {
+            // Get KP dosen ASN
+            $dosen_asn = Mutasi::whereHas('jenis', function(Builder $query) {
 				return $query->where('nama','=','Mutasi Pangkat');
 			})->whereHas('pegawai', function(Builder $query) {
-				return $query->where('jenis','=',1);
+				return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama', ['PNS','CPNS']);
+                })->where('jenis','=',1);
 			})->where('tmt','=',$t)->count();
 			
-            // Get KP tendik
-            $tendik = Mutasi::whereHas('jenis', function(Builder $query) {
+            // Get KP tendik ASN
+            $tendik_asn = Mutasi::whereHas('jenis', function(Builder $query) {
 				return $query->where('nama','=','Mutasi Pangkat');
 			})->whereHas('pegawai', function(Builder $query) {
-				return $query->where('jenis','=',2);
+				return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama', ['PNS','CPNS']);
+                })->where('jenis','=',2);
+			})->where('tmt','=',$t)->count();
+
+            // Get KP dosen non ASN
+            $dosen_non_asn = Mutasi::whereHas('jenis', function(Builder $query) {
+				return $query->where('nama','=','Mutasi Pangkat');
+			})->whereHas('pegawai', function(Builder $query) {
+				return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                })->where('jenis','=',1);
 			})->where('tmt','=',$t)->count();
 			
-            // Get KP IV/c ke atas
-            $iv_c = Mutasi::whereHas('jenis', function(Builder $query) {
+            // Get KP tendik non ASN
+            $tendik_non_asn = Mutasi::whereHas('jenis', function(Builder $query) {
 				return $query->where('nama','=','Mutasi Pangkat');
-			})->whereHas('perubahan', function(Builder $query) {
-				return $query->where('pejabat_id','=',1);
-			})->where('tmt','=',$t)->count();
-			
-            // Get KP IV/b ke bawah
-            $iv_b = Mutasi::whereHas('jenis', function(Builder $query) {
-				return $query->where('nama','=','Mutasi Pangkat');
-			})->whereHas('perubahan', function(Builder $query) {
-				return $query->where('pejabat_id','=',2);
+			})->whereHas('pegawai', function(Builder $query) {
+				return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                    return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                })->where('jenis','=',2);
 			})->where('tmt','=',$t)->count();
 
             // Increment total
-            $total += ($dosen + $tendik);
+            $total['dosen_asn'] += $dosen_asn;
+            $total['tendik_asn'] += $tendik_asn;
+            $total['asn'] += ($dosen_asn + $tendik_asn);
+            $total['dosen_non_asn'] += $dosen_non_asn;
+            $total['tendik_non_asn'] += $tendik_non_asn;
+            $total['non_asn'] += ($dosen_non_asn + $tendik_non_asn);
 
             // Push to array
             array_push($data, [
                 'tmt' => $t,
                 'nama' => DateTimeExt::full($t),
-                'dosen' => $dosen,
-                'tendik' => $tendik,
-                'iv_c' => $iv_c,
-                'iv_b' => $iv_b,
-                'total' => $dosen + $tendik
+                'dosen_asn' => $dosen_asn,
+                'tendik_asn' => $tendik_asn,
+                'total_asn' => $dosen_asn + $tendik_asn,
+                'dosen_non_asn' => $dosen_non_asn,
+                'tendik_non_asn' => $tendik_non_asn,
+                'total_non_asn' => $dosen_non_asn + $tendik_non_asn,
             ]);
         }
 

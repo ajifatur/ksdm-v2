@@ -15,24 +15,30 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>TMT / Periode</th>
-                                <th width="100">IV/c ke atas</th>
-                                <th width="100">IV/b ke bawah</th>
+                                <th rowspan="2">TMT / Periode</th>
+                                <th colspan="3">ASN</th>
+                                <th colspan="3">Non ASN</th>
+                                <th rowspan="2" width="30">Opsi</th>
+                            </tr>
+                            <tr>
                                 <th width="80">Dosen</th>
                                 <th width="80">Tendik</th>
                                 <th width="80">Jumlah</th>
-                                <th width="30">Opsi</th>
+                                <th width="80">Dosen</th>
+                                <th width="80">Tendik</th>
+                                <th width="80">Jumlah</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($data as $d)
                             <tr>
                                 <td><span class="d-none">{{ $d['tmt'] }}</span>{{ $d['nama'] }}</td>
-                                <td align="right">{{ number_format($d['iv_c']) }}</td>
-                                <td align="right">{{ number_format($d['iv_b']) }}</td>
-                                <td align="right">{{ number_format($d['dosen']) }}</td>
-                                <td align="right">{{ number_format($d['tendik']) }}</td>
-                                <td align="right">{{ number_format($d['total']) }}</td>
+                                <td align="right">{{ number_format($d['dosen_asn']) }}</td>
+                                <td align="right">{{ number_format($d['tendik_asn']) }}</td>
+                                <td align="right">{{ number_format($d['total_asn']) }}</td>
+                                <td align="right">{{ number_format($d['dosen_non_asn']) }}</td>
+                                <td align="right">{{ number_format($d['tendik_non_asn']) }}</td>
+                                <td align="right">{{ number_format($d['total_non_asn']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.kp.index', ['tmt' => $d['tmt']]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="List Mutasi KP"><i class="bi-eye"></i></a>
@@ -43,8 +49,13 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td align="center" colspan="5">Total</td>
-                                <td align="right">{{ number_format($total) }}</td>
+                                <td align="center">Total</td>
+                                <td align="right">{{ number_format($total['dosen_asn']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_asn']) }}</td>
+                                <td align="right">{{ number_format($total['asn']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_non_asn']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_non_asn']) }}</td>
+                                <td align="right">{{ number_format($total['non_asn']) }}</td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -62,8 +73,7 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable", {
-        orderAll: true,
-        pageLength: -1,
+        orderAll: true
     });
 </script>
 

@@ -48,6 +48,34 @@
                         </div>
                     </div>
                     <hr>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Nama Supplier</label>
+                        <div class="col-lg-10 col-md-9">
+							<input type="text" name="nama_supplier" class="form-control form-control-sm {{ $errors->has('nama_supplier') ? 'border-danger' : '' }}" value="{{ $pegawai->nama_supplier }}">
+                            @if($errors->has('nama_supplier'))
+                            <div class="small text-danger">{{ $errors->first('nama_supplier') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Nama Pemilik Rekening BTN</label>
+                        <div class="col-lg-10 col-md-9">
+							<input type="text" name="nama_btn" class="form-control form-control-sm {{ $errors->has('nama_btn') ? 'border-danger' : '' }}" value="{{ $pegawai->nama_btn }}">
+                            @if($errors->has('nama_btn'))
+                            <div class="small text-danger">{{ $errors->first('nama_btn') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Nomor Rekening BTN</label>
+                        <div class="col-lg-10 col-md-9">
+							<input type="text" name="norek_btn" class="form-control form-control-sm {{ $errors->has('norek_btn') ? 'border-danger' : '' }}" value="{{ $pegawai->norek_btn }}">
+                            @if($errors->has('norek_btn'))
+                            <div class="small text-danger">{{ $errors->first('norek_btn') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <hr>
                     <div class="row">
                         <div class="col-lg-2 col-md-3"></div>
                         <div class="col-lg-10 col-md-9">

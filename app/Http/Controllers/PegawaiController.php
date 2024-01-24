@@ -270,6 +270,9 @@ class PegawaiController extends Controller
             $pegawai->nama = $request->nama;
             $pegawai->gelar_depan = $request->gelar_depan;
             $pegawai->gelar_belakang = $request->gelar_belakang;
+            $pegawai->nama_supplier = $request->nama_supplier;
+            $pegawai->nama_btn = $request->nama_btn;
+            $pegawai->norek_btn = $request->norek_btn;
             $pegawai->save();
 
             // Redirect
