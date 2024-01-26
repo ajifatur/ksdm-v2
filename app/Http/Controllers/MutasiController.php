@@ -55,7 +55,7 @@ class MutasiController extends Controller
             })->whereHas('pegawai', function(Builder $query) {
                 return $query->where('jenis','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
-                return $query->where('golru','=',1);
+                return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
             })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
         }
 

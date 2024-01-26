@@ -47,7 +47,7 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Nama / NIP</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Jenis / Deskripsi</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">{{ $jenis == 'remun' ? 'Jenis / Deskripsi' : 'Jenis' }}</th>
                                 <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Status Kepegawaian</th>
                                 <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Golru</th>
                                 <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">MKG</th>
@@ -73,8 +73,10 @@
                                 <td>{{ strtoupper($m->pegawai->nama) }}<br>{{ $m->pegawai->nip }}</td>
                                 <td>
                                     {{ $m->jenis->nama }}
-                                    <br>
-                                    {{ $m->uraian != '' ? '('.$m->uraian.')' : '' }}
+                                    @if($jenis == 'remun')
+                                        <br>
+                                        {{ $m->uraian != '' ? '('.$m->uraian.')' : '' }}
+                                    @endif
                                 </td>
                                 <td>{{ $m->status_kepegawaian ? $m->status_kepegawaian->nama : '-' }}</td>
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
