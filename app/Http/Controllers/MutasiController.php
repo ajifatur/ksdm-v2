@@ -41,17 +41,30 @@ class MutasiController extends Controller
     {
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
+        $jenis = $request->query('jenis') ?: 'remun';
 
         // Get mutasi
-        $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-            return $query->where('remun','=',1);
-        })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
+        if($jenis == 'remun') {
+            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('remun','=',1);
+            })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
+        }
+        elseif($jenis == 'serdos') {
+            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1)->orWhere('serdos','=',0)->where('remun','=',0);
+            })->whereHas('pegawai', function(Builder $query) {
+                return $query->where('jenis','=',1);
+            })->whereHas('status_kepegawaian', function(Builder $query) {
+                return $query->where('golru','=',1);
+            })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
+        }
 
         // View
         return view('admin/mutasi/index', [
             'mutasi' => $mutasi,
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'jenis' => $jenis,
         ]);
     }
 
