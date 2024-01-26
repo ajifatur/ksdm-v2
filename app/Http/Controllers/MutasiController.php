@@ -54,7 +54,7 @@ class MutasiController extends Controller
             $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('serdos','=',1);
             })->whereHas('pegawai', function(Builder $query) {
-                return $query->where('jenis','=',1)->whereIn('id',TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray());
+                return $query->where('jenis','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
                 return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
             })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
@@ -90,7 +90,7 @@ class MutasiController extends Controller
             $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('serdos','=',1);
             })->whereHas('pegawai', function(Builder $query) {
-                return $query->where('jenis','=',1)->whereIn('id',TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray());
+                return $query->where('jenis','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
                 return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
             })->where('bulan','=',0)->where('tahun','=',0)->orderBy('tmt','desc')->get();
