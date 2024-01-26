@@ -1,15 +1,16 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', $jenis == 'remun' ? 'Mutasi Remun Terproses' : 'Mutasi Tunjangan Profesi Dosen Terproses')
+@section('title', $jenis == 'remun' ? 'Mutasi Remun '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru') : 'Mutasi Tunjangan Profesi Dosen '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remun Terproses' : 'Mutasi Tunjangan Profesi Dosen Terproses' }}</h1>
+    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remun '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru') : 'Mutasi Tunjangan Profesi Dosen '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru') }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
+            @if(Route::currentRouteName() == 'admin.mutasi.index')
             <form method="get" action="">
                 <input type="hidden" name="jenis" value="{{ $jenis }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
@@ -35,6 +36,7 @@
                 </div>
             </form>
             <hr class="my-0">
+            @endif
             <div class="card-body">
                 @if(Session::get('message'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -46,30 +48,36 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Nama / NIP</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">{{ $jenis == 'remun' ? 'Jenis / Deskripsi' : 'Jenis' }}</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Status Kepegawaian</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Golru</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">MKG</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Jabatan</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Unit</th>
-                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">TMT</th>
+                                <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">{{ $jenis == 'remun' ? 'Jenis / Deskripsi' : 'Jenis' }}</th>
+                                <th rowspan="2">Status Kepegawaian</th>
+                                <th rowspan="2">Golru</th>
+                                <th rowspan="2">MKG</th>
+                                <th rowspan="2">Jabatan</th>
+                                <th rowspan="2">Unit</th>
+                                <th rowspan="2">TMT</th>
                                 @if($jenis == 'remun')
-                                <th colspan="3">Remun</th>
+                                    <th colspan="3">Remun</th>
+                                @elseif($jenis == 'serdos')
+                                    <th colspan="2">Gaji Pokok</th>
+                                    <th rowspan="2">Angkatan Serdos</th>
                                 @endif
-								<th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}" width="30">Opsi</th>
+								<th rowspan="2" width="30">Opsi</th>
                             </tr>
-                            @if($jenis == 'remun')
                             <tr>
-                                <th width="70">Penerimaan</th>
-                                <th width="70">Gaji</th>
-                                <th width="70">Insentif</th>
+                                @if($jenis == 'remun')
+                                    <th width="70">Penerimaan</th>
+                                    <th width="70">Gaji</th>
+                                    <th width="70">Insentif</th>
+                                @elseif($jenis == 'serdos')
+                                    <th width="70">Sebelum</th>
+                                    <th width="70">Sesudah</th>
+                                @endif
                             </tr>
-                            @endif
                         </thead>
                         <tbody>
                             @foreach($mutasi as $m)
-                            <tr class="{{ $jenis == 'remun' && $m->remun_gaji == 0 ? 'bg-secondary text-white' : '' }}">
+                            <tr class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'bg-secondary text-white' : '' }}">
                                 <td>{{ strtoupper($m->pegawai->nama) }}<br>{{ $m->pegawai->nip }}</td>
                                 <td>
                                     {{ $m->jenis->nama }}
@@ -92,7 +100,7 @@
                                             -
                                         @endif
                                     @else
-                                        {{ $m->pegawai->jabfung->nama }}
+                                        {{ $m->pegawai->jabfung ? $m->pegawai->jabfung->nama : '-' }}
                                     @endif
                                 </td>
                                 <td>
@@ -106,7 +114,7 @@
                                             -
                                         @endif
                                     @else
-                                        {{ $m->pegawai->unit->nama }}
+                                        {{ $m->pegawai->unit ? $m->pegawai->unit->nama : '-' }}
                                     @endif
                                 </td>
                                 <td>
@@ -114,9 +122,25 @@
                                     {{ $m->tmt != null ? date('d/m/Y', strtotime($m->tmt)) : '-' }}
                                 </td>
                                 @if($jenis == 'remun')
-                                <td align="right">{{ number_format($m->remun_penerimaan) }}</td>
-                                <td align="right">{{ number_format($m->remun_gaji) }}</td>
-                                <td align="right">{{ number_format($m->remun_insentif) }}</td>
+                                    <td align="right">{{ number_format($m->remun_penerimaan) }}</td>
+                                    <td align="right">{{ number_format($m->remun_gaji) }}</td>
+                                    <td align="right">{{ number_format($m->remun_insentif) }}</td>
+                                @elseif($jenis == 'serdos')
+                                    <td align="right">{{ $m->tunjangan_profesi ? number_format($m->tunjangan_profesi->tunjangan) : 0 }}</td>
+                                    <td align="right">{{ $m->jenis->status == 1 ? number_format($m->gaji_pokok->gaji_pokok) : 0 }}</td>
+                                    <td>
+                                        @if($m->tunjangan_profesi)
+                                            {{ $m->tunjangan_profesi->angkatan->nama }}
+                                        @else
+                                            @if(count($m->detail) > 0)
+                                                @foreach($m->detail as $key2=>$d)
+                                                    @if($key2 == 0) {{ $d->angkatan ? $d->angkatan->nama : '-' }} @endif
+                                                @endforeach
+                                            @else
+                                                -
+                                            @endif
+                                        @endif
+                                    </td>
                                 @endif
 								<td align="center">
 									<div class="btn-group">
@@ -148,7 +172,8 @@
     // DataTable
     Spandiv.DataTable("#datatable", {
         orderAll: true,
-        fixedHeader: true
+        fixedHeader: true,
+        buttons: true,
     });
 	
     // Button Delete
@@ -161,6 +186,7 @@
 
 <style>
     #datatable tr td {vertical-align: top;}
+    div.dt-buttons .dt-button {border: 2px solid #bebebe!important;}
 </style>
 
 @endsection

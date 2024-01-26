@@ -63,4 +63,12 @@ class MutasiDetail extends Model
     {
         return $this->belongsTo(Layer::class, 'layer_id');
     }
+    
+    /**
+     * Angkatan.
+     */
+    public function angkatan()
+    {
+        return $this->belongsTo(Angkatan::class, 'angkatan_id');
+    }
 }

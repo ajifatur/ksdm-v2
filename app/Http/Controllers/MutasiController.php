@@ -51,13 +51,36 @@ class MutasiController extends Controller
             })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
         }
         elseif($jenis == 'serdos') {
-            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-                return $query->where('serdos','=',1);
-            })->whereHas('pegawai', function(Builder $query) {
-                return $query->where('jenis','=',1);
+            $mutasi = Mutasi::where(function($query) {
+                $query->where(function($query) {
+                    $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('status','=',1)->where('serdos','=',1)->where('perubahan','=',1);
+                    })->whereHas('pegawai', function(Builder $query) {
+                        return $query->where('jenis','=',1);
+                    })->whereIn('pegawai_id',TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray());
+                })->orWhere(function($query) {
+                    $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('status','=',0)->where('serdos','=',1)->where('perubahan','=',0);
+                    })->whereHas('pegawai', function(Builder $query) {
+                        return $query->where('jenis','=',1);
+                    })->whereIn('pegawai_id',TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray());
+                })->orWhere(function($query) {
+                    $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('status','=',1)->where('serdos','=',1)->where('perubahan','=',0);
+                    })->whereHas('pegawai', function(Builder $query) {
+                        return $query->where('jenis','=',1);
+                    });
+                });
             })->whereHas('status_kepegawaian', function(Builder $query) {
                 return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
             })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
+
+            foreach($mutasi as $key=>$m) {
+                // Get tunjangan profesi terakhir
+                $mutasi[$key]->tunjangan_profesi = $m->pegawai->tunjangan_profesi()->whereHas('angkatan', function(Builder $query) {
+                    return $query->where('jenis_id','!=',1);
+                })->first();
+            }
         }
 
         // View
@@ -87,17 +110,40 @@ class MutasiController extends Controller
             })->where('bulan','=',0)->where('tahun','=',0)->orderBy('tmt','desc')->get();
         }
         elseif($jenis == 'serdos') {
-            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-                return $query->where('serdos','=',1);
-            })->whereHas('pegawai', function(Builder $query) {
-                return $query->where('jenis','=',1);
+            $mutasi = Mutasi::where(function($query) {
+                $query->where(function($query) {
+                    $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('status','=',1)->where('serdos','=',1)->where('perubahan','=',1);
+                    })->whereHas('pegawai', function(Builder $query) {
+                        return $query->where('jenis','=',1);
+                    })->whereIn('pegawai_id',TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray());
+                })->orWhere(function($query) {
+                    $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('status','=',0)->where('serdos','=',1)->where('perubahan','=',0);
+                    })->whereHas('pegawai', function(Builder $query) {
+                        return $query->where('jenis','=',1);
+                    })->whereIn('pegawai_id',TunjanganProfesi::groupBy('pegawai_id')->pluck('pegawai_id')->toArray());
+                })->orWhere(function($query) {
+                    $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('status','=',1)->where('serdos','=',1)->where('perubahan','=',0);
+                    })->whereHas('pegawai', function(Builder $query) {
+                        return $query->where('jenis','=',1);
+                    });
+                });
             })->whereHas('status_kepegawaian', function(Builder $query) {
                 return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
             })->where('bulan','=',0)->where('tahun','=',0)->orderBy('tmt','desc')->get();
+
+            foreach($mutasi as $key=>$m) {
+                // Get tunjangan profesi terakhir
+                $mutasi[$key]->tunjangan_profesi = $m->pegawai->tunjangan_profesi()->whereHas('angkatan', function(Builder $query) {
+                    return $query->where('jenis_id','!=',1);
+                })->first();
+            }
         }
 
         // View
-        return view('admin/mutasi/new', [
+        return view('admin/mutasi/index', [
             'mutasi' => $mutasi,
             'jenis' => $jenis,
         ]);

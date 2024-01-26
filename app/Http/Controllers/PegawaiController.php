@@ -254,9 +254,7 @@ class PegawaiController extends Controller
     {
         // Validation
         $validator = Validator::make($request->all(), [
-            'nama' => 'required',
-            'gelar_depan' => 'required',
-            'gelar_belakang' => 'required',
+            'nama' => 'required'
         ]);
         
         // Check errors
