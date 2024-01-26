@@ -33,13 +33,14 @@
                             <tr>
                                 <th rowspan="2">Bulan</th>
                                 <th colspan="3">Jumlah Diproses</th>
-                                <th colspan="3">Opsi</th>
+                                <th colspan="4">Opsi</th>
                             </tr>
                             <tr>
                                 <th width="50">Dosen</th>
                                 <th width="50">Tendik</th>
                                 <th width="50">Semua</th>
-                                <th width="50">Lihat</th>
+                                <th width="30">Lihat</th>
+                                <th width="50">Rekap PDF</th>
                                 <th width="50">Batch PDF</th>
                                 <th width="50">Excel</th>
                             </tr>
@@ -53,8 +54,14 @@
                                 <td align="right">{{ number_format($d['spkgb_semua']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.pns.index', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak Rekap PDF" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.pns.index', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak Rekap PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Cetak Rekap PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Cetak Rekap PDF Semua" target="_blank"><i class="bi-file-pdf"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">
@@ -66,9 +73,9 @@
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak Excel Template Siradi Dosen" target="_blank"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Cetak Excel Template Siradi Tendik" target="_blank"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Cetak Excel Template Siradi Semua" target="_blank"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Excel Template Siradi Dosen" target="_blank"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Excel Template Siradi Tendik" target="_blank"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Excel Template Siradi Semua" target="_blank"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -80,6 +87,7 @@
                                 <td align="right">{{ number_format($total['dosen']) }}</td>
                                 <td align="right">{{ number_format($total['tendik']) }}</td>
                                 <td align="right">{{ number_format($total['semua']) }}</td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
