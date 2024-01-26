@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Mutasi Baru')
+@section('title', $jenis == 'remun' ? 'Mutasi Remun Baru' : 'Mutasi Tunjangan Profesi Dosen Baru')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Mutasi Baru</h1>
+    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remun Baru' : 'Mutasi Tunjangan Profesi Dosen Baru' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -21,59 +21,78 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="2">Nama / NIP</th>
-                                <th rowspan="2">Jenis / Deskripsi</th>
-                                <th rowspan="2">Status Kepegawaian</th>
-                                <th rowspan="2">Golru</th>
-                                <th rowspan="2">MKG</th>
-                                <th rowspan="2">Jabatan</th>
-                                <th rowspan="2">Unit</th>
-                                <th rowspan="2">TMT</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Nama / NIP</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">{{ $jenis == 'remun' ? 'Jenis / Deskripsi' : 'Jenis' }}</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Status Kepegawaian</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Golru</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">MKG</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Jabatan</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">Unit</th>
+                                <th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}">TMT</th>
+                                @if($jenis == 'remun')
                                 <th colspan="3">Remun</th>
-								<th rowspan="2" width="30">Opsi</th>
+                                @endif
+								<th rowspan="{{ $jenis == 'remun' ? 2 : 1 }}" width="30">Opsi</th>
                             </tr>
+                            @if($jenis == 'remun')
                             <tr>
                                 <th width="70">Penerimaan</th>
                                 <th width="70">Gaji</th>
                                 <th width="70">Insentif</th>
                             </tr>
+                            @endif
                         </thead>
                         <tbody>
                             @foreach($mutasi as $m)
-                            <tr class="{{ $m->remun_gaji == 0 ? 'bg-secondary text-white' : '' }}">
+                            <tr class="{{ $jenis == 'remun' && $m->remun_gaji == 0 ? 'bg-secondary text-white' : '' }}">
                                 <td>{{ strtoupper($m->pegawai->nama) }}<br>{{ $m->pegawai->nip }}</td>
                                 <td>
                                     {{ $m->jenis->nama }}
-                                    <br>
-                                    {{ $m->uraian != '' ? '('.$m->uraian.')' : '' }}
+                                    @if($jenis == 'remun')
+                                        <br>
+                                        {{ $m->uraian != '' ? '('.$m->uraian.')' : '' }}
+                                    @endif
                                 </td>
                                 <td>{{ $m->status_kepegawaian ? $m->status_kepegawaian->nama : '-' }}</td>
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
                                 <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
-                                @if($m->jenis_id == 1)
-                                    <td>
-                                        @foreach($m->detail as $key2=>$d)
-                                            {{ $d->jabatan ? $d->jabatan->nama : '-' }}
-                                            @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        @foreach($m->detail as $key2=>$d)
-                                            {{ $d->unit ? $d->unit->nama : '-' }}
-                                            @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
-                                        @endforeach
-                                    </td>
-                                @else
-                                    <td>-</td>
-                                    <td>-</td>
-                                @endif
+                                <td>
+                                    @if($jenis == 'remun')
+                                        @if(count($m->detail) > 0)
+                                            @foreach($m->detail as $key2=>$d)
+                                                {{ $d->jabatan ? $d->jabatan->nama : '-' }}
+                                                @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
+                                    @else
+                                        {{ $m->pegawai->jabfung->nama }}
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($jenis == 'remun')
+                                        @if(count($m->detail) > 0)
+                                            @foreach($m->detail as $key2=>$d)
+                                                {{ $d->unit ? $d->unit->nama : '-' }}
+                                                @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
+                                    @else
+                                        {{ $m->pegawai->unit->nama }}
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="d-none">{{ $m->tmt }}</span>
-                                    {{ date('d/m/Y', strtotime($m->tmt)) }}
+                                    {{ $m->tmt != null ? date('d/m/Y', strtotime($m->tmt)) : '-' }}
                                 </td>
+                                @if($jenis == 'remun')
                                 <td align="right">{{ number_format($m->remun_penerimaan) }}</td>
                                 <td align="right">{{ number_format($m->remun_gaji) }}</td>
                                 <td align="right">{{ number_format($m->remun_insentif) }}</td>
+                                @endif
 								<td align="center">
 									<div class="btn-group">
 										<a href="{{ route('admin.mutasi.edit', ['id' => $m->pegawai_id, 'mutasi_id' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>

@@ -51,7 +51,7 @@ class MutasiController extends Controller
         }
         elseif($jenis == 'serdos') {
             $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-                return $query->where('serdos','=',1)->orWhere('serdos','=',0)->where('remun','=',0);
+                return $query->where('serdos','=',1);
             })->whereHas('pegawai', function(Builder $query) {
                 return $query->where('jenis','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
@@ -69,21 +69,36 @@ class MutasiController extends Controller
     }
 
     /**
-     * Mutasi Baru (Remun).
+     * Mutasi Baru.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function new(Request $request)
     {
+        // Get jenis
+        $jenis = $request->query('jenis') ?: 'remun';
+
         // Get mutasi
-        $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-            return $query->where('remun','=',1);
-        })->where('bulan','=',0)->where('tahun','=',0)->orderBy('tmt','desc')->get();
+        if($jenis == 'remun') {
+            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('remun','=',1);
+            })->where('bulan','=',0)->where('tahun','=',0)->orderBy('tmt','desc')->get();
+        }
+        elseif($jenis == 'serdos') {
+            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1);
+            })->whereHas('pegawai', function(Builder $query) {
+                return $query->where('jenis','=',1);
+            })->whereHas('status_kepegawaian', function(Builder $query) {
+                return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
+            })->where('bulan','=',0)->where('tahun','=',0)->orderBy('tmt','desc')->get();
+        }
 
         // View
         return view('admin/mutasi/new', [
-            'mutasi' => $mutasi
+            'mutasi' => $mutasi,
+            'jenis' => $jenis,
         ]);
     }
 
@@ -184,15 +199,15 @@ class MutasiController extends Controller
             'golru' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
             'gaji_pokok' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
             'tmt' => 'required',
-            'no_sk' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
-            'tanggal_sk' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
-            'mk_tahun' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
-            'mk_bulan' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
-            'pejabat' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) ? 'required' : '',
-            'angkatan' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
-            'nama_supplier' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
-            'nomor_rekening' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
-            'nama_rekening' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) ? 'required' : '',
+            'no_sk' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
+            'tanggal_sk' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
+            'mk_tahun' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
+            'mk_bulan' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
+            'pejabat' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
+            'angkatan' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1 && $jenis_mutasi->perubahan == 0) ? 'required' : '',
+            'nama_supplier' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1 && $jenis_mutasi->perubahan == 0) ? 'required' : '',
+            'nomor_rekening' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1 && $jenis_mutasi->perubahan == 0) ? 'required' : '',
+            'nama_rekening' => ($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1 && $jenis_mutasi->perubahan == 0) ? 'required' : '',
         ]);
         
         // Check errors
@@ -313,8 +328,8 @@ class MutasiController extends Controller
                 $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
                 $mutasi->save();
             }
-            // Jika remun = 0 dan serdos = 1
-            elseif($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1) {
+            // Jika remun = 0, serdos = 1, perubahan = 0
+            elseif($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 1 && $jenis_mutasi->perubahan == 0) {
                 // Get golru
                 $golru = Golru::find($request->golru);
 
@@ -363,8 +378,8 @@ class MutasiController extends Controller
                     }
                 }
             }
-            // Jika remun = 0 dan serdos = 0
-            elseif($jenis_mutasi->remun == 0 && $jenis_mutasi->serdos == 0) {
+            // Jika perubahan = 1
+            elseif($jenis_mutasi->perubahan == 1) {
                 // Get golru
                 $golru = Golru::find($request->golru);
 

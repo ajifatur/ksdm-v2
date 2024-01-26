@@ -28,7 +28,7 @@
                             <select name="jenis_mutasi" class="form-select form-select-sm {{ $errors->has('jenis_mutasi') ? 'border-danger' : '' }}">
                                 <option value="" disabled selected>--Pilih--</option>
                                 @foreach($jenis_mutasi as $j)
-                                <option value="{{ $j->id }}" {{ $mutasi->jenis_id == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
+                                <option value="{{ $j->id }}" data-remun="{{ $j->remun }}" data-serdos="{{ $j->serdos }}" data-perubahan="{{ $j->perubahan }}" {{ $mutasi->jenis_id == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('jenis_mutasi'))
@@ -286,19 +286,20 @@
     $(document).on("change", "select[name=jenis_mutasi]", function(e) {
         var remun = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("remun");
         var serdos = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("serdos");
+        var perubahan = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("perubahan");
         if($(this).val() == 1) {
             $("#jabatan-unit").removeClass("d-none");
             $("#uraian").removeClass("d-none");
             $("#perubahan").addClass("d-none");
             $("#serdos").addClass("d-none");
         }
-        else if(remun == 0 && serdos == 0) {
+        else if(perubahan == 1) {
             $("#jabatan-unit").addClass("d-none");
             $("#uraian").addClass("d-none");
             $("#perubahan").removeClass("d-none");
             $("#serdos").addClass("d-none");
         }
-        else if(remun == 0 && serdos == 1) {
+        else if(remun == 0 && serdos == 1 && perubahan == 0) {
             $("#jabatan-unit").addClass("d-none");
             $("#uraian").addClass("d-none");
             $("#perubahan").addClass("d-none");

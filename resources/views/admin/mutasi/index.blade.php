@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', $jenis == 'remun' ? 'Mutasi Remunerasi Terproses' : 'Mutasi Tunjangan Profesi Dosen')
+@section('title', $jenis == 'remun' ? 'Mutasi Remun Terproses' : 'Mutasi Tunjangan Profesi Dosen Terproses')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remunerasi Terproses' : 'Mutasi Tunjangan Profesi Dosen' }}</h1>
+    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remun Terproses' : 'Mutasi Tunjangan Profesi Dosen Terproses' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -82,23 +82,31 @@
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
                                 <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
                                 <td>
-                                    @if(count($m->detail) > 0)
-                                        @foreach($m->detail as $key2=>$d)
-                                            {{ $d->jabatan ? $d->jabatan->nama : '-' }}
-                                            @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
-                                        @endforeach
+                                    @if($jenis == 'remun')
+                                        @if(count($m->detail) > 0)
+                                            @foreach($m->detail as $key2=>$d)
+                                                {{ $d->jabatan ? $d->jabatan->nama : '-' }}
+                                                @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
                                     @else
-                                        -
+                                        {{ $m->pegawai->jabfung->nama }}
                                     @endif
                                 </td>
                                 <td>
-                                    @if(count($m->detail) > 0)
-                                        @foreach($m->detail as $key2=>$d)
-                                            {{ $d->unit ? $d->unit->nama : '-' }}
-                                            @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
-                                        @endforeach
+                                    @if($jenis == 'remun')
+                                        @if(count($m->detail) > 0)
+                                            @foreach($m->detail as $key2=>$d)
+                                                {{ $d->unit ? $d->unit->nama : '-' }}
+                                                @if($key2 != count($m->detail)-1)<hr class="my-0">@endif
+                                            @endforeach
+                                        @else
+                                            -
+                                        @endif
                                     @else
-                                        -
+                                        {{ $m->pegawai->unit->nama }}
                                     @endif
                                 </td>
                                 <td>
