@@ -1,17 +1,18 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', $jenis == 'remun' ? 'Mutasi Remun '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru') : 'Mutasi Tunjangan Profesi Dosen '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru'))
+@section('title', $jenis == 'remun' ? 'Mutasi Remun '.($new == 1 ? 'Baru' : 'Terproses') : 'Mutasi Tunjangan Profesi Dosen '.($new == 1 ? 'Baru' : 'Terproses'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remun '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru') : 'Mutasi Tunjangan Profesi Dosen '.(Route::currentRouteName() == 'admin.mutasi.index' ? 'Terproses' : 'Baru') }}</h1>
+    <h1 class="h3 mb-2 mb-sm-0">{{ $jenis == 'remun' ? 'Mutasi Remun '.($new == 1 ? 'Baru' : 'Terproses') : 'Mutasi Tunjangan Profesi Dosen '.($new == 1 ? 'Baru' : 'Terproses') }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
-            @if(Route::currentRouteName() == 'admin.mutasi.index')
+            @if($new == 0)
             <form method="get" action="">
+                <input type="hidden" name="new" value="{{ $new }}">
                 <input type="hidden" name="jenis" value="{{ $jenis }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>

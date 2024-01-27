@@ -175,11 +175,9 @@
                                     <option value="" disabled selected>--Pilih--</option>
                                     @for($i=1; $i<=3; $i++)
                                         <?php $label = ['', 'Kehormatan Profesor', 'Profesi GB', 'Profesi Non GB']; ?>
-                                        <optgroup label="{{ $label[$i] }}">
-                                            @foreach($angkatan[$i]['data'] as $a)
-                                            <option value="{{ $a->id }}">{{ $a->nama }}</option>
-                                            @endforeach
-                                        <optgroup>
+                                        @foreach($angkatan[$i]['data'] as $a)
+                                        <option value="{{ $a->id }}" {{ $tunjangan_profesi && $tunjangan_profesi->angkatan_id == $a->id ? 'selected' : '' }}>{{ $label[$i] }} - {{ $a->nama }}</option>
+                                        @endforeach
                                     @endfor
                                 </select>
                                 @if($errors->has('angkatan'))

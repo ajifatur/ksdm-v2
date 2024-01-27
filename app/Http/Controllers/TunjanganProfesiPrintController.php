@@ -39,9 +39,9 @@ class TunjanganProfesiPrintController extends Controller
 
         // Get SK
         if($angkatan->jenis_id == 1)
-            $sk = SK::where('jenis_id','=',2)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
+            $sk = SK::where('jenis_id','=',2)->where('awal_tahun','=',$request->tahun)->first();
         elseif($angkatan->jenis_id == 2 || $angkatan->jenis_id == 3)
-            $sk = SK::where('jenis_id','=',3)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
+            $sk = SK::where('jenis_id','=',3)->where('awal_tahun','=',$request->tahun)->first();
 
         // Get jenis
         $jenis = $angkatan ? JenisTunjanganProfesi::find($angkatan->jenis_id) : null;
@@ -91,7 +91,7 @@ class TunjanganProfesiPrintController extends Controller
         elseif($id == 3) $jenis = 3;
 
         // Get SK
-        $sk = SK::where('jenis_id','=',$jenis)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
+        $sk = SK::where('jenis_id','=',$jenis)->where('awal_tahun','=',$request->tahun)->first();
 
         // Get tunjangan profesi
         $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($id) {
