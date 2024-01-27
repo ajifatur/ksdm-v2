@@ -25,7 +25,11 @@ class PantauanController extends Controller
 		$tanggal = date('Y').'-'.date('m').'-01';
 
         // Get pegawai
-        $pegawai = Pegawai::where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+        $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+            return $query->where('status','=',1);
+        })->whereHas('status_kepegawaian', function(Builder $query) {
+            return $query->whereIn('nama', ['CPNS','PNS']);
+        })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
 		foreach($pegawai as $key=>$p) {
 			// Get mutasi KP / KGB / PMK terakhir
 			$pegawai[$key]->mutasi_terakhir = $p->mutasi()->whereHas('jenis', function(Builder $query) {
@@ -94,7 +98,11 @@ class PantauanController extends Controller
     public function pensiun(Request $request)
     {
         // Get pegawai
-        $pegawai = Pegawai::where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+        $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+            return $query->where('status','=',1);
+        })->whereHas('status_kepegawaian', function(Builder $query) {
+            return $query->whereIn('nama', ['CPNS','PNS']);
+        })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
 		foreach($pegawai as $key=>$p) {
             // Set TMT pensiun
             $bulan_pensiun = date('n', strtotime($p->tanggal_lahir)) + 1;
@@ -127,19 +135,34 @@ class PantauanController extends Controller
      */
     public function gajiPokok(Request $request)
     {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
 		// Periode gaji pokok terakhir
-		$gaji_terakhir = Gaji::where('jenis_id','=',1)->latest('tahun')->latest('bulan')->first();
+		$gaji_terakhir = Gaji::whereHas('jenis_gaji', function(Builder $query) {
+            return $query->where('nama','=','Gaji Induk');
+        })->latest('tahun')->latest('bulan')->first();
         $tanggal = $gaji_terakhir->tahun.'-'.$gaji_terakhir->bulan.'-01';
 		
         // Get pegawai
-        $pegawai = Pegawai::where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2])->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+        $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+            return $query->where('status','=',1);
+        })->whereHas('status_kepegawaian', function(Builder $query) {
+            return $query->whereIn('nama', ['CPNS','PNS']);
+        })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
 		foreach($pegawai as $key=>$p) {
 			// Get gaji pokok terakhir dari mutasi
 			$pegawai[$key]->mutasi_gaji_pokok_terakhir = $p->mutasi()->first() && $p->mutasi()->first()->gaji_pokok ? $p->mutasi()->first()->gaji_pokok : null;
 			
 			// Get gaji pokok terakhir dari gaji induk
-			$gaji_induk = $gaji_terakhir ? $p->gaji()->where('jenis_id','=',1)->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
-			$gaji_pokok = $gaji_induk ? GajiPokok::where('sk_id','=',8)->where('gaji_pokok','=',$gaji_induk->gjpokok)->first() : null;
+			$gaji_induk = $gaji_terakhir ? $p->gaji()->whereHas('jenis_gaji', function(Builder $query) {
+                return $query->where('nama','=','Gaji Induk');
+            })->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
+			$gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
+                return $query->whereHas('jenis', function(Builder $query) {
+                    return $query->where('nama','=','Gaji Pokok PNS');
+                });
+            })->where('gaji_pokok','=',$gaji_induk->gjpokok)->first() : null;
 			$pegawai[$key]->gpp_gaji_pokok_terakhir = $gaji_pokok ?: null;
 			
 			// Cek
@@ -152,7 +175,7 @@ class PantauanController extends Controller
             // SPKGB terakhir
             if($pegawai[$key]->cek == 'Beda') {
                 $pegawai[$key]->spkgb_terakhir = $p->spkgb()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
-                    return $query->where('tmt','>',$tanggal);
+                    return $query->where('tmt','>=',$tanggal);
                 })->first();
             }
             else
@@ -178,8 +201,12 @@ class PantauanController extends Controller
         $status_kepegawaian = StatusKepegawaian::orderBy('persentase','desc')->get();
         foreach($status_kepegawaian as $key=>$s) {
             // Count pegawai
-            $status_kepegawaian[$key]->dosen = Pegawai::where('status_kerja_id','=',1)->where('status_kepeg_id','=',$s->id)->where('jenis','=',1)->count();
-            $status_kepegawaian[$key]->tendik = Pegawai::where('status_kerja_id','=',1)->where('status_kepeg_id','=',$s->id)->where('jenis','=',2)->count();
+            $status_kepegawaian[$key]->dosen = Pegawai::whereHas('status_kerja', function(Builder $query) {
+                return $query->where('status','=',1);
+            })->where('status_kepeg_id','=',$s->id)->where('jenis','=',1)->count();
+            $status_kepegawaian[$key]->tendik = Pegawai::whereHas('status_kerja', function(Builder $query) {
+                return $query->where('status','=',1);
+            })->where('status_kepeg_id','=',$s->id)->where('jenis','=',2)->count();
         }
 
         // View

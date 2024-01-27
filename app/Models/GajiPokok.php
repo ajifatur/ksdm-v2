@@ -31,4 +31,12 @@ class GajiPokok extends Model
     {
         return $this->belongsTo(Golru::class, 'golru_id');
     }
+    
+    /**
+     * SK.
+     */
+    public function sk()
+    {
+        return $this->belongsTo(SK::class, 'sk_id');
+    }
 }
