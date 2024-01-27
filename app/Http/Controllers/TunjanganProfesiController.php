@@ -18,7 +18,6 @@ use App\Models\Golongan;
 use App\Models\Gaji;
 use App\Models\GajiPokok;
 use App\Models\Mutasi;
-use App\Models\MutasiSerdos;
 use App\Models\SK;
 use App\Models\Proses;
 use App\Models\Unit;
@@ -554,62 +553,63 @@ class TunjanganProfesiController extends Controller
      */
     public function change(Request $request)
     {
+		ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
+
+        // Get bulan, tahun, tanggal
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
         $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
         // Get tunjangan bulan ini
-        $tunjangan_bulan_ini = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
-            return $query->where('jenis_id','!=',1);
-        })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray();
+        $tunjangan_bulan_ini = TunjanganProfesi::where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kekurangan','=',0)->get();
 
         // Set tanggal sebelumnya
         $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
 
         // Get tunjangan bulan sebelumnya
-        $tunjangan_bulan_sebelumnya = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
-            return $query->where('jenis_id','!=',1);
-        })->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->pluck('pegawai_id')->toArray();
+        $tunjangan_bulan_sebelumnya = TunjanganProfesi::where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('kekurangan','=',0)->pluck('pegawai_id')->toArray();
 
-        // Cek bulan ini
+        // Pegawai masuk
         $cek_bulan_ini = [];
         if(count($tunjangan_bulan_ini) > 0) {
-            foreach($tunjangan_bulan_ini as $t) {
+            foreach($tunjangan_bulan_ini->pluck('pegawai_id')->toArray() as $t) {
                 if(!in_array($t, $tunjangan_bulan_sebelumnya))
                     array_push($cek_bulan_ini, $t);
             }
         }
+		$pegawai_on = Pegawai::whereIn('id', $cek_bulan_ini)->get();
 
-        // Cek bulan sebelumnya
+        // Pegawai keluar
         $cek_bulan_sebelumnya = [];
         if(count($tunjangan_bulan_sebelumnya) > 0) {
             foreach($tunjangan_bulan_sebelumnya as $t) {
-                if(!in_array($t, $tunjangan_bulan_ini))
+                if(!in_array($t, $tunjangan_bulan_ini->pluck('pegawai_id')->toArray()))
                     array_push($cek_bulan_sebelumnya, $t);
             }
         }
-        
-        // Get pegawai on
-        $pegawai_on = [];
-        if(count($tunjangan_bulan_ini) > 0) {
-            $pegawai_on = Pegawai::whereIn('id', $cek_bulan_ini)->get();
-        }
+		$pegawai_off = Pegawai::whereIn('id', $cek_bulan_sebelumnya)->get();
 
-        // Get pegawai off
-        $pegawai_off = [];
-        if(count($tunjangan_bulan_sebelumnya) > 0) {
-            $pegawai_off = Pegawai::whereIn('id', $cek_bulan_sebelumnya)->get();
+        // Perubahan tunjangan
+        $perubahan_tunjangan = [];
+        foreach($tunjangan_bulan_ini as $t) {
+            // Get tunjangan bulan sebelumnya
+            $ts = TunjanganProfesi::where('pegawai_id','=',$t->pegawai_id)->where('angkatan_id','=',$t->angkatan_id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('kekurangan','=',0)->first();
+            if($ts) {
+                if($t->tunjangan != $ts->tunjangan) array_push($perubahan_tunjangan, ['pegawai' => $t->pegawai, 'sebelum' => $ts->tunjangan, 'sesudah' => $t->tunjangan]);
+            }
         }
 		
         // View
         return view('admin/tunjangan-profesi/change', [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'tanggal' => $tanggal,
             'tunjangan_bulan_ini' => $tunjangan_bulan_ini,
             'tunjangan_bulan_sebelumnya' => $tunjangan_bulan_sebelumnya,
             'pegawai_on' => $pegawai_on,
             'pegawai_off' => $pegawai_off,
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-            'tanggal' => $tanggal,
+            'perubahan_tunjangan' => $perubahan_tunjangan,
         ]);
     }
 

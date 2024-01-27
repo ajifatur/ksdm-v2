@@ -203,7 +203,7 @@ class MutasiController extends Controller
             'jenis_mutasi' => 'required',
             'golru' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
             'gaji_pokok' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
-            'tmt' => 'required',
+            'tmt' => ($mutasi && $mutasi->kolektif == 1) ? '' : 'required',
             'no_sk' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
             'tanggal_sk' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
             'mk_tahun' => ($jenis_mutasi->perubahan == 1) ? 'required' : '',
@@ -259,7 +259,7 @@ class MutasiController extends Controller
                 $mutasi->remun_penerimaan = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
                 $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
                 $mutasi->remun_insentif = mround((70 / 100) * $mutasi->remun_penerimaan, 1);
-                $mutasi->kolektif = 0;
+                $mutasi->kolektif = $request->id == 0 ? 0 : $mutasi->kolektif;
                 $mutasi->save();
 
                 // Delete mutasi detail
@@ -278,7 +278,8 @@ class MutasiController extends Controller
                     $unit_mutasi = Unit::find($request->unit_id[$key]);
 
                     // Simpan mutasi detail
-                    $mutasi_detail = new MutasiDetail;
+                    $mutasi_detail = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan_mutasi->id)->where('unit_id','=',$unit_mutasi->id)->first();
+                    if(!$mutasi_detail) $mutasi_detail = new MutasiDetail;
                     $mutasi_detail->mutasi_id = $mutasi->id;
                     $mutasi_detail->jabatan_dasar_id = $jabatan_mutasi->jabatan_dasar_id;
                     $mutasi_detail->jabatan_id = $jabatan_mutasi->id;

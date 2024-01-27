@@ -134,6 +134,10 @@
                                                 {{ $m->jenis->nama }}
                                                 <br>
                                                 {{ $m->uraian != '' ? '('.$m->uraian.')' : '' }}
+                                                @if($m->kolektif == 1)
+                                                    <br>
+                                                    <span class="badge bg-info">Kolektif</span>
+                                                @endif
                                             </td>
                                             <td>{{ $m->status_kepegawaian ? $m->status_kepegawaian->nama : '-' }}</td>
                                             <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>

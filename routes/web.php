@@ -152,14 +152,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
 	// Tunjangan Profesi (Kekurangan)
     Route::get('/admin/tunjangan-profesi/kekurangan/monitoring', 'TunjanganProfesiKekuranganController@monitoring')->name('admin.tunjangan-profesi.kekurangan.monitoring');
-	
-	// Tunjangan Profesi (Mutasi)
-    Route::get('/admin/tunjangan-profesi/mutasi', 'MutasiSerdosController@index')->name('admin.tunjangan-profesi.mutasi.index');
-    Route::get('/admin/tunjangan-profesi/mutasi/create', 'MutasiSerdosController@create')->name('admin.tunjangan-profesi.mutasi.create');
-    Route::post('/admin/tunjangan-profesi/mutasi/store', 'MutasiSerdosController@store')->name('admin.tunjangan-profesi.mutasi.store');
-    Route::get('/admin/tunjangan-profesi/mutasi/edit/{id}', 'MutasiSerdosController@edit')->name('admin.tunjangan-profesi.mutasi.edit');
-    Route::post('/admin/tunjangan-profesi/mutasi/update', 'MutasiSerdosController@update')->name('admin.tunjangan-profesi.mutasi.update');
-    Route::post('/admin/tunjangan-profesi/mutasi/delete', 'MutasiSerdosController@delete')->name('admin.tunjangan-profesi.mutasi.delete');
 
     // Gaji Induk ASN
     Route::get('/admin/gaji', 'GajiController@index')->name('admin.gaji.index');
