@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Models\Pegawai;
 use App\Models\Gaji;
+use App\Models\GajiNonASN;
 use App\Models\GajiPokok;
 use App\Models\StatusKepegawaian;
 
@@ -25,11 +26,21 @@ class PantauanController extends Controller
 		$tanggal = date('Y').'-'.date('m').'-01';
 
         // Get pegawai
-        $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
-            return $query->where('status','=',1);
-        })->whereHas('status_kepegawaian', function(Builder $query) {
-            return $query->whereIn('nama', ['CPNS','PNS']);
-        })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+        if($request->query('tipe') == 1) {
+            $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+                return $query->where('status','=',1);
+            })->whereHas('status_kepegawaian', function(Builder $query) {
+                return $query->whereIn('nama', ['CPNS','PNS']);
+            })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+        }
+        elseif($request->query('tipe') == 2) {
+            $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+                return $query->where('status','=',1);
+            })->whereHas('status_kepegawaian', function(Builder $query) {
+                return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN','Non PNS']);
+            })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+        }
+
 		foreach($pegawai as $key=>$p) {
 			// Get mutasi KP / KGB / PMK terakhir
 			$pegawai[$key]->mutasi_terakhir = $p->mutasi()->whereHas('jenis', function(Builder $query) {
@@ -76,7 +87,7 @@ class PantauanController extends Controller
                 if($pegawai[$key]->mutasi_terakhir->perubahan->mk_tahun == $cek_mkg_tahun && $pegawai[$key]->mutasi_terakhir->perubahan->mk_bulan == $cek_mkg_bulan)
                     $pegawai[$key]->cek = 'Benar';
                 else
-                    $pegawai[$key]->cek = 'Salah '.($cek_mkg_tahun).' '.($cek_mkg_bulan);
+                    $pegawai[$key]->cek = 'Salah';
             }
             else
                 $pegawai[$key]->cek = 'Tidak Terdefinisi';
@@ -85,7 +96,8 @@ class PantauanController extends Controller
         // View
         return view('admin/pantauan/mkg', [
             'pegawai' => $pegawai,
-            'tanggal' => $tanggal
+            'tanggal' => $tanggal,
+            'tipe' => $request->query('tipe')
         ]);
     }
 
@@ -128,7 +140,7 @@ class PantauanController extends Controller
     }
 
     /**
-     * Gaji Pokok PNS
+     * Gaji Pokok
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -138,54 +150,106 @@ class PantauanController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		// Periode gaji pokok terakhir
-		$gaji_terakhir = Gaji::whereHas('jenis_gaji', function(Builder $query) {
-            return $query->where('nama','=','Gaji Induk');
-        })->latest('tahun')->latest('bulan')->first();
-        $tanggal = $gaji_terakhir->tahun.'-'.$gaji_terakhir->bulan.'-01';
-		
-        // Get pegawai
-        $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
-            return $query->where('status','=',1);
-        })->whereHas('status_kepegawaian', function(Builder $query) {
-            return $query->whereIn('nama', ['CPNS','PNS']);
-        })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
-		foreach($pegawai as $key=>$p) {
-			// Get gaji pokok terakhir dari mutasi
-			$pegawai[$key]->mutasi_gaji_pokok_terakhir = $p->mutasi()->first() && $p->mutasi()->first()->gaji_pokok ? $p->mutasi()->first()->gaji_pokok : null;
-			
-			// Get gaji pokok terakhir dari gaji induk
-			$gaji_induk = $gaji_terakhir ? $p->gaji()->whereHas('jenis_gaji', function(Builder $query) {
+        if($request->query('tipe') == 1) {
+            // Periode gaji pokok terakhir
+            $gaji_terakhir = Gaji::whereHas('jenis_gaji', function(Builder $query) {
                 return $query->where('nama','=','Gaji Induk');
-            })->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
-			$gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
-                return $query->whereHas('jenis', function(Builder $query) {
-                    return $query->where('nama','=','Gaji Pokok PNS');
-                });
-            })->where('gaji_pokok','=',$gaji_induk->gjpokok)->first() : null;
-			$pegawai[$key]->gpp_gaji_pokok_terakhir = $gaji_pokok ?: null;
-			
-			// Cek
-			$pegawai[$key]->cek = 'Beda';
-			if($pegawai[$key]->mutasi_gaji_pokok_terakhir && $pegawai[$key]->gpp_gaji_pokok_terakhir) {
-				if($pegawai[$key]->mutasi_gaji_pokok_terakhir->gaji_pokok == $pegawai[$key]->gpp_gaji_pokok_terakhir->gaji_pokok)
-					$pegawai[$key]->cek = 'Sama';
-			}
+            })->latest('tahun')->latest('bulan')->first();
+            $tanggal = $gaji_terakhir->tahun.'-'.$gaji_terakhir->bulan.'-01';
+            
+            // Get pegawai
+            $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+                return $query->where('status','=',1);
+            })->whereHas('status_kepegawaian', function(Builder $query) {
+                return $query->whereIn('nama', ['CPNS','PNS']);
+            })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+            foreach($pegawai as $key=>$p) {
+                // Get gaji pokok terakhir dari mutasi
+                $pegawai[$key]->mutasi_gaji_pokok_terakhir = $p->mutasi()->first() && $p->mutasi()->first()->gaji_pokok ? $p->mutasi()->first()->gaji_pokok : null;
+                
+                // Get gaji pokok terakhir dari gaji induk
+                $gaji_induk = $gaji_terakhir ? $p->gaji()->whereHas('jenis_gaji', function(Builder $query) {
+                    return $query->where('nama','=','Gaji Induk');
+                })->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
+                $gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
+                    return $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('nama','=','Gaji Pokok PNS');
+                    });
+                })->where('gaji_pokok','=',$gaji_induk->gjpokok)->first() : null;
+                $pegawai[$key]->gpp_gaji_pokok_terakhir = $gaji_pokok ?: null;
+                
+                // Cek
+                $pegawai[$key]->cek = 'Beda';
+                if($pegawai[$key]->mutasi_gaji_pokok_terakhir && $pegawai[$key]->gpp_gaji_pokok_terakhir) {
+                    if($pegawai[$key]->mutasi_gaji_pokok_terakhir->gaji_pokok == $pegawai[$key]->gpp_gaji_pokok_terakhir->gaji_pokok)
+                        $pegawai[$key]->cek = 'Sama';
+                }
 
-            // SPKGB terakhir
-            if($pegawai[$key]->cek == 'Beda') {
-                $pegawai[$key]->spkgb_terakhir = $p->spkgb()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
-                    return $query->where('tmt','>=',$tanggal);
-                })->first();
+                // SPKGB terakhir
+                if($pegawai[$key]->cek == 'Beda') {
+                    $pegawai[$key]->spkgb_terakhir = $p->spkgb()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                        return $query->where('tmt','>=',$tanggal);
+                    })->first();
+                }
+                else
+                    $pegawai[$key]->spkgb_terakhir = null;
             }
-            else
-                $pegawai[$key]->spkgb_terakhir = null;
-		}
+        }
+        elseif($request->query('tipe') == 2) {
+            // Periode gaji pokok terakhir
+            $gaji_terakhir = GajiNonASN::latest('tahun')->latest('bulan')->first();
+            $tanggal = $gaji_terakhir->tahun.'-'.$gaji_terakhir->bulan.'-01';
+            
+            // Get pegawai
+            $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
+                return $query->where('status','=',1);
+            })->whereHas('status_kepegawaian', function(Builder $query) {
+                return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN','Non PNS']);
+            })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
+            foreach($pegawai as $key=>$p) {
+                // Get gaji pokok terakhir dari mutasi
+                $pegawai[$key]->mutasi_gaji_pokok_terakhir = $p->mutasi()->first() && $p->mutasi()->first()->gaji_pokok ? $p->mutasi()->first()->gaji_pokok : null;
+                
+                // Get gaji pokok terakhir dari gaji induk
+                $gaji_induk = $gaji_terakhir ? $p->gaji_non_asn()->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
+                $gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
+                    return $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('nama','=','Gaji Pokok PNS');
+                    });
+                })->where('gaji_pokok','=',$gaji_induk->gjpokok)->first() : null;
+                if($gaji_pokok == null) {
+                    // Cek 80%
+                    $gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
+                        return $query->whereHas('jenis', function(Builder $query) {
+                            return $query->where('nama','=','Gaji Pokok PNS');
+                        });
+                    })->where('gaji_pokok','=',(100/80) * $gaji_induk->gjpokok)->first() : null;
+                }
+                $pegawai[$key]->gpp_gaji_pokok_terakhir = $gaji_pokok ?: null;
+                
+                // Cek
+                $pegawai[$key]->cek = 'Beda';
+                if($pegawai[$key]->mutasi_gaji_pokok_terakhir && $pegawai[$key]->gpp_gaji_pokok_terakhir) {
+                    if($pegawai[$key]->mutasi_gaji_pokok_terakhir->gaji_pokok == $pegawai[$key]->gpp_gaji_pokok_terakhir->gaji_pokok)
+                        $pegawai[$key]->cek = 'Sama';
+                }
+
+                // SPKGB terakhir
+                if($pegawai[$key]->cek == 'Beda') {
+                    $pegawai[$key]->spkgb_terakhir = $p->spkgb()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                        return $query->where('tmt','>=',$tanggal);
+                    })->first();
+                }
+                else
+                    $pegawai[$key]->spkgb_terakhir = null;
+            }
+        }
 
         // View
         return view('admin/pantauan/gaji-pokok', [
             'pegawai' => $pegawai,
-            'gaji_terakhir' => $gaji_terakhir
+            'gaji_terakhir' => $gaji_terakhir,
+            'tipe' => $request->query('tipe'),
         ]);
     }
 
