@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RemunKoorprodi extends Model
+class KriteriaProdi extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class RemunKoorprodi extends Model
      *
      * @var string
      */
-    protected $table = 'tbl_remun_koorprodi';
+    protected $table = 'tbl_kriteria_prodi';
 
     /**
      * The attributes that are mass assignable.
@@ -23,14 +23,6 @@ class RemunKoorprodi extends Model
      */
     protected $fillable = [
     ];
-    
-    /**
-     * Pegawai.
-     */
-    public function pegawai()
-    {
-        return $this->belongsTo(Pegawai::class, 'pegawai_id');
-    }
     
     /**
      * Prodi.

@@ -23,7 +23,7 @@ use App\Models\SK;
 use App\Models\StatusKepegawaian;
 use App\Models\Referensi;
 use App\Models\Prodi;
-use App\Models\KoorprodiRemun;
+use App\Models\RemunKoorprodi;
 
 class RemunGajiController extends Controller
 {
@@ -446,9 +446,9 @@ class RemunGajiController extends Controller
                         // Get prodi
                         $prodi = Prodi::where('nama','=',str_replace('Koorprodi ', '', $data[4]))->first();
                         if($prodi) {
-                            // Simpan koorprodi remun
-                            $koorprodi_remun = KoorprodiRemun::where('pegawai_id','=',$pegawai->id)->where('remun_gaji_id','=',$remun_gaji->id)->where('prodi_id','=',$prodi->id)->first();
-                            if(!$koorprodi_remun) $koorprodi_remun = new KoorprodiRemun;
+                            // Simpan remun koorprodi
+                            $koorprodi_remun = RemunKoorprodi::where('pegawai_id','=',$pegawai->id)->where('remun_gaji_id','=',$remun_gaji->id)->where('prodi_id','=',$prodi->id)->first();
+                            if(!$koorprodi_remun) $koorprodi_remun = new RemunKoorprodi;
                             $koorprodi_remun->pegawai_id = $pegawai->id;
                             $koorprodi_remun->remun_gaji_id = $remun_gaji->id;
                             $koorprodi_remun->prodi_id = $prodi->id;
@@ -459,9 +459,9 @@ class RemunGajiController extends Controller
                             foreach($explode as $e) {
                                 $prodis = Prodi::where('nama','=',str_replace('Koorprodi ', '', $e))->first();
                                 if($prodis) {
-                                    // Simpan koorprodi remun
-                                    $koorprodi_remun = KoorprodiRemun::where('pegawai_id','=',$pegawai->id)->where('remun_gaji_id','=',$remun_gaji->id)->where('prodi_id','=',$prodis->id)->first();
-                                    if(!$koorprodi_remun) $koorprodi_remun = new KoorprodiRemun;
+                                    // Simpan remun koorprodi
+                                    $koorprodi_remun = RemunKoorprodi::where('pegawai_id','=',$pegawai->id)->where('remun_gaji_id','=',$remun_gaji->id)->where('prodi_id','=',$prodis->id)->first();
+                                    if(!$koorprodi_remun) $koorprodi_remun = new RemunKoorprodi;
                                     $koorprodi_remun->pegawai_id = $pegawai->id;
                                     $koorprodi_remun->remun_gaji_id = $remun_gaji->id;
                                     $koorprodi_remun->prodi_id = $prodis->id;

@@ -23,4 +23,12 @@ class Prodi extends Model
      */
     protected $fillable = [
     ];
+
+    /**
+     * Kriteria.
+     */
+    public function kriteria()
+    {
+        return $this->hasMany(KriteriaProdi::class);
+    }
 }
