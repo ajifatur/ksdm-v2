@@ -41,7 +41,7 @@ class MutasiController extends Controller
     public function index(Request $request)
     {
         // Get new dan jenis
-        $new = $request->query('new') ?: 1;
+        $new = $request->query('new');
         $jenis = $request->query('jenis') ?: 'remun';
 
         // Get bulan dan tahun
