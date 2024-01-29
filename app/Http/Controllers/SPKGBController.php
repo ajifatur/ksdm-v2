@@ -7,9 +7,8 @@ use Excel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\MutasiImport;
+use App\Exports\SPKGBExport;
 use App\Models\Pegawai;
 use App\Models\Mutasi;
 use App\Models\MutasiDetail;
@@ -20,8 +19,9 @@ use App\Models\JenisMutasi;
 use App\Models\Golru;
 use App\Models\GajiPokok;
 use App\Models\Pejabat;
+use App\Models\Unit;
 
-class SPKGBPTNBHController extends Controller
+class SPKGBController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -31,9 +31,11 @@ class SPKGBPTNBHController extends Controller
      */
     public function index(Request $request)
     {
+        // Get bulan, tahun, tanggal, tipe
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
         $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $tipe = $request->query('tipe') ?: 1;
 
         if($request->query('bulan') == null && $request->query('tahun') == null) {
             // Set 2 bulan berikutnya
@@ -43,29 +45,33 @@ class SPKGBPTNBHController extends Controller
         }
 
         // Get SPKGB tambahan
-        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($bulan, $tahun) {
-            return $query->whereHas('pegawai', function(Builder $query) {
-                return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+        $spkgb = SPKGB::whereHas('mutasi', function(Builder $query) use ($bulan, $tahun, $tipe) {
+            return $query->whereHas('pegawai', function(Builder $query) use ($tipe) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) use ($tipe) {
+                    if($tipe == 1)
+                        return $query->whereIn('nama', ['PNS','CPNS']);
+                    elseif($tipe == 2)
+                        return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
                 });
             })->where('bulan','=',$bulan)->where('tahun','=',$tahun);
         })->whereNotIn('pegawai_id', array_merge(
-            $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
-            $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
-            $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27], [2,3,4], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
-            $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26], [1], $tahun, $bulan, $tanggal)->pluck('id')->toArray(),
+            pegawai_spkgb([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal, $tipe)->pluck('id')->toArray(),
+            pegawai_spkgb([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal, $tipe)->pluck('id')->toArray(),
+            pegawai_spkgb([3,5,7,9,11,13,15,17,19,21,23,25,27], [2,3,4], $tahun, $bulan, $tanggal, $tipe)->pluck('id')->toArray(),
+            pegawai_spkgb([2,4,6,8,10,12,14,16,18,20,22,24,26], [1], $tahun, $bulan, $tanggal, $tipe)->pluck('id')->toArray(),
         ))->get();
 
         // View
-        return view('admin/spkgb/ptnbh/index', [
+        return view('admin/spkgb/index', [
             'pegawai' => [
-                'pegawai_gol_iii_iv' => $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal),
-                'pegawai_golru_ii_a_d' => $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal),
-                'pegawai_golru_i_b_d' => $this->get_pegawai([3,5,7,9,11,13,15,17,19,21,23,25,27], [2,3,4], $tahun, $bulan, $tanggal),
-                'pegawai_golru_i_a' => $this->get_pegawai([2,4,6,8,10,12,14,16,18,20,22,24,26], [1], $tahun, $bulan, $tanggal),
+                'pegawai_gol_iii_iv' => pegawai_spkgb([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32], [9,10,11,12,13,14,15,16,17], $tahun, $bulan, $tanggal, $tipe),
+                'pegawai_golru_ii_a_d' => pegawai_spkgb([3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33], [5,6,7,8], $tahun, $bulan, $tanggal, $tipe),
+                'pegawai_golru_i_b_d' => pegawai_spkgb([3,5,7,9,11,13,15,17,19,21,23,25,27], [2,3,4], $tahun, $bulan, $tanggal, $tipe),
+                'pegawai_golru_i_a' => pegawai_spkgb([2,4,6,8,10,12,14,16,18,20,22,24,26], [1], $tahun, $bulan, $tanggal, $tipe),
             ],
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'tipe' => $tipe,
             'spkgb' => $spkgb,
         ]);
     }
@@ -79,24 +85,37 @@ class SPKGBPTNBHController extends Controller
      */
     public function create(Request $request, $id)
     {
+        // Get bulan, tahun, tanggal, tipe
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
 		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $tipe = $request->query('tipe') ?: 1;
 
         // Get pegawai
 		$pegawai = Pegawai::findOrFail($id);
 
         // Get jenis mutasi
-        $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK'])->get();
+        if($tipe == 1)
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
+        elseif($tipe == 2)
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK'])->get();
 
         // Get golru
         $golru = Golru::all();
 
         // Get gaji pokok
-        if(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
-            $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
-        else
-            $gaji_pokok = [];
+        if($tipe == 1) {
+            if(in_array($pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
+                $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
+            else
+                $gaji_pokok = [];
+        }
+        elseif($tipe == 2) {
+            if(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+                $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
+            else
+                $gaji_pokok = [];
+        }
 
         // Get pejabat
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
@@ -105,8 +124,11 @@ class SPKGBPTNBHController extends Controller
         $mutasi = $pegawai->mutasi()->first();
 
         // Get mutasi sebelum
-        $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
-            return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK']);
+        $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) use($tipe) {
+            if($tipe == 1)
+                return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK']);
+            elseif($tipe == 2)
+                return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK']);
         })->where('tmt','<',$tanggal)->first();
 
         // Set masa kerja baru
@@ -117,7 +139,7 @@ class SPKGBPTNBHController extends Controller
         $gaji_pokok_baru = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($mutasi->gaji_pokok->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first();
 
         // View
-        return view('admin/spkgb/ptnbh/create', [
+        return view('admin/spkgb/create', [
             'pegawai' => $pegawai,
             'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
@@ -130,6 +152,7 @@ class SPKGBPTNBHController extends Controller
             'tahun' => $tahun,
             'bulan' => $bulan,
             'tanggal' => $tanggal,
+            'tipe' => $tipe,
         ]);
     }
 
@@ -239,6 +262,7 @@ class SPKGBPTNBHController extends Controller
                     $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
                     $detail->unit_id = $d->unit_id;
                     $detail->layer_id = $d->layer_id;
+                    $detail->angkatan_id = $d->angkatan_id;
                     $detail->status = $d->status;
                     $detail->save();
                 }
@@ -273,7 +297,10 @@ class SPKGBPTNBHController extends Controller
         }
 
         // Redirect
-        return redirect()->route('admin.spkgb.ptnbh.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal))])->with(['message' => 'Berhasil menambah data.']);
+        if(in_array($pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
+            return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal)), 'tipe' => 1])->with(['message' => 'Berhasil menambah data.']);
+        elseif(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+            return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($request->tanggal)), 'tahun' => date('Y', strtotime($request->tanggal)), 'tipe' => 2])->with(['message' => 'Berhasil menambah data.']);
     }
 
     /**
@@ -291,13 +318,16 @@ class SPKGBPTNBHController extends Controller
         })->findOrFail($id);
 
         // Get jenis mutasi
-        $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK'])->get();
+        if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
+        elseif(in_array($spkgb->pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK'])->get();
 
         // Get golru
         $golru = Golru::all();
 
         // Get gaji pokok
-        if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+        if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['CPNS','PNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
             $gaji_pokok = Golru::find($spkgb->mutasi->golru_id)->gaji_pokok;
         else
             $gaji_pokok = [];
@@ -306,7 +336,7 @@ class SPKGBPTNBHController extends Controller
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
 
         // View
-        return view('admin/spkgb/ptnbh/edit', [
+        return view('admin/spkgb/edit', [
             'spkgb' => $spkgb,
             'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
@@ -323,6 +353,9 @@ class SPKGBPTNBHController extends Controller
      */
     public function update(Request $request)
     {
+        // Get SK
+        $sk_gaji_pns = SK::where('jenis_id','=',5)->where('status','=',1)->first();
+
         // Validation
         $validator = Validator::make($request->all(), [
             'no_sk_baru' => 'required',
@@ -347,7 +380,7 @@ class SPKGBPTNBHController extends Controller
             $spkgb = SPKGB::findOrFail($request->id);
 
             // Get gaji pokok
-            $gaji_pokok = GajiPokok::find($request->gaji_pokok);
+            $gaji_pokok = GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->find($request->gaji_pokok);
 
             // Get jenis mutasi
             $jenis_mutasi = JenisMutasi::find($request->jenis_mutasi);
@@ -365,6 +398,9 @@ class SPKGBPTNBHController extends Controller
 
             // Update perubahan sebelum
             $perubahan_sebelum = $mutasi_sebelum->perubahan;
+            if(!$perubahan_sebelum) $perubahan_sebelum = new Perubahan;
+            $perubahan_sebelum->mutasi_id = $mutasi_sebelum->id;
+            $perubahan_sebelum->sk_id = $gaji_pokok->sk_id;
             $perubahan_sebelum->pejabat_id = $request->pejabat;
             $perubahan_sebelum->no_sk = $request->no_sk;
             $perubahan_sebelum->tanggal_sk = DateTimeExt::change($request->tanggal_sk);
@@ -381,7 +417,10 @@ class SPKGBPTNBHController extends Controller
         }
 
         // Redirect
-        return redirect()->route('admin.spkgb.ptnbh.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt))])->with(['message' => 'Berhasil mengupdate data.']);
+        if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
+            return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt)), 'tipe' => 1])->with(['message' => 'Berhasil mengupdate data.']);
+        elseif(in_array($spkgb->pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
+            return redirect()->route('admin.spkgb.index', ['bulan' => date('n', strtotime($spkgb->mutasi->tmt)), 'tahun' => date('Y', strtotime($spkgb->mutasi->tmt)), 'tipe' => 2])->with(['message' => 'Berhasil mengupdate data.']);
     }
 
     /**
@@ -393,72 +432,131 @@ class SPKGBPTNBHController extends Controller
     public function monitoring(Request $request)
     {
         $tahun = $request->query('tahun') ?: date('Y');
+        $tipe = $request->query('tipe') ?: 1;
         $data = [];
-        $total = 0;
+        $total['dosen'] = 0;
+        $total['tendik'] = 0;
+        $total['semua'] = 0;
         for($i=1; $i<=12; $i++) {
-            // Get SPKGB
-            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
-                return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+            // Count SPKGB Dosen
+            $spkgb_dosen = SPKGB::whereHas('pegawai', function(Builder $query) use($tipe) {
+                return $query->where('jenis','=',1)->whereHas('status_kepegawaian', function(Builder $query) use($tipe) {
+                    if($tipe == 1)
+                        return $query->whereIn('nama', ['PNS','CPNS']);
+                    elseif($tipe == 2)
+                        return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
                 });
             })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
-                return $query->has('perubahan')->where('bulan','=',$i)->where('tahun','=',$tahun);
+                return $query->has('perubahan')->whereMonth('tmt',$i)->whereYear('tmt',$tahun);
+            })->count();
+
+            // Count SPKGB Tendik
+            $spkgb_tendik = SPKGB::whereHas('pegawai', function(Builder $query) use($tipe) {
+                return $query->where('jenis','=',2)->whereHas('status_kepegawaian', function(Builder $query) use($tipe) {
+                    if($tipe == 1)
+                        return $query->whereIn('nama', ['PNS','CPNS']);
+                    elseif($tipe == 2)
+                        return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
+                return $query->has('perubahan')->whereMonth('tmt',$i)->whereYear('tmt',$tahun);
+            })->count();
+
+            // Count SPKGB
+            $spkgb_semua = SPKGB::whereHas('pegawai', function(Builder $query) use($tipe) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) use($tipe) {
+                    if($tipe == 1)
+                        return $query->whereIn('nama', ['PNS','CPNS']);
+                    elseif($tipe == 2)
+                        return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($i, $tahun) {
+                return $query->has('perubahan')->whereMonth('tmt',$i)->whereYear('tmt',$tahun);
             })->count();
 
             // Increment total
-            $total += $spkgb;
+            $total['dosen'] += $spkgb_dosen;
+            $total['tendik'] += $spkgb_tendik;
+            $total['semua'] += $spkgb_semua;
 
             // Push to array
             array_push($data, [
                 'bulan' => $i,
                 'nama' => DateTimeExt::month($i),
-                'spkgb' => $spkgb
+                'spkgb_dosen' => $spkgb_dosen,
+                'spkgb_tendik' => $spkgb_tendik,
+                'spkgb_semua' => $spkgb_semua,
             ]);
         }
 
         // View
-        return view('admin/spkgb/ptnbh/monitoring', [
+        return view('admin/spkgb/monitoring', [
             'tahun' => $tahun,
+            'tipe' => $tipe,
             'data' => $data,
             'total' => $total
         ]);
     }
 
-    public function get_pegawai($mkg, $golru, $tahun, $bulan, $tanggal) {
-        // Set TMT
-		$tmt = [];
-        foreach($mkg as $m) {
-			array_push($tmt, ($tahun - $m).'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01');
-        }
-		
-		// Get pegawai berdasarkan golru
-		$pegawai = Pegawai::whereHas('golru', function(Builder $query) use ($golru) {
-			return $query->whereIn('golru_id',$golru);
-		})->where('status_kerja_id','=',1)->whereHas('status_kepegawaian', function(Builder $query) {
-            return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
-        })->whereIn('tmt_golongan',$tmt)->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
-		foreach($pegawai as $key=>$p) {
-			// Get mutasi KP / KGB sebelumnya
-			$pegawai[$key]->mutasi_sebelum = $p->mutasi()->whereHas('jenis', function(Builder $query) {
-				return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK']);
-			})->where('tmt','<',$tanggal)->first();
+    /**
+     * Export to Excel.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function export(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
 
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+		$tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+        $tipe = $request->query('tipe') ?: 1;
+        $jenis = $request->query('jenis') ?: 0;
+
+        if($jenis != 0) {
             // Get SPKGB
-			$pegawai[$key]->mutasi_spkgb = $p->mutasi()->has('spkgb')->whereHas('jenis', function(Builder $query) {
-				return $query->where('nama','=','KGB');
-			})->where('tmt','=',$tanggal)->first();
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis, $tipe) {
+                return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) use($tipe) {
+                    if($tipe == 1)
+                        return $query->whereIn('nama', ['PNS','CPNS']);
+                    elseif($tipe == 2)
+                        return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
+        }
+        else {
+            // Get SPKGB
+            $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($tipe) {
+                return $query->whereHas('status_kepegawaian', function(Builder $query) use($tipe) {
+                    if($tipe == 1)
+                        return $query->whereIn('nama', ['PNS','CPNS']);
+                    elseif($tipe == 2)
+                        return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                });
+            })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                return $query->has('perubahan')->where('tmt','=',$tanggal);
+            })->with('unit')->orderBy(
+                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+            )->get();
 
-            // Get gaji pokok lama
-            $pegawai[$key]->gaji_pokok_lama = $p->mutasi()->where('tmt','<',$tanggal)->first() ? $p->mutasi()->where('tmt','<',$tanggal)->first()->gaji_pokok : $p->mutasi()->first()->gaji_pokok;
+        }
 
-            // Set masa kerja baru
-            $mk_baru = $tahun - date('Y', strtotime($p->tmt_golongan));
-    
-            // Set gaji pokok baru
-            $sk_gaji_pns = SK::where('jenis_id','=',5)->where('status','=',1)->first();
-            $pegawai[$key]->gaji_pokok_baru = $pegawai[$key]->gaji_pokok_lama ? GajiPokok::where('sk_id','=',$sk_gaji_pns->id)->where('nama','=',substr($pegawai[$key]->gaji_pokok_lama->nama,0,2).($mk_baru < 10 ? '0'.$mk_baru : $mk_baru))->first() : null;
-		}
-
-        return $pegawai;
+        // Return
+        return Excel::download(new SPKGBExport([
+            'spkgb' => $spkgb,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'tipe' => $tipe,
+        ]), 'Template Siradi SPKGB '.($tipe == 1 ? 'PNS' : 'Pegawai Tetap Non ASN').' '.(in_array($jenis, [1,2]) ? $jenis == 1 ? 'Dosen' : 'Tendik' : '').' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx');
     }
 }

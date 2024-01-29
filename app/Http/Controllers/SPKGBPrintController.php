@@ -69,7 +69,7 @@ class SPKGBPrintController extends Controller
         $jenis = $request->query('jenis') ?: 0;
 
         // Get SPKGB
-        if($request->query('type') == 1) {
+        if($request->query('tipe') == 1) {
             if($jenis != 0) {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
                     return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
@@ -97,7 +97,7 @@ class SPKGBPrintController extends Controller
                 )->get();
             }
         }
-        elseif($request->query('type') == 2) {
+        elseif($request->query('tipe') == 2) {
             $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                 return $query->whereHas('status_kepegawaian', function(Builder $query) {
                     return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
@@ -143,7 +143,7 @@ class SPKGBPrintController extends Controller
         $jenis = $request->query('jenis') ?: 0;
 
         // Get SPKGB
-        if($request->query('type') == 1) {
+        if($request->query('tipe') == 1) {
             if($jenis != 0) {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
                     return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
@@ -171,7 +171,7 @@ class SPKGBPrintController extends Controller
                 )->get();
             }
         }
-        elseif($request->query('type') == 2) {
+        elseif($request->query('tipe') == 2) {
             if($jenis != 0) {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
                     return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {

@@ -188,25 +188,14 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/uang-lembur/import', 'UangLemburController@import')->name('admin.uang-lembur.import');
     Route::post('/admin/uang-lembur/import', 'UangLemburController@import')->name('admin.uang-lembur.import');
 
-    // SPKGB PNS
-    Route::get('/admin/spkgb/pns', 'SPKGBPNSController@index')->name('admin.spkgb.pns.index');
-    Route::get('/admin/spkgb/pns/monitoring', 'SPKGBPNSController@monitoring')->name('admin.spkgb.pns.monitoring');
-    Route::get('/admin/spkgb/pns/create/{id}', 'SPKGBPNSController@create')->name('admin.spkgb.pns.create');
-    Route::post('/admin/spkgb/pns/store', 'SPKGBPNSController@store')->name('admin.spkgb.pns.store');
-    Route::get('/admin/spkgb/pns/edit/{id}', 'SPKGBPNSController@edit')->name('admin.spkgb.pns.edit');
-    Route::post('/admin/spkgb/pns/update', 'SPKGBPNSController@update')->name('admin.spkgb.pns.update');
-    Route::get('/admin/spkgb/pns/export', 'SPKGBPNSController@export')->name('admin.spkgb.pns.export');
-
-    // SPKGB Pegawai PTNBH
-    Route::get('/admin/spkgb/ptnbh', 'SPKGBPTNBHController@index')->name('admin.spkgb.ptnbh.index');
-    Route::get('/admin/spkgb/ptnbh/monitoring', 'SPKGBPTNBHController@monitoring')->name('admin.spkgb.ptnbh.monitoring');
-    Route::get('/admin/spkgb/ptnbh/create/{id}', 'SPKGBPTNBHController@create')->name('admin.spkgb.ptnbh.create');
-    Route::post('/admin/spkgb/ptnbh/store', 'SPKGBPTNBHController@store')->name('admin.spkgb.ptnbh.store');
-    Route::get('/admin/spkgb/ptnbh/edit/{id}', 'SPKGBPTNBHController@edit')->name('admin.spkgb.ptnbh.edit');
-    Route::post('/admin/spkgb/ptnbh/update', 'SPKGBPTNBHController@update')->name('admin.spkgb.ptnbh.update');
-    Route::get('/admin/spkgb/print/single/{id}', 'SPKGBPrintController@single')->name('admin.spkgb.print.single');
-    Route::get('/admin/spkgb/print/recap', 'SPKGBPrintController@recap')->name('admin.spkgb.print.recap');
-    Route::get('/admin/spkgb/print/batch', 'SPKGBPrintController@batch')->name('admin.spkgb.print.batch');
+    // SPKGB
+    Route::get('/admin/spkgb', 'SPKGBController@index')->name('admin.spkgb.index');
+    Route::get('/admin/spkgb/monitoring', 'SPKGBController@monitoring')->name('admin.spkgb.monitoring');
+    Route::get('/admin/spkgb/create/{id}', 'SPKGBController@create')->name('admin.spkgb.create');
+    Route::post('/admin/spkgb/store', 'SPKGBController@store')->name('admin.spkgb.store');
+    Route::get('/admin/spkgb/edit/{id}', 'SPKGBController@edit')->name('admin.spkgb.edit');
+    Route::post('/admin/spkgb/update', 'SPKGBController@update')->name('admin.spkgb.update');
+    Route::get('/admin/spkgb/export', 'SPKGBController@export')->name('admin.spkgb.export');
 
     // SPKGB Print
     Route::get('/admin/spkgb/print/single/{id}', 'SPKGBPrintController@single')->name('admin.spkgb.print.single');

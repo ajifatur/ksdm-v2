@@ -1,16 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'List SPKGB Pegawai Tetap Non ASN')
+@section('title', 'List SPKGB '.($tipe == 1 ? 'PNS' : 'Pegawai Tetap Non ASN'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">List SPKGB Pegawai Tetap Non ASN</h1>
+    <h1 class="h3 mb-2 mb-sm-0">List SPKGB {{ $tipe == 1 ? 'PNS' : 'Pegawai Tetap Non ASN' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="tipe" value="{{ $tipe }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="bulan" class="form-select form-select-sm">
@@ -23,7 +24,7 @@
                     <div class="ms-sm-2 ms-0 mt-2 mt-sm-0">
                         <select name="tahun" class="form-select form-select-sm">
                             <option value="0" disabled>--Pilih Tahun--</option>
-                            @for($y=(date('Y')+1); $y>=2020; $y--)
+                            @for($y=(date('Y')+1); $y>=2023; $y--)
                             <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endfor
                         </select>
@@ -85,10 +86,10 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($p->mutasi_spkgb)
-                                                <a href="{{ route('admin.spkgb.ptnbh.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.spkgb.pns.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                 <a href="{{ route('admin.spkgb.print.single', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
                                             @else
-                                                <a href="{{ route('admin.spkgb.ptnbh.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                                <a href="{{ route('admin.spkgb.pns.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
                                             @endif
                                         </div>
                                     </td>
@@ -119,7 +120,7 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($s->mutasi)
-                                                <a href="{{ route('admin.spkgb.ptnbh.edit', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.spkgb.pns.edit', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                 <a href="{{ route('admin.spkgb.print.single', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
                                             @endif
                                         </div>

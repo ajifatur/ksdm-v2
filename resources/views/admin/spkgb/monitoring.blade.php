@@ -1,16 +1,17 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Monitoring SPKGB PNS')
+@section('title', 'Monitoring SPKGB '.($tipe == 1 ? 'PNS' : 'Pegawai Tetap Non ASN'))
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Monitoring SPKGB PNS</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Monitoring SPKGB {{ $tipe == 1 ? 'PNS' : 'Pegawai Tetap Non ASN' }}</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="tipe" value="{{ $tipe }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
                         <select name="tahun" class="form-select form-select-sm">
@@ -54,28 +55,28 @@
                                 <td align="right">{{ number_format($d['spkgb_semua']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.pns.index', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
+                                        <a href="{{ route('admin.spkgb.index', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="List SPKGB"><i class="bi-eye"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak Rekap PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Cetak Rekap PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Cetak Rekap PDF Semua" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak Rekap PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Cetak Rekap PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.recap', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Cetak Rekap PDF Semua" target="_blank"><i class="bi-file-pdf"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak Batch PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Cetak Batch PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'type' => 1]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Cetak Batch PDF Semua" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak Batch PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Cetak Batch PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        <a href="{{ route('admin.spkgb.print.batch', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Cetak Batch PDF Semua" target="_blank"><i class="bi-file-pdf"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Excel Template Siradi Dosen" target="_blank"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Excel Template Siradi Tendik" target="_blank"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.spkgb.pns.export', ['bulan' => $d['bulan'], 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Excel Template Siradi Semua" target="_blank"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.spkgb.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe, 'jenis' => 1]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Excel Template Siradi Dosen" target="_blank"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.spkgb.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe, 'jenis' => 2]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Excel Template Siradi Tendik" target="_blank"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.spkgb.export', ['bulan' => $d['bulan'], 'tahun' => $tahun, 'tipe' => $tipe]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Excel Template Siradi Semua" target="_blank"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
