@@ -86,10 +86,10 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($p->mutasi_spkgb)
-                                                <a href="{{ route('admin.spkgb.pns.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.spkgb.edit', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                 <a href="{{ route('admin.spkgb.print.single', ['id' => $p->mutasi_spkgb->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
                                             @else
-                                                <a href="{{ route('admin.spkgb.pns.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                                <a href="{{ route('admin.spkgb.create', ['id' => $p->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
                                             @endif
                                         </div>
                                     </td>
@@ -120,7 +120,7 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             @if($s->mutasi)
-                                                <a href="{{ route('admin.spkgb.pns.edit', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.spkgb.edit', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                 <a href="{{ route('admin.spkgb.print.single', ['id' => $s->mutasi->spkgb->id]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak" target="_blank"><i class="bi-file-pdf"></i></a>
                                             @endif
                                         </div>
