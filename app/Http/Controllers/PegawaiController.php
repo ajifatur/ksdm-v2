@@ -52,7 +52,6 @@ class PegawaiController extends Controller
 
         foreach($pegawai as $key=>$p) {
             // Get mutasi jabatan
-            // $mutasi = $p->mutasi()->where('jenis_id','=',1)->first();
 			$mutasi = $p->mutasi()->first();
 
             // Get jabatan struktural
@@ -139,7 +138,12 @@ class PegawaiController extends Controller
             $unit = [];
             if($mutasi) {
                 foreach($mutasi->detail as $d) {
-                    if($d->jabatan && !in_array($d->jabatan->nama, $jabatan)) array_push($jabatan, $d->jabatan->nama);
+                    if($d->jabatan && !in_array($d->jabatan->nama, $jabatan)) {
+                        if($d->jabatan->grup->nama == 'Koordinator Program Studi')
+                            array_push($jabatan, 'Koordinator Program Studi');
+                        else
+                            array_push($jabatan, $d->jabatan->nama);
+                    }
                     if($d->unit && !in_array($d->unit->nama, $unit)) array_push($unit, $d->unit->nama);
                 }
             }

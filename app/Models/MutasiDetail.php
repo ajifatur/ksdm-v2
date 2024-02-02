@@ -71,4 +71,12 @@ class MutasiDetail extends Model
     {
         return $this->belongsTo(Angkatan::class, 'angkatan_id');
     }
+
+    /**
+     * Mutasi Koorprodi.
+     */
+    public function koorprodi()
+    {
+        return $this->hasMany(MutasiKoorprodi::class);
+    }
 }

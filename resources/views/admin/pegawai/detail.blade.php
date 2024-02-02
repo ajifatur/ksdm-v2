@@ -144,7 +144,7 @@
                                             <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
                                             <td>
                                                 @foreach($m->detail()->get() as $key2=>$d)
-                                                    {{ $d->jabatan ? $d->jabatan->nama : '-' }}
+                                                    {{ $d->jabatan ? $d->jabatan->grup->nama != 'Koordinator Program Studi' ? $d->jabatan->sub != '-' ? $d->jabatan->sub : $d->jabatan->nama : 'Koordinator Program Studi' : '-' }}
                                                     @if($key2 != count($m->detail()->get())-1)<hr class="my-0">@endif
                                                 @endforeach
                                             </td>
@@ -212,11 +212,11 @@
                                             <td>{{ $r['remun_gaji']->status_kepegawaian->nama }}</td>
                                             <td colspan="{{ $remun_gaji_expand == true ? 2 : 1 }}">
                                                 @if($r['kekurangan'] == true)
-                                                    {{ $r['lebih_kurang'][0]->jabatan_seharusnya ? $r['lebih_kurang'][0]->jabatan_seharusnya->nama : '-' }}
+                                                    {{ $r['lebih_kurang'][0]->jabatan_seharusnya ? $r['lebih_kurang'][0]->jabatan_seharusnya->sub != '-' ? $r['lebih_kurang'][0]->jabatan_seharusnya->sub : $r['lebih_kurang'][0]->jabatan_seharusnya->nama : '-' }}
                                                     <br>
                                                     {{ $r['remun_gaji']->unit ? '('.$r['remun_gaji']->unit->nama.')' : '' }}
                                                 @else
-                                                    {{ $r['remun_gaji']->jabatan ? $r['remun_gaji']->jabatan->nama : '-' }}
+                                                    {{ $r['remun_gaji']->jabatan ? $r['remun_gaji']->jabatan->sub != '-' ? $r['remun_gaji']->jabatan->sub : $r['remun_gaji']->jabatan->nama : '-' }}
                                                     <br>
                                                     {{ $r['remun_gaji']->unit ? '('.$r['remun_gaji']->unit->nama.')' : '' }}
                                                 @endif
@@ -234,12 +234,12 @@
                                                 <td></td>
                                                 <td colspan="2"><em>Lebih / kurang pada {{ \Ajifatur\Helpers\DateTimeExt::month($lk->bulan) }} {{ $lk->tahun }}</em></td>
                                                 <td>
-                                                    {{ $lk->jabatan_terbayar ? $lk->jabatan_terbayar->nama : '-' }}
+                                                    {{ $lk->jabatan_terbayar ? $lk->jabatan_terbayar->sub != '-' ? $lk->jabatan_terbayar->sub : $lk->jabatan_terbayar->nama : '-' }}
                                                     <br>
                                                     {{ array_key_exists($key+1, $remun_gaji) && $remun_gaji[$key+1]['remun_gaji']->unit ? '('.$remun_gaji[$key+1]['remun_gaji']->unit->nama.')' : '' }}
                                                 </td>
                                                 <td>
-                                                    {{ $lk->jabatan_seharusnya ? $lk->jabatan_seharusnya->nama : '-' }}
+                                                    {{ $lk->jabatan_seharusnya ? $lk->jabatan_seharusnya->sub != '-' ? $lk->jabatan_seharusnya->sub : $lk->jabatan_seharusnya->nama : '-' }}
                                                     <br>
                                                     {{ $r['remun_gaji']->unit ? '('.$r['remun_gaji']->unit->nama.')' : '' }}
                                                 </td>
@@ -313,7 +313,7 @@
                                             </td>
                                             <td>{{ $r->status_kepegawaian ? $r->status_kepegawaian->nama : '-' }}</td>
                                             <td>
-                                                {{ $r->jabatan ? $r->jabatan->nama : '-' }}
+                                                {{ $r->jabatan ? $r->jabatan->sub != '-' ? $r->jabatan->sub : $r->jabatan->nama : '-' }}
                                                 <br>
                                                 {{ $r->unit ? '('.$r->unit->nama.')' : '' }}
                                             </td>

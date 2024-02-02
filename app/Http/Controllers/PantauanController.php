@@ -172,6 +172,7 @@ class PantauanController extends Controller
                     return $query->where('nama','=','Gaji Induk');
                 })->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
                 $gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
+                    // return $query->where('status','=',1)->whereHas('jenis', function(Builder $query) {
                     return $query->whereHas('jenis', function(Builder $query) {
                         return $query->where('nama','=','Gaji Pokok PNS');
                     });

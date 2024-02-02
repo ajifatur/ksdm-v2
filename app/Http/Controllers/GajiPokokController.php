@@ -53,20 +53,21 @@ class GajiPokokController extends Controller
 		ini_set("max_execution_time", "-1");
 
         // Set file
-        $array = Excel::toArray(new GajiPokokImport, public_path('assets/spreadsheets/Gaji Pokok.xlsx'));
+        $array = Excel::toArray(new GajiPokokImport, public_path('storage/Gaji Pokok PNS 2024.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {
                 if($data[0] != null) {
                     // Get golru
-                    $golru = Golru::where('golongan_id','=',$data[2])->where('ruang','=',$data[3])->first();
+                    $golru = Golru::where('golongan_id','=',substr($data[0],0,1))->where('ruang','=',substr($data[0],1,1))->first();
                     
                     // Simpan gaji pokok
-                    $gaji_pokok = GajiPokok::where('golru_id','=',$golru->id)->where('nama','=',$data[4])->where('mkg','=',$data[5])->first();
+                    $gaji_pokok = GajiPokok::where('golru_id','=',$golru->id)->where('sk_id','=',14)->where('nama','=',$data[0])->where('mkg','=',substr($data[0],2,2))->first();
                     if(!$gaji_pokok) $gaji_pokok = new GajiPokok;
                     $gaji_pokok->golru_id = $golru->id;
-                    $gaji_pokok->nama = $data[4];
-                    $gaji_pokok->mkg = $data[5];
+                    $gaji_pokok->sk_id = 14;
+                    $gaji_pokok->nama = $data[0];
+                    $gaji_pokok->mkg = substr($data[0],2,2);
                     $gaji_pokok->gaji_pokok = $data[1];
                     $gaji_pokok->save();
                 }
