@@ -21,7 +21,8 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 <th width="80">Jenis</th>
                                 <th width="100">TMT Golongan</th>
                                 <th width="80">MKG Tahun</th>
@@ -34,7 +35,8 @@
                         <tbody>
                             @foreach($pegawai as $p)
                             <tr>
-                                <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">`{{ $p->nip }}</a></td>
+                                <td>{{ strtoupper($p->nama) }}</td>
                                 <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td>
                                     <span class="d-none">{{ $p->tmt_golongan }}</span>
@@ -76,7 +78,7 @@
     Spandiv.DataTable("#datatable", {
         orderAll: true,
         fixedHeader: true,
-        // buttons: true
+        buttons: true
     });
 </script>
 

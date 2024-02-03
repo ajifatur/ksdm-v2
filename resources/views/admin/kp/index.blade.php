@@ -12,7 +12,7 @@
 		<div class="card">
             <div class="card-header d-sm-flex justify-content-end align-items-center">
                 <select name="tmt" class="form-select form-select-sm">
-                    <option value="" disabled>--Pilih SK--</option>
+                    <option value="" disabled>--Pilih TMT--</option>
                     @foreach($tmt as $t)
 					<option value="{{ $t }}" {{ Request::query('tmt') == $t ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::full($t) }}</option>
                     @endforeach

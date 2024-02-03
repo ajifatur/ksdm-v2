@@ -96,9 +96,9 @@ class SPKGBController extends Controller
 
         // Get jenis mutasi
         if($tipe == 1)
-            $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK','PGP'])->get();
         elseif($tipe == 2)
-            $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK'])->get();
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK','PGP'])->get();
 
         // Get golru
         $golru = Golru::all();
@@ -112,7 +112,9 @@ class SPKGBController extends Controller
         }
         elseif($tipe == 2) {
             if(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
-                $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
+                $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok()->whereHas('sk', function(Builder $query) {
+                    return $query->where('jenis_id','=',5)->where('status','=',1);
+                })->get();
             else
                 $gaji_pokok = [];
         }
@@ -126,9 +128,9 @@ class SPKGBController extends Controller
         // Get mutasi sebelum
         $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) use($tipe) {
             if($tipe == 1)
-                return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK']);
+                return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK','PGP']);
             elseif($tipe == 2)
-                return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK']);
+                return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK','PGP']);
         })->where('tmt','<',$tanggal)->first();
 
         // Set masa kerja baru
@@ -319,16 +321,18 @@ class SPKGBController extends Controller
 
         // Get jenis mutasi
         if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
-            $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK'])->get();
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK','PGP'])->get();
         elseif(in_array($spkgb->pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
-            $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK'])->get();
+            $jenis_mutasi = JenisMutasi::whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK','PGP'])->get();
 
         // Get golru
         $golru = Golru::all();
 
         // Get gaji pokok
         if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['CPNS','PNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
-            $gaji_pokok = Golru::find($spkgb->mutasi->golru_id)->gaji_pokok;
+            $gaji_pokok = Golru::find($spkgb->mutasi->golru_id)->gaji_pokok()->whereHas('sk', function(Builder $query) {
+                return $query->where('jenis_id','=',5)->where('status','=',1);
+            })->get();
         else
             $gaji_pokok = [];
 

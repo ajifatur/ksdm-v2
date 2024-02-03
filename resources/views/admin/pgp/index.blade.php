@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'List Mutasi KGB')
+@section('title', 'List Mutasi PGP')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">List Mutasi KGB</h1>
+    <h1 class="h3 mb-2 mb-sm-0">List Mutasi PGP</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -35,6 +35,7 @@
                                 <th>Status Kepeg.</th>
                                 <th>Golru</th>
                                 <th>MKG</th>
+                                <th>Gaji Pokok</th>
                                 <th>MK Tahun</th>
                                 <th>MK Bulan</th>
                                 <th>TMT</th>
@@ -49,6 +50,7 @@
                                 <td>{{ $m->pegawai->status_kepegawaian->nama }}</td>
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
                                 <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
+                                <td align="right">{{ $m->gaji_pokok ? number_format($m->gaji_pokok->gaji_pokok) : 0 }}</td>
                                 <td>{{ $m->perubahan ? $m->perubahan->mk_tahun : '' }}</td>
                                 <td>{{ $m->perubahan ? $m->perubahan->mk_bulan : '' }}</td>
                                 <td>
@@ -57,9 +59,6 @@
                                 </td>
 								<td align="center">
 									<div class="btn-group">
-                                        @if($m->spkgb)
-										<a href="{{ route('admin.spkgb.print.single', ['id' => $m->spkgb->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        @endif
 										<a href="{{ route('admin.mutasi.edit', ['id' => $m->pegawai_id, 'mutasi_id' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
 										<a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $m->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
 									</div>
@@ -101,7 +100,7 @@
     // Change the select
     $(document).on("change", ".card-header select", function() {
 		var tmt = $("select[name=tmt]").val();
-        window.location.href = Spandiv.URL("{{ route('admin.kgb.index') }}", {tmt: tmt});
+        window.location.href = Spandiv.URL("{{ route('admin.kp.index') }}", {tmt: tmt});
     });
 </script>
 

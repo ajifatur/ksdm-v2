@@ -28,9 +28,9 @@ if(!function_exists('pegawai_spkgb')) {
 			// Get mutasi sebelumnya
 			$pegawai[$key]->mutasi_sebelum = $p->mutasi()->whereHas('jenis', function(Builder $query) use($tipe) {
                 if($tipe == 1)
-				    return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK']);
+				    return $query->whereIn('nama',['Mutasi CPNS ke PNS','Mutasi Pangkat','KGB','PMK','PGP']);
                 elseif($tipe == 2)
-				    return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK']);
+				    return $query->whereIn('nama',['Peralihan BLU ke PTNBH','Mutasi Pangkat','KGB','PMK','PGP']);
 			})->where('tmt','<',$tanggal)->first();
 
             // Get SPKGB

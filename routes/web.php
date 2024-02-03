@@ -52,6 +52,10 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/mutasi/kgb', 'KGBController@index')->name('admin.kgb.index');
     Route::get('/admin/mutasi/kgb/monitoring', 'KGBController@monitoring')->name('admin.kgb.monitoring');
 
+    // PGP
+    Route::get('/admin/mutasi/pgp', 'PGPController@index')->name('admin.pgp.index');
+    // Route::get('/admin/mutasi/pgp/import', 'PGPController@import')->name('admin.pgp.import');
+
     // Remun Gaji
     Route::get('/admin/remun-gaji', 'RemunGajiController@index')->name('admin.remun-gaji.index');
     Route::get('/admin/remun-gaji/process', 'RemunGajiController@process')->name('admin.remun-gaji.process');
@@ -246,7 +250,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/mutasi/check', 'MutasiController@check')->name('admin.mutasi.check');
     // Route::get('/admin/referensi/import', 'ReferensiController@import')->name('admin.referensi.import');
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');
-    Route::get('/admin/gaji-pokok/import', 'GajiPokokController@import')->name('admin.gaji-pokok.import');
+    // Route::get('/admin/gaji-pokok/import', 'GajiPokokController@import')->name('admin.gaji-pokok.import');
     // Route::get('/admin/gaji/sync', 'GajiController@sync')->name('admin.gaji.sync');
     // Route::get('/admin/uang-makan/sync', 'UangMakanController@sync')->name('admin.uang-makan.sync');
     // Route::get('/admin/prodi/import', 'ProdiController@import')->name('admin.prodi.import');

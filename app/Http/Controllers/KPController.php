@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Auth;;
+use Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
