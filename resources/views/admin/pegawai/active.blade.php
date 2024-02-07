@@ -19,7 +19,9 @@
                                 <th rowspan="2" width="200">Nama</th>
                                 <th rowspan="2" width="80">Gelar Depan</th>
                                 <th rowspan="2" width="80">Gelar Belakang</th>
-                                <th rowspan="2" width="80">Golru</th>
+                                <th rowspan="2" width="200">Tempat Lahir</th>
+                                <th rowspan="2" width="200">Tanggal Lahir</th>
+                                <th rowspan="2" width="80">Pangkat/Golru</th>
                                 <th rowspan="2" width="80">MKG</th>
                                 <th colspan="2">Jabatan Fungsional</th>
                                 <th colspan="2">Jabatan Struktural</th>
@@ -41,7 +43,9 @@
                                 <td>{{ $p->nama }}</td>
                                 <td>{{ $p->gelar_depan }}</td>
                                 <td>{{ $p->gelar_belakang }}</td>
-                                <td>{{ $p->golru ? $p->golru->nama : '-' }}</td>
+                                <td>{{ $p->tempat_lahir }}</td>
+                                <td>{{ \Ajifatur\Helpers\DateTimeExt::full($p->tanggal_lahir) }}</td>
+                                <td>{{ $p->golru ? $p->golru->indonesia.', '.$p->golru->nama : '-' }}</td>
                                 <td>'{{ $p->masa_kerja ? $p->masa_kerja->nama : '-' }}</td>
                                 <td>{{ $p->jabfung ? $p->jabfung->nama : '' }}</td>
                                 <td>{{ $p->unit ? $p->unit->nama : '' }}</td>
