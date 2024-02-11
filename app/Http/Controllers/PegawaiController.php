@@ -379,7 +379,10 @@ class PegawaiController extends Controller
             $pegawai->save();
 
             // Redirect
-			return redirect()->route('admin.pantauan.mkg')->with(['message' => 'Berhasil mengupdate TMT Golongan pegawai.']);
+            if(in_array($pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
+    			return redirect()->route('admin.pantauan.mkg', ['tipe' => 1])->with(['message' => 'Berhasil mengupdate TMT Golongan pegawai.']);
+            elseif(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN','Non PNS']))
+                return redirect()->route('admin.pantauan.mkg', ['tipe' => 2])->with(['message' => 'Berhasil mengupdate TMT Golongan pegawai.']);
         }
     }
 }

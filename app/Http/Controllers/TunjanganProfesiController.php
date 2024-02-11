@@ -386,36 +386,41 @@ class TunjanganProfesiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-        $bulan = 1;
+        $bulan = 2;
         $tahun = 2024;
-        $array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos 2024.xlsx'));
+        $array = Excel::toArray(new TunjanganProfesiImport, public_path('storage/Serdos Februari 2024.xlsx'));
 
         $error = [];
         if(count($array)>0) {
             foreach($array[0] as $data) {
                 if($data[0] != null) {
                     // Get pegawai
-                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
-                    if(!$pegawai) array_push($error, $data[1]);
+                    $pegawai = Pegawai::where('nip','=',$data[1])->orWhere('npu','=',$data[1])->first();
+                    if(!$pegawai) array_push($error, $data[2]);
 
                     // Get jenis
-                    $jenis = $data[10];
+                    $jenis = $data[12];
 
                     // Get SK
-                    $sk = SK::where('jenis_id','=',$data[9]+1)->where('awal_tahun','=',$tahun)->first();
+                    if($jenis == 1)
+                        $sk = SK::where('jenis_id','=',2)->where('status','=',1)->first();
+                    elseif($jenis == 2 || $jenis == 3)
+                        $sk = SK::where('jenis_id','=',3)->where('status','=',1)->first();
+                    if($jenis == 4)
+                        $sk = SK::where('jenis_id','=',4)->where('status','=',1)->first();
 
                     // Get angkatan
                     if($jenis == 1 || $jenis == 2) {
-                        if(in_array($data[8], [2014,2015]))
+                        if(in_array($data[10], [2014,2015]))
                             $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=','2014-2015')->first();
                         else
-                            $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=',$data[8])->first();
+                            $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=',$data[10])->first();
                     }
                     elseif($jenis == 3 || $jenis == 4) {
-                        if(in_array($data[8], [2020,2021,2022,2023]))
+                        if(in_array($data[10], [2020,2021,2022,2023]))
                             $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=','2020-2023')->first();
                         else
-                            $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=',$data[8])->first();
+                            $angkatan = Angkatan::where('jenis_id','=',$jenis)->where('nama','=',$data[10])->first();
                     }
 
                     // Get tunjangan profesi yang sudah ada
@@ -424,34 +429,30 @@ class TunjanganProfesiController extends Controller
                     })->first();
 
                     // Simpan tunjangan profesi
-                    $tunjangan = TunjanganProfesi::whereHas('angkatan', function(Builder $query) use ($jenis) {
-                        return $query->where('jenis_id','=',$jenis);
-                    })->where('pegawai_id','=',$pegawai->id)->where('sk_id','=',$sk->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
-                    if(!$tunjangan) $tunjangan = new TunjanganProfesi;
-                    $tunjangan->pegawai_id = $pegawai->id;
-                    $tunjangan->sk_id = $sk->id;
-                    $tunjangan->angkatan_id = $angkatan->id;
-                    $tunjangan->unit_id = $pegawai->unit_id;
-                    $tunjangan->golongan_id = substr($data[3],0,1);
-                    $tunjangan->nip = $pegawai->nip;
-                    $tunjangan->nama = $tp ? $tp->nama : '';
-                    $tunjangan->nomor_rekening = $tp ? $tp->nomor_rekening : '';
-                    $tunjangan->nama_rekening = $tp ? $tp->nama_rekening : '';
-                    $tunjangan->bulan = $bulan;
-                    $tunjangan->tahun = $tahun;
-                    $tunjangan->tunjangan = ($jenis == 1) ? 2 * $data[7] : $data[7];
-                    $tunjangan->pph = ($tunjangan->golongan_id == 4) ? (15 / 100) * $tunjangan->tunjangan : (5 / 100) * $tunjangan->tunjangan;
-                    $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
-                    $tunjangan->kekurangan = 0;
-                    $tunjangan->bulan_kurang = 0;
-                    $tunjangan->tahun_kurang = 0;
-                    $tunjangan->save();
-
-                    // Update pegawai
-                    $pegawai->nama_supplier = $tunjangan->nama;
-                    $pegawai->nama_btn = $tunjangan->nama_rekening;
-                    $pegawai->norek_btn = $tunjangan->nomor_rekening;
-                    $pegawai->save();
+                    if($data[9] > 0) {
+                        $tunjangan = TunjanganProfesi::whereHas('angkatan', function(Builder $query) use ($jenis) {
+                            return $query->where('jenis_id','=',$jenis);
+                        })->where('pegawai_id','=',$pegawai->id)->where('sk_id','=',$sk->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+                        if(!$tunjangan) $tunjangan = new TunjanganProfesi;
+                        $tunjangan->pegawai_id = $pegawai->id;
+                        $tunjangan->sk_id = $sk->id;
+                        $tunjangan->angkatan_id = $angkatan->id;
+                        $tunjangan->unit_id = $pegawai->unit_id;
+                        $tunjangan->golongan_id = $pegawai->golongan_id;
+                        $tunjangan->nip = $pegawai->nip;
+                        $tunjangan->nama = $tp ? $tp->nama : '';
+                        $tunjangan->nomor_rekening = $tp ? $tp->nomor_rekening : '';
+                        $tunjangan->nama_rekening = $tp ? $tp->nama_rekening : '';
+                        $tunjangan->bulan = $bulan;
+                        $tunjangan->tahun = $tahun;
+                        $tunjangan->tunjangan = $data[9];
+                        $tunjangan->pph = ($tunjangan->golongan_id == 4) ? (15 / 100) * $tunjangan->tunjangan : (5 / 100) * $tunjangan->tunjangan;
+                        $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
+                        $tunjangan->kekurangan = 0;
+                        $tunjangan->bulan_kurang = 0;
+                        $tunjangan->tahun_kurang = 0;
+                        $tunjangan->save();
+                    }
 
                     /*
                     $tp = $pegawai->tunjangan_profesi()->where('tahun','!=',2024)->first();

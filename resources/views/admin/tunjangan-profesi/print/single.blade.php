@@ -124,8 +124,8 @@
                             </td>
                             <td width="30%">
                                 <br>
-                                <!-- Semarang, {{ date('j') }} {{ \Ajifatur\Helpers\DateTimeExt::month(date('n')) }} {{ date('Y') }}
-                                <br> -->
+                                <!-- Semarang, {{ date('j') }} {{ \Ajifatur\Helpers\DateTimeExt::month(date('n')) }} {{ date('Y') }} -->
+                                <br>
                                 Petugas Pengelolaan Administrasi Belanja Pegawai
                                 <br><br><br><br>
                                 Ari Pamungkas, S.E.

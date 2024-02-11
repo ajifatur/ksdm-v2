@@ -42,9 +42,9 @@ class PantauanController extends Controller
         }
 
 		foreach($pegawai as $key=>$p) {
-			// Get mutasi KP / KGB / PMK terakhir
+			// Get mutasi KP / KGB / PMK / PGP terakhir
 			$pegawai[$key]->mutasi_terakhir = $p->mutasi()->whereHas('jenis', function(Builder $query) {
-				return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK']);
+				return $query->whereIn('nama',['Mutasi Pangkat','KGB','PMK','PGP']);
 			})->first();
 
             // Get MKG tahun dan bulan
