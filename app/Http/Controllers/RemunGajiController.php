@@ -120,15 +120,18 @@ class RemunGajiController extends Controller
             // Set tanggal periode sebelumnya
             $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
 
+            // Get latest num order
+            $latest = RemunGaji::where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->latest('num_order')->first();
+
             // Get mutasi remun
-            $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
+            $mutasi = collect();
+            $mutasi_1 = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('remun','=',1);
             })->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
-            if(count($mutasi) == 0) {
-                $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
-                    return $query->where('remun','=',1);
-                })->where('bulan','=',0)->where('tahun','=',0)->where('tmt','<=',$tanggal)->get();
-            }
+            $mutasi_2 = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('remun','=',1);
+            })->where('bulan','=',0)->where('tahun','=',0)->where('tmt','<=',$tanggal)->get();
+            $mutasi = $mutasi->merge($mutasi_1)->merge($mutasi_2);
 
             // Loop mutasi
             foreach($mutasi as $m) {
@@ -137,25 +140,28 @@ class RemunGajiController extends Controller
 					// Get jabatan tertinggi dalam mutasi
 					$jabatan_tertinggi = $m->detail()->where('status','=',1)->first();
 
-                    // Get remun gaji sebelum
-                    // $remun_gaji_sebelum = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
+                    // Get remun gaji bulan sebelumnya
+                    $remun_gaji_sebelum = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
+                    if(!$remun_gaji_sebelum || ($remun_gaji_sebelum && $remun_gaji_sebelum->unit_id != $jabatan_tertinggi->unit_id))
+                        $new_num_order = $latest->num_order + $m->num_order;
 
 					// Simpan remun gaji baru
 					$new_remun_gaji = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal)))->where('tahun','=',date('Y', strtotime($tanggal)))->first();
 					if(!$new_remun_gaji) $new_remun_gaji = new RemunGaji;
 					$new_remun_gaji->pegawai_id = $m->pegawai->id;
-					$new_remun_gaji->golru_id = $m->golru_id;
 					$new_remun_gaji->status_kepeg_id = $m->status_kepeg_id;
-					$new_remun_gaji->bulan = date('n', strtotime($tanggal));
-					$new_remun_gaji->tahun = date('Y', strtotime($tanggal));
-					$new_remun_gaji->kategori = $m->pegawai->jenis;
+					$new_remun_gaji->golru_id = $m->golru_id;
 					$new_remun_gaji->jabatan_dasar_id = $jabatan_tertinggi->jabatan_dasar_id;
 					$new_remun_gaji->jabatan_id = $jabatan_tertinggi->jabatan_id;
 					$new_remun_gaji->unit_id = $jabatan_tertinggi->unit_id;
 					$new_remun_gaji->layer_id = $jabatan_tertinggi->layer_id;
+					$new_remun_gaji->bulan = date('n', strtotime($tanggal));
+					$new_remun_gaji->tahun = date('Y', strtotime($tanggal));
+					$new_remun_gaji->kategori = $m->pegawai->jenis;
 					$new_remun_gaji->remun_penerimaan = $m->remun_penerimaan;
 					$new_remun_gaji->remun_gaji = $m->remun_gaji;
 					$new_remun_gaji->remun_insentif = $m->remun_insentif;
+					$new_remun_gaji->num_order = $new_num_order;
 					$new_remun_gaji->save();
 
 					if($m->tmt <= $tanggal_sebelum) {
@@ -169,7 +175,6 @@ class RemunGajiController extends Controller
 							$rg = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($temp_tanggal)))->where('tahun','=',date('Y', strtotime($temp_tanggal)))->first();
 
 							// Jika ada mutasi sebelum dan jabatan lebih dari 1
-							// if($mutasi_sebelum && $mutasi_sebelum->detail()->count() > 1) {
                             if($mutasi_sebelum && $mutasi_sebelum->detail()->count() >= 1) {
 								// Get jabatan tertinggi sebelum
 								$jabatan_tertinggi_sebelum = $mutasi_sebelum->detail()->where('status','=',1)->first();
@@ -196,7 +201,6 @@ class RemunGajiController extends Controller
 							}
 							// Jika ada mutasi sebelum dan jabatannya 1
 							// Jika tidak ada mutasi sebelum
-							// elseif(($mutasi_sebelum && $mutasi_sebelum->detail()->count() == 1) || !$mutasi_sebelum) {
                             elseif(!$mutasi_sebelum) {
 								// Simpan lebih kurang
 								$lebih_kurang = LebihKurang::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($temp_tanggal)))->where('tahun','=',date('Y', strtotime($temp_tanggal)))->where('bulan_proses','=',$request->bulan)->where('tahun_proses','=',$request->tahun)->where('triwulan_proses','=',0)->first();
@@ -223,6 +227,9 @@ class RemunGajiController extends Controller
                 }
                 // Jika jenis mutasinya sanksi
                 elseif($m->jenis_id == 7) {
+                    // Get remun gaji sebelum
+                    $remun_gaji_sebelum = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
+
 					// Simpan remun gaji baru
 					$new_remun_gaji = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal)))->where('tahun','=',date('Y', strtotime($tanggal)))->first();
 					if(!$new_remun_gaji) $new_remun_gaji = new RemunGaji;
@@ -239,6 +246,7 @@ class RemunGajiController extends Controller
 					$new_remun_gaji->remun_penerimaan = $m->remun_penerimaan;
 					$new_remun_gaji->remun_gaji = $m->remun_gaji;
 					$new_remun_gaji->remun_insentif = $m->remun_insentif;
+					$new_remun_gaji->num_order = $remun_gaji_sebelum->num_order;
 					$new_remun_gaji->save();
                 }
 
@@ -256,8 +264,8 @@ class RemunGajiController extends Controller
                 $new_remun_gaji = RemunGaji::where('pegawai_id','=',$r->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal)))->where('tahun','=',date('Y', strtotime($tanggal)))->first();
                 if(!$new_remun_gaji) $new_remun_gaji = new RemunGaji;
                 $new_remun_gaji->pegawai_id = $r->pegawai->id;
-                $new_remun_gaji->golru_id = $r->golru_id;
                 $new_remun_gaji->status_kepeg_id = $r->status_kepeg_id;
+                $new_remun_gaji->golru_id = $r->golru_id;
                 $new_remun_gaji->jabatan_dasar_id = $r->jabatan_dasar_id;
                 $new_remun_gaji->jabatan_id = $r->jabatan_id;
                 $new_remun_gaji->unit_id = $r->unit_id;
@@ -268,7 +276,26 @@ class RemunGajiController extends Controller
                 $new_remun_gaji->remun_penerimaan = $r->remun_penerimaan;
                 $new_remun_gaji->remun_gaji = $r->remun_gaji;
                 $new_remun_gaji->remun_insentif = $r->remun_insentif;
+                $new_remun_gaji->num_order = $r->num_order;
                 $new_remun_gaji->save();
+
+                // Simpan koorprodi
+                if(in_array($new_remun_gaji->jabatan_dasar->nama, ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C'])) {
+                    // Get remun gaji bulan sebelumnya
+                    $remun_gaji_sebelum = RemunGaji::where('pegawai_id','=',$r->pegawai->id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->first();
+
+                    if($remun_gaji_sebelum->koorprodi()->count() > 0) {
+                        foreach($remun_gaji_sebelum->koorprodi as $kp) {
+                            // Simpan
+                            $remun_koorprodi = RemunKoorprodi::where('pegawai_id','=',$kp->pegawai_id)->where('remun_gaji_id','=',$new_remun_gaji->id)->where('prodi_id','=',$kp->prodi_id)->first();
+                            if(!$remun_koorprodi) $remun_koorprodi = new RemunKoorprodi;
+                            $remun_koorprodi->pegawai_id = $kp->pegawai_id;
+                            $remun_koorprodi->remun_gaji_id = $new_remun_gaji->id;
+                            $remun_koorprodi->prodi_id = $kp->prodi_id;
+                            $remun_koorprodi->save();
+                        }
+                    }
+                }
             }
 
             // Simpan proses
@@ -469,7 +496,6 @@ class RemunGajiController extends Controller
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -512,7 +538,7 @@ class RemunGajiController extends Controller
         if($tahun < 2024)
             $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('remun_gaji','desc')->orderBy('status_kepeg_id','asc')->get();
         else
-            $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->get();
+            $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('num_order','asc')->get();
 
         // Set title
         $title = 'Remun Gaji '.$unit->nama.' '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).')';

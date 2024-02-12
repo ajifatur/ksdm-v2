@@ -501,4 +501,149 @@ class TempController extends Controller
             return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun, 'jenis' => 2])->with(['message' => 'Berhasil memproses data.']);
         }
     }
+    
+    /**
+     * Import from Excel
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function importRemunGajiJanuari2024(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Remun_Gaji_2024_01.xlsx'));
+        $bulan = 1;
+        $tahun = 2024;
+        $tanggal = '2024-01-01';
+        $sk = 12;
+
+        // NB: Gaji pokok PPPK dikosongi dulu
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[0] != null) {
+                    // Get pegawai
+                    $pegawai = Pegawai::where('nip','=',$data[1])->orWhere('npu','=',$data[1])->first();
+
+                    // Get mutasi sebelum
+                    $mutasi_sebelum = $pegawai->mutasi()->where('tahun','<',$tahun)->where('bulan','<=',12)->latest()->first();
+
+                    // Cek mutasi
+                    $mutasi = Mutasi::where('pegawai_id','=',$pegawai->id)->where('sk_id','=',$sk)->where('jenis_id','=',1)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kolektif','=',1)->first();
+                    if(!$mutasi) $mutasi = new Mutasi;
+
+                    // Get status kepegawaian
+                    $status_kepegawaian = StatusKepegawaian::where('nama','=',$data[5])->first();
+
+                    // Get jabatan
+                    if(!in_array($data[3], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C']))
+                        $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[3])->where('sub','=',$data[4])->first();
+                    else
+                        $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[3])->where('sub','=','-')->first();
+
+                    // Get unit
+                    $unit = Unit::where('nama','=',$data[7])->first();
+
+                    // Simpan data mutasi
+                    $mutasi->pegawai_id = $pegawai->id;
+                    $mutasi->sk_id = $sk;
+                    $mutasi->jenis_id = 1;
+                    $mutasi->status_kepeg_id = $status_kepegawaian->id;
+                    $mutasi->golru_id = $mutasi_sebelum ? $mutasi_sebelum->golru_id : null;
+                    $mutasi->gaji_pokok_id = $mutasi_sebelum ? $mutasi_sebelum->gaji_pokok_id : null;
+                    $mutasi->bulan = $bulan;
+                    $mutasi->tahun = $tahun;
+                    $mutasi->uraian = 'SK Remun Awal Tahun 2024';
+                    $mutasi->tmt = null;
+                    $mutasi->remun_penerimaan = $data[10];
+                    $mutasi->remun_gaji = $data[11];
+                    $mutasi->remun_insentif = $data[12];
+                    $mutasi->kolektif = 1;
+                    $mutasi->save();
+
+                    // Simpan mutasi detail
+                    $mutasi_detail = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan->id)->first();
+                    if(!$mutasi_detail) $mutasi_detail = new MutasiDetail;
+                    $mutasi_detail->mutasi_id = $mutasi->id;
+                    $mutasi_detail->jabatan_id = $jabatan->id;
+                    $mutasi_detail->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
+                    $mutasi_detail->unit_id = $unit->id;
+                    $mutasi_detail->layer_id = $data[6] == 'TENDIK' ? 1 : $unit->layer_id;
+                    $mutasi_detail->angkatan_id = 0;
+                    $mutasi_detail->status = 1;
+                    $mutasi_detail->save();
+					
+                    // Update jabfung_id dan unit_id pada pegawai
+                    if($jabatan->jenis_id == 1) {
+                        $pegawai->jabfung_id = $jabatan->grup_id;
+                        $pegawai->unit_id = $unit->id;
+                        $pegawai->save();
+                    }
+            
+                    // Update jabstruk_id pada pegawai
+                    if($jabatan->jenis_id == 2) {
+                        $pegawai->jabstruk_id = $jabatan->grup_id;
+                        $pegawai->save();
+                    }
+
+                    // Jika jabatannya adalah struktural, maka otomatis menambahkan jabatan fungsional jika ada
+                    if($jabatan->jenis_id == 2) {
+                        // Get jabatan fungsional
+                        $jabatan_fungsional = $mutasi_sebelum ? $mutasi_sebelum->detail()->whereHas('jabatan', function(Builder $query) {
+                            return $query->where('jenis_id','=',1);
+                        })->first() : false;
+                        if($jabatan_fungsional) {
+                            // Simpan mutasi detail
+                            $mutasi_detail_jf = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan_fungsional->jabatan->id)->first();
+                            if(!$mutasi_detail_jf) $mutasi_detail_jf = new MutasiDetail;
+                            $mutasi_detail_jf->mutasi_id = $mutasi->id;
+                            $mutasi_detail_jf->jabatan_id = $jabatan_fungsional->jabatan->id;
+                            $mutasi_detail_jf->jabatan_dasar_id = $jabatan_fungsional->jabatan->jabatan_dasar_id;
+                            $mutasi_detail_jf->unit_id = $jabatan_fungsional->unit->id;
+                            $mutasi_detail_jf->layer_id = $jabatan_fungsional->unit->layer_id;
+                            $mutasi_detail_jf->angkatan_id = 0;
+                            $mutasi_detail_jf->status = 0;
+                            $mutasi_detail_jf->save();
+                            
+                            // Update jabfung_id dan unit_id pada pegawai
+                            $pegawai->jabfung_id = $jabatan_fungsional->jabatan->grup_id;
+                            $pegawai->unit_id = $jabatan_fungsional->unit->id;
+                            $pegawai->save();
+                        }
+                    }
+
+                    // Simpan koorprodi
+                    if(in_array($data[3], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C'])) {
+                        // Get prodi
+                        $prodi = Prodi::where('nama','=',str_replace('Koorprodi ', '', $data[4]))->first();
+                        if($prodi) {
+                            // Simpan mutasi koorprodi
+                            $mutasi_koorprodi = MutasiKoorprodi::where('mutasi_detail_id','=',$mutasi_detail->id)->where('prodi_id','=',$prodi->id)->first();
+                            if(!$mutasi_koorprodi) $mutasi_koorprodi = new MutasiKoorprodi;
+                            $mutasi_koorprodi->mutasi_detail_id = $mutasi_detail->id;
+                            $mutasi_koorprodi->prodi_id = $prodi->id;
+                            $mutasi_koorprodi->save();
+                        }
+                        else {
+                            $explode = explode(';', $data[4]);
+                            foreach($explode as $e) {
+                                $prodis = Prodi::where('nama','=',str_replace('Koorprodi ', '', $e))->first();
+                                if($prodis) {
+                                    // Simpan mutasi koorprodi
+                                    $mutasi_koorprodi = MutasiKoorprodi::where('mutasi_detail_id','=',$mutasi_detail->id)->where('prodi_id','=',$prodis->id)->first();
+                                    if(!$mutasi_koorprodi) $mutasi_koorprodi = new MutasiKoorprodi;
+                                    $mutasi_koorprodi->mutasi_detail_id = $mutasi_detail->id;
+                                    $mutasi_koorprodi->prodi_id = $prodis->id;
+                                    $mutasi_koorprodi->save();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            var_dump($error);
+            return;
+        }
+    }
 }

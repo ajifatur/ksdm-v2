@@ -575,130 +575,139 @@ class MutasiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Remun_Gaji_2024_01.xlsx'));
-        $bulan = 1;
+		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Remun_Gaji_2024_02.xlsx'));
+        $bulan = 2;
         $tahun = 2024;
-        $tanggal = '2024-01-01';
         $sk = 12;
 
         // NB: Gaji pokok PPPK dikosongi dulu
         $error = [];
         if(count($array)>0) {
-            foreach($array[0] as $data) {
+            foreach($array[0] as $key=>$data) {
                 if($data[0] != null) {
+                    // Get jenis mutasi
+                    $jenis_mutasi = JenisMutasi::where('nama','=',$data[12])->first();
+
                     // Get pegawai
                     $pegawai = Pegawai::where('nip','=',$data[1])->orWhere('npu','=',$data[1])->first();
+                    $pegawai->jenis = $data[13];
+                    $pegawai->save();
 
                     // Get mutasi sebelum
-                    $mutasi_sebelum = $pegawai->mutasi()->where('tahun','<',$tahun)->where('bulan','<=',12)->latest()->first();
+                    $mutasi_sebelum = $pegawai->mutasi()->where('tahun','!=',0)->where('bulan','!=',0)->first();
 
                     // Cek mutasi
-                    $mutasi = Mutasi::where('pegawai_id','=',$pegawai->id)->where('sk_id','=',$sk)->where('jenis_id','=',1)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kolektif','=',1)->first();
+                    $mutasi = Mutasi::where('pegawai_id','=',$pegawai->id)->where('tmt','=',DateTimeExt::change($data[11]))->first();
                     if(!$mutasi) $mutasi = new Mutasi;
 
-                    // Get status kepegawaian
-                    $status_kepegawaian = StatusKepegawaian::where('nama','=',$data[5])->first();
-
-                    // Get jabatan
-                    if(!in_array($data[3], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C']))
-                        $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[3])->where('sub','=',$data[4])->first();
-                    else
-                        $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[3])->where('sub','=','-')->first();
-
                     // Get unit
-                    $unit = Unit::where('nama','=',$data[7])->first();
+                    $unit = Unit::where('nama','=',$data[3])->first();
+
+                    if($jenis_mutasi->status == 1) {
+                        // Get jabatan
+                        if(!in_array($data[4], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C']))
+                            $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[4])->where('sub','=',$data[5])->first();
+                        else
+                            $jabatan = Jabatan::where('sk_id','=',$sk)->where('nama','=',$data[4])->where('sub','=','-')->first();
+
+                        // Get referensi
+                        $referensi = Referensi::where('sk_id','=',$sk)->where('jabatan_dasar_id','=',$jabatan->jabatan_dasar_id)->where('layer_id','=',($data[13] == 1 ? $unit->layer_id : 1))->first();
+                    }
 
                     // Simpan data mutasi
                     $mutasi->pegawai_id = $pegawai->id;
                     $mutasi->sk_id = $sk;
-                    $mutasi->jenis_id = 1;
-                    $mutasi->status_kepeg_id = $status_kepegawaian->id;
+                    $mutasi->jenis_id = $jenis_mutasi->id;
+                    $mutasi->status_kepeg_id = $pegawai->status_kepeg_id;
                     $mutasi->golru_id = $mutasi_sebelum ? $mutasi_sebelum->golru_id : null;
                     $mutasi->gaji_pokok_id = $mutasi_sebelum ? $mutasi_sebelum->gaji_pokok_id : null;
-                    $mutasi->bulan = $bulan;
-                    $mutasi->tahun = $tahun;
-                    $mutasi->uraian = 'SK Remun Awal Tahun 2024';
-                    $mutasi->tmt = null;
-                    $mutasi->remun_penerimaan = $data[10];
-                    $mutasi->remun_gaji = $data[11];
-                    $mutasi->remun_insentif = $data[12];
-                    $mutasi->kolektif = 1;
+                    $mutasi->bulan = 0;
+                    $mutasi->tahun = 0;
+                    $mutasi->uraian = 'Perubahan Februari 2024';
+                    $mutasi->tmt = DateTimeExt::change($data[11]);
+                    $mutasi->remun_penerimaan = $jenis_mutasi->status == 1 ? mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1) : 0;
+                    $mutasi->remun_gaji = $jenis_mutasi->status == 1 ? mround((30 / 100) * $mutasi->remun_penerimaan, 1) : 0;
+                    $mutasi->remun_insentif = $jenis_mutasi->status == 1 ? mround((70 / 100) * $mutasi->remun_penerimaan, 1) : 0;
+                    $mutasi->kolektif = null;
+                    $mutasi->num_order = ($key+1);
                     $mutasi->save();
 
-                    // Simpan mutasi detail
-                    $mutasi_detail = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan->id)->first();
-                    if(!$mutasi_detail) $mutasi_detail = new MutasiDetail;
-                    $mutasi_detail->mutasi_id = $mutasi->id;
-                    $mutasi_detail->jabatan_id = $jabatan->id;
-                    $mutasi_detail->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
-                    $mutasi_detail->unit_id = $unit->id;
-                    $mutasi_detail->layer_id = $data[6] == 'TENDIK' ? 1 : $unit->layer_id;
-                    $mutasi_detail->angkatan_id = 0;
-                    $mutasi_detail->status = 1;
-                    $mutasi_detail->save();
-					
-                    // Update jabfung_id dan unit_id pada pegawai
-                    if($jabatan->jenis_id == 1) {
-                        $pegawai->jabfung_id = $jabatan->grup_id;
-                        $pegawai->unit_id = $unit->id;
-                        $pegawai->save();
-                    }
-            
-                    // Update jabstruk_id pada pegawai
-                    if($jabatan->jenis_id == 2) {
-                        $pegawai->jabstruk_id = $jabatan->grup_id;
-                        $pegawai->save();
-                    }
-
-                    // Jika jabatannya adalah struktural, maka otomatis menambahkan jabatan fungsional jika ada
-                    if($jabatan->jenis_id == 2) {
-                        // Get jabatan fungsional
-                        $jabatan_fungsional = $mutasi_sebelum ? $mutasi_sebelum->detail()->whereHas('jabatan', function(Builder $query) {
-                            return $query->where('jenis_id','=',1);
-                        })->first() : false;
-                        if($jabatan_fungsional) {
-                            // Simpan mutasi detail
-                            $mutasi_detail_jf = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan_fungsional->jabatan->id)->first();
-                            if(!$mutasi_detail_jf) $mutasi_detail_jf = new MutasiDetail;
-                            $mutasi_detail_jf->mutasi_id = $mutasi->id;
-                            $mutasi_detail_jf->jabatan_id = $jabatan_fungsional->jabatan->id;
-                            $mutasi_detail_jf->jabatan_dasar_id = $jabatan_fungsional->jabatan->jabatan_dasar_id;
-                            $mutasi_detail_jf->unit_id = $jabatan_fungsional->unit->id;
-                            $mutasi_detail_jf->layer_id = $jabatan_fungsional->unit->layer_id;
-                            $mutasi_detail_jf->angkatan_id = 0;
-                            $mutasi_detail_jf->status = 0;
-                            $mutasi_detail_jf->save();
-                            
-                            // Update jabfung_id dan unit_id pada pegawai
-                            $pegawai->jabfung_id = $jabatan_fungsional->jabatan->grup_id;
-                            $pegawai->unit_id = $jabatan_fungsional->unit->id;
+                    if($jenis_mutasi->status == 1) {
+                        // Simpan mutasi detail
+                        $mutasi_detail = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan->id)->first();
+                        if(!$mutasi_detail) $mutasi_detail = new MutasiDetail;
+                        $mutasi_detail->mutasi_id = $mutasi->id;
+                        $mutasi_detail->jabatan_id = $jabatan->id;
+                        $mutasi_detail->jabatan_dasar_id = $jabatan->jabatan_dasar_id;
+                        $mutasi_detail->unit_id = $unit->id;
+                        $mutasi_detail->layer_id = $data[13] == 1 ? $unit->layer_id : 1;
+                        $mutasi_detail->angkatan_id = 0;
+                        $mutasi_detail->status = 1;
+                        $mutasi_detail->save();
+                        
+                        // Update jabfung_id dan unit_id pada pegawai
+                        if($jabatan->jenis_id == 1) {
+                            $pegawai->jabfung_id = $jabatan->grup_id;
+                            $pegawai->unit_id = $unit->id;
                             $pegawai->save();
                         }
-                    }
-
-                    // Simpan koorprodi
-                    if(in_array($data[3], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C'])) {
-                        // Get prodi
-                        $prodi = Prodi::where('nama','=',str_replace('Koorprodi ', '', $data[4]))->first();
-                        if($prodi) {
-                            // Simpan mutasi koorprodi
-                            $mutasi_koorprodi = MutasiKoorprodi::where('mutasi_detail_id','=',$mutasi_detail->id)->where('prodi_id','=',$prodi->id)->first();
-                            if(!$mutasi_koorprodi) $mutasi_koorprodi = new MutasiKoorprodi;
-                            $mutasi_koorprodi->mutasi_detail_id = $mutasi_detail->id;
-                            $mutasi_koorprodi->prodi_id = $prodi->id;
-                            $mutasi_koorprodi->save();
+                
+                        // Update jabstruk_id pada pegawai
+                        if($jabatan->jenis_id == 2) {
+                            $pegawai->jabstruk_id = $jabatan->grup_id;
+                            $pegawai->save();
                         }
-                        else {
-                            $explode = explode(';', $data[4]);
-                            foreach($explode as $e) {
-                                $prodis = Prodi::where('nama','=',str_replace('Koorprodi ', '', $e))->first();
-                                if($prodis) {
-                                    // Simpan mutasi koorprodi
-                                    $mutasi_koorprodi = MutasiKoorprodi::where('mutasi_detail_id','=',$mutasi_detail->id)->where('prodi_id','=',$prodis->id)->first();
-                                    if(!$mutasi_koorprodi) $mutasi_koorprodi = new MutasiKoorprodi;
-                                    $mutasi_koorprodi->mutasi_detail_id = $mutasi_detail->id;
-                                    $mutasi_koorprodi->prodi_id = $prodis->id;
-                                    $mutasi_koorprodi->save();
+
+                        // Jika jabatannya adalah struktural, maka otomatis menambahkan jabatan fungsional jika ada
+                        if($jabatan->jenis_id == 2) {
+                            // Get jabatan fungsional
+                            $jabatan_fungsional = $mutasi_sebelum ? $mutasi_sebelum->detail()->whereHas('jabatan', function(Builder $query) {
+                                return $query->where('jenis_id','=',1);
+                            })->first() : false;
+                            if($jabatan_fungsional) {
+                                // Simpan mutasi detail
+                                $mutasi_detail_jf = MutasiDetail::where('mutasi_id','=',$mutasi->id)->where('jabatan_id','=',$jabatan_fungsional->jabatan->id)->first();
+                                if(!$mutasi_detail_jf) $mutasi_detail_jf = new MutasiDetail;
+                                $mutasi_detail_jf->mutasi_id = $mutasi->id;
+                                $mutasi_detail_jf->jabatan_id = $jabatan_fungsional->jabatan->id;
+                                $mutasi_detail_jf->jabatan_dasar_id = $jabatan_fungsional->jabatan->jabatan_dasar_id;
+                                $mutasi_detail_jf->unit_id = $jabatan_fungsional->unit->id;
+                                $mutasi_detail_jf->layer_id = $jabatan_fungsional->unit->layer_id;
+                                $mutasi_detail_jf->angkatan_id = 0;
+                                $mutasi_detail_jf->status = 0;
+                                $mutasi_detail_jf->save();
+                                
+                                // Update jabfung_id dan unit_id pada pegawai
+                                $pegawai->jabfung_id = $jabatan_fungsional->jabatan->grup_id;
+                                $pegawai->unit_id = $jabatan_fungsional->unit->id;
+                                $pegawai->save();
+                            }
+                        }
+
+                        // Simpan koorprodi
+                        if(in_array($data[4], ['Koordinator Program Studi A','Koordinator Program Studi B','Koordinator Program Studi C'])) {
+                            // Get prodi
+                            $prodi = Prodi::where('nama','=',str_replace('Koorprodi ', '', $data[4]))->first();
+                            if($prodi) {
+                                // Simpan mutasi koorprodi
+                                $mutasi_koorprodi = MutasiKoorprodi::where('mutasi_detail_id','=',$mutasi_detail->id)->where('prodi_id','=',$prodi->id)->first();
+                                if(!$mutasi_koorprodi) $mutasi_koorprodi = new MutasiKoorprodi;
+                                $mutasi_koorprodi->mutasi_detail_id = $mutasi_detail->id;
+                                $mutasi_koorprodi->prodi_id = $prodi->id;
+                                $mutasi_koorprodi->save();
+                            }
+                            else {
+                                $explode = explode(';', $data[4]);
+                                foreach($explode as $e) {
+                                    $prodis = Prodi::where('nama','=',str_replace('Koorprodi ', '', $e))->first();
+                                    if($prodis) {
+                                        // Simpan mutasi koorprodi
+                                        $mutasi_koorprodi = MutasiKoorprodi::where('mutasi_detail_id','=',$mutasi_detail->id)->where('prodi_id','=',$prodis->id)->first();
+                                        if(!$mutasi_koorprodi) $mutasi_koorprodi = new MutasiKoorprodi;
+                                        $mutasi_koorprodi->mutasi_detail_id = $mutasi_detail->id;
+                                        $mutasi_koorprodi->prodi_id = $prodis->id;
+                                        $mutasi_koorprodi->save();
+                                    }
                                 }
                             }
                         }

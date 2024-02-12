@@ -85,6 +85,6 @@ class RemunGaji extends Model
      */
     public function koorprodi()
     {
-        return $this->hasMany(KoorprodiRemun::class);
+        return $this->hasMany(RemunKoorprodi::class);
     }
 }

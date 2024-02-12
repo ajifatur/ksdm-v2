@@ -40,6 +40,19 @@ class GajiPokokController extends Controller
                 ]);
             }
         }
+        
+        // Get golru
+        $golru = Golru::all();
+        
+        foreach($golru as $key=>$g) {
+            // Get gaji pokok
+            $golru[$key]->gaji_pokok = GajiPokok::where('sk_id','=',17)->where('golru_id','=',$g->id)->get();
+        }
+        
+        // View
+        return view('admin/gaji-pokok/index', [
+            'golru' => $golru,
+        ]);
     }
 
     /**

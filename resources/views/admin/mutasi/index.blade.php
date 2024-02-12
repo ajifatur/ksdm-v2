@@ -49,7 +49,8 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">NIP</th>
+                                <th rowspan="2">Nama</th>
                                 <th rowspan="2">{{ $jenis == 'remun' ? 'Jenis / Deskripsi' : 'Jenis' }}</th>
                                 <th rowspan="2">Status Kepegawaian</th>
                                 <th rowspan="2">Golru</th>
@@ -58,7 +59,7 @@
                                 <th rowspan="2">Unit</th>
                                 <th rowspan="2">TMT</th>
                                 @if($jenis == 'remun')
-                                    <th colspan="3">Remun</th>
+                                    <th colspan="3">Remunerasi</th>
                                 @elseif($jenis == 'serdos')
                                     <th colspan="2">Gaji Pokok</th>
                                     <th rowspan="2">Angkatan Serdos</th>
@@ -79,7 +80,8 @@
                         <tbody>
                             @foreach($mutasi as $m)
                             <tr class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'bg-secondary text-white' : '' }}">
-                                <td>{{ strtoupper($m->pegawai->nama) }}<br>{{ $m->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">'{{ $m->pegawai->npu != null ? $m->pegawai->npu : $m->pegawai->nip }}</a></td>
+                                <td>{{ strtoupper($m->pegawai->nama) }}</td>
                                 <td>
                                     {{ $m->jenis->nama }}
                                     @if($jenis == 'remun')

@@ -104,7 +104,7 @@
                         <div class="col-lg-10 col-md-9">
                             <select name="tahun" class="form-select form-select-sm {{ $errors->has('tahun') ? 'border-danger' : '' }}" required>
                                 <option value="" disabled selected>--Pilih--</option>
-                                @for($y=2023; $y>=2023; $y--)
+                                @for($y=2024; $y>=2023; $y--)
                                 <option value="{{ $y }}" {{ old('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
                             </select>

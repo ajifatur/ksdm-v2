@@ -122,6 +122,9 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // SK
     Route::get('/admin/sk', 'SKController@index')->name('admin.sk.index');
 	
+    // Golru
+    Route::get('/admin/gaji-pokok', 'GajiPokokController@index')->name('admin.gaji-pokok.index');
+	
     // Pejabat Penandatangan
     Route::get('/admin/ttd', 'TTDController@index')->name('admin.ttd.index');
 
@@ -244,7 +247,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/remun-insentif/import', 'RemunInsentifController@import')->name('admin.remun-insentif.import');
     // Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
-    // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
+    Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
     // Route::get('/admin/mutasi/import-blu', 'MutasiController@importBLU')->name('admin.mutasi.import-blu');
     // Route::get('/admin/mutasi/jabatan', 'MutasiController@jabatan')->name('admin.mutasi.jabatan');
     // Route::get('/admin/mutasi/check', 'MutasiController@check')->name('admin.mutasi.check');
