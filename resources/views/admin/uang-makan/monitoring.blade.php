@@ -82,7 +82,7 @@
                                 <td align="right">{{ number_format($d['dosen_bersih'] + $d['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
-                                        <a href="{{ route('admin.uang-makan.index', ['id' => $d['anak_satker']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
+                                        <a href="{{ route('admin.uang-makan.index', ['id' => $d['anak_satker']->id, 'bulan' => $bulan, 'tahun' => $tahun, 'jenis' => $jenis]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
                                     </div>
                                 </td>
                                 <td align="center">

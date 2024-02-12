@@ -36,7 +36,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row mb-3 d-none">
                         <label class="col-lg-2 col-md-3 col-form-label">Tahun <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <select name="tahun" class="form-select form-select-sm" required>
