@@ -17,7 +17,7 @@
 <body>
     <div id="title">
         DAFTAR PERHITUNGAN PEMBAYARAN {{ strtoupper($nama) }} UNNES<br>
-        SESUAI {{ strtoupper($sk->nama) }} TANGGAL {{ strtoupper(date('j', strtotime($sk->tanggal))) }} {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month(date('n', strtotime($sk->tanggal)))) }} {{ strtoupper(date('Y', strtotime($sk->tanggal))) }}
+        SESUAI {{ $header }}
     </div>
     <table border="0" style="width: 100%" id="identity">
         <tr>

@@ -38,12 +38,14 @@ class TunjanganProfesiPrintController extends Controller
         $angkatan = Angkatan::whereIn('jenis_id',[1,2,3])->findOrFail($id);
 
         // Get SK
-        if($angkatan->jenis_id == 1)
+        if($angkatan->jenis_id == 1) {
             $sk = SK::where('jenis_id','=',2)->where('status','=',1)->whereYear('tanggal',$request->tahun)->first();
-            // $sk = SK::where('jenis_id','=',2)->where('awal_tahun','=',$request->tahun)->first();
-        elseif($angkatan->jenis_id == 2 || $angkatan->jenis_id == 3)
+            $sk_awal = SK::where('jenis_id','=',2)->where('awal_tahun','=',$request->tahun)->first();
+		}
+        elseif($angkatan->jenis_id == 2 || $angkatan->jenis_id == 3) {
             $sk = SK::where('jenis_id','=',3)->where('status','=',1)->whereYear('tanggal',$request->tahun)->first();
-            // $sk = SK::where('jenis_id','=',3)->where('awal_tahun','=',$request->tahun)->first();
+            $sk_awal = SK::where('jenis_id','=',3)->where('awal_tahun','=',$request->tahun)->first();
+		}
 
         // Get jenis
         $jenis = $angkatan ? JenisTunjanganProfesi::find($angkatan->jenis_id) : null;
@@ -53,14 +55,24 @@ class TunjanganProfesiPrintController extends Controller
 
         // Set title
         $title = 'Tunjangan '.$angkatan->jenis->nama.' - '.$angkatan->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
+		
+		// Set header
+		if($request->bulan == 2) {
+			$header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
+		}
+		elseif($request->bulan == 1) {
+			$header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+		}
 
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
             'title' => $title,
+            'header' => $header,
             'jenis' => $jenis,
             'nama' => 'Tunjangan '.$angkatan->jenis->deskripsi,
             'angkatan' => $angkatan,
             'sk' => $sk,
+            'sk_awal' => $sk_awal,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
             'tunjangan' => $tunjangan,
@@ -93,8 +105,8 @@ class TunjanganProfesiPrintController extends Controller
         elseif($id == 3) $jenis = 3;
 
         // Get SK
-        // $sk = SK::where('jenis_id','=',$jenis)->where('awal_tahun','=',$request->tahun)->first();
         $sk = SK::where('jenis_id','=',$jenis)->where('status','=',1)->whereYear('tanggal',$request->tahun)->first();
+        $sk_awal = SK::where('jenis_id','=',$jenis)->where('awal_tahun','=',$request->tahun)->first();
 
         // Get tunjangan profesi
         $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($id) {
@@ -103,6 +115,14 @@ class TunjanganProfesiPrintController extends Controller
 
         // Set title
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
+		
+		// Set header
+		if($request->bulan == 2) {
+			$header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
+		}
+		elseif($request->bulan == 1) {
+			$header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+		}
 
         // Get jenis
         $jenis = JenisTunjanganProfesi::find($id);
@@ -110,9 +130,11 @@ class TunjanganProfesiPrintController extends Controller
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
             'title' => $title,
+            'header' => $header,
             'jenis' => $jenis,
             'nama' => 'Tunjangan '.$tunjangan[0]->angkatan->jenis->deskripsi,
             'sk' => $sk,
+            'sk_awal' => $sk_awal,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
             'tunjangan' => $tunjangan,
@@ -142,7 +164,7 @@ class TunjanganProfesiPrintController extends Controller
 
         // Get SK
         $sk = SK::where('jenis_id','=',4)->where('status','=',1)->whereYear('tanggal',$request->tahun)->first();
-        // $sk = SK::where('jenis_id','=',4)->where('status','=',1)->where('awal_tahun','=',$request->tahun)->first();
+        $sk_awal = SK::where('jenis_id','=',4)->where('awal_tahun','=',$request->tahun)->first();
 
         // Get jenis
         $jenis = JenisTunjanganProfesi::find(4);
@@ -154,13 +176,23 @@ class TunjanganProfesiPrintController extends Controller
 
         // Set title
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
+		
+		// Set header
+		if($request->bulan == 2) {
+			$header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
+		}
+		elseif($request->bulan == 1) {
+			$header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+		}
 
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
             'title' => $title,
+            'header' => $header,
             'jenis' => $jenis,
             'nama' => 'Tunjangan '.$tunjangan[0]->angkatan->jenis->deskripsi,
             'sk' => $sk,
+            'sk_awal' => $sk_awal,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
             'tunjangan' => $tunjangan,

@@ -25,7 +25,7 @@
                         </div>
                     </div>
                     @if($jenis == 'PPPK')
-                    <div class="row mb-3">
+                    <div class="row mb-3 d-none">
                         <label class="col-lg-2 col-md-3 col-form-label">Bulan <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <select name="bulan" class="form-select form-select-sm" required>

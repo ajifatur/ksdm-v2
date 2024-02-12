@@ -391,4 +391,114 @@ class TempController extends Controller
         var_dump($error);
         return;
     }
+
+    /**
+     * Import (PPPK)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function importUangMakanPPPK(Request $request)
+    {
+        if($request->method() == 'GET') {
+            // Get anak satker
+            $anak_satker = AnakSatker::where('jenis','=',2)->get();
+
+            // View
+            return view('admin/uang-makan/import', [
+                'anak_satker' => $anak_satker,
+                'jenis' => 'PPPK',
+                'route' => 'admin.uang-makan.import.pppk',
+            ]);
+        }
+        elseif($request->method() == 'POST') {
+            ini_set("memory_limit", "-1");
+            ini_set("max_execution_time", "-1");
+            
+            // Make directory if not exists
+            if(!File::exists(public_path('storage/spreadsheets/um')))
+                File::makeDirectory(public_path('storage/spreadsheets/um'));
+
+            // Get the file
+            $file = $request->file('file');
+            $filename = FileExt::info($file->getClientOriginalName())['nameWithoutExtension'];
+            $extension = FileExt::info($file->getClientOriginalName())['extension'];
+            $new = date('Y-m-d-H-i-s').'_'.$filename.'.'.$extension;
+
+            // Move the file
+            $file->move(public_path('storage/spreadsheets/um'), $new);
+
+            // Get array
+            $array = Excel::toArray(new UangMakanImport, public_path('storage/spreadsheets/um/'.$new));
+
+            $anak_satker = '';
+            $bulan = '';
+            $bulanAngka = '';
+            $tahun = '';
+            if(count($array)>0) {
+                foreach($array[0] as $key=>$data) {
+                    if($data[1] != null) {
+                        // Get pegawai
+                        $pegawai = Pegawai::where('nip','=',$data[24])->first();
+
+                        // Get tarif dan PPH
+                        if(in_array($pegawai->golongan->nama, ['XIII','XIV','XV','XVI','XVII'])) {
+                            $tarif = 41000;
+                            $pph = 15;
+                        }
+                        elseif(in_array($pegawai->golongan->nama, ['IX','X','XI','XII'])) {
+                            $tarif = 37000;
+                            $pph = 5;
+                        }
+                        else {
+                            $tarif = 35000;
+                            $pph = 0;
+                        }
+
+                        // Get anak satker
+                        $as = AnakSatker::where('kode','=',$request->anak_satker)->first();
+
+                        // Get uang makan
+                        $uang_makan = UangMakan::where('kdanak','=',$request->anak_satker)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('nip','=',$data[24])->first();
+                        if(!$uang_makan) $uang_makan = new UangMakan;
+
+                        // Simpan uang makan
+                        $uang_makan->pegawai_id = $pegawai ? $pegawai->id : 0;
+                        $uang_makan->unit_id = $pegawai->unit_id;
+                        $uang_makan->anak_satker_id = $as->id;
+                        $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
+                        $uang_makan->kdanak = $request->anak_satker;
+                        $uang_makan->bulan = $request->bulan;
+                        $uang_makan->tahun = $request->tahun;
+                        $uang_makan->nip = $data[24];
+                        $uang_makan->nama = $data[1];
+                        $uang_makan->jmlhari = (100 * $data[6]) / ((100 - $pph) * $tarif);
+                        $uang_makan->tarif = $tarif;
+                        $uang_makan->pph = $pph;
+                        $uang_makan->kotor = $uang_makan->jmlhari * $tarif;
+                        $uang_makan->potongan = ($pph / 100) * $uang_makan->kotor;
+                        $uang_makan->bersih = $data[6];
+                        $uang_makan->save();
+
+                        // Get anak satker, bulan, tahun
+                        if($key == 0) {
+                            $a = AnakSatker::where('kode','=',$request->anak_satker)->first();
+                            $anak_satker = $a->nama;
+                            $bulan = DateTimeExt::month($request->bulan);
+                            $bulanAngka = $request->bulan;
+                            $tahun = $request->tahun;
+                        }
+                    }
+                }
+            }
+
+            // Rename the file
+            File::move(public_path('storage/spreadsheets/um/'.$new), public_path('storage/spreadsheets/um/'.$anak_satker.'_'.$tahun.'_'.$bulan.'.'.$extension));
+
+            // Delete the file
+            File::delete(public_path('storage/spreadsheets/um/'.$new));
+
+            // Redirect
+            return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun, 'jenis' => 2])->with(['message' => 'Berhasil memproses data.']);
+        }
+    }
 }

@@ -112,7 +112,7 @@ class UangMakanImportController extends Controller
             File::delete(public_path('storage/spreadsheets/um/'.$new));
 
             // Redirect
-            return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
+            return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun, 'jenis' => 1])->with(['message' => 'Berhasil memproses data.']);
         }
     }
 
@@ -162,19 +162,16 @@ class UangMakanImportController extends Controller
                 foreach($array[0] as $key=>$data) {
                     if($data[1] != null) {
                         // Get pegawai
-                        $pegawai = Pegawai::where('nip','=',$data[24])->first();
+                        $pegawai = Pegawai::where('nip','=',$data[7])->first();
 
-                        // Get tarif dan PPH
-                        if(in_array($pegawai->golongan->nama, ['XIII','XIV','XV','XVI','XVII'])) {
-                            $tarif = 41000;
+                        // Get PPH
+                        if(in_array($data[9], ['XIII','XIV','XV','XVI','XVII'])) {
                             $pph = 15;
                         }
-                        elseif(in_array($pegawai->golongan->nama, ['IX','X','XI','XII'])) {
-                            $tarif = 37000;
+                        elseif(in_array($data[9], ['IX','X','XI','XII'])) {
                             $pph = 5;
                         }
                         else {
-                            $tarif = 35000;
                             $pph = 0;
                         }
 
@@ -182,7 +179,7 @@ class UangMakanImportController extends Controller
                         $as = AnakSatker::where('kode','=',$request->anak_satker)->first();
 
                         // Get uang makan
-                        $uang_makan = UangMakan::where('kdanak','=',$request->anak_satker)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('nip','=',$data[24])->first();
+                        $uang_makan = UangMakan::where('kdanak','=',$request->anak_satker)->where('bulan','=',$data[2])->where('tahun','=',$data[3])->where('nip','=',$data[7])->first();
                         if(!$uang_makan) $uang_makan = new UangMakan;
 
                         // Simpan uang makan
@@ -191,25 +188,25 @@ class UangMakanImportController extends Controller
                         $uang_makan->anak_satker_id = $as->id;
                         $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
                         $uang_makan->kdanak = $request->anak_satker;
-                        $uang_makan->bulan = $request->bulan;
-                        $uang_makan->tahun = $request->tahun;
-                        $uang_makan->nip = $data[24];
-                        $uang_makan->nama = $data[1];
-                        $uang_makan->jmlhari = (100 * $data[6]) / ((100 - $pph) * $tarif);
-                        $uang_makan->tarif = $tarif;
+                        $uang_makan->bulan = $data[2];
+                        $uang_makan->tahun = $data[3];
+                        $uang_makan->nip = $data[7];
+                        $uang_makan->nama = $data[10];
+                        $uang_makan->jmlhari = $data[11];
+                        $uang_makan->tarif = $data[12];
                         $uang_makan->pph = $pph;
-                        $uang_makan->kotor = $uang_makan->jmlhari * $tarif;
-                        $uang_makan->potongan = ($pph / 100) * $uang_makan->kotor;
-                        $uang_makan->bersih = $data[6];
+                        $uang_makan->kotor = $data[13];
+                        $uang_makan->potongan = $data[14];
+                        $uang_makan->bersih = $data[15];
                         $uang_makan->save();
 
                         // Get anak satker, bulan, tahun
                         if($key == 0) {
                             $a = AnakSatker::where('kode','=',$request->anak_satker)->first();
                             $anak_satker = $a->nama;
-                            $bulan = DateTimeExt::month($request->bulan);
-                            $bulanAngka = $request->bulan;
-                            $tahun = $request->tahun;
+                            $bulan = DateTimeExt::month((int)$data[2]);
+                            $bulanAngka = (int)$data[2];
+                            $tahun = $data[3];
                         }
                     }
                 }
@@ -222,7 +219,7 @@ class UangMakanImportController extends Controller
             File::delete(public_path('storage/spreadsheets/um/'.$new));
 
             // Redirect
-            return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
+            return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun, 'jenis' => 2])->with(['message' => 'Berhasil memproses data.']);
         }
     }
     
