@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
-use App\Imports\GajiNonASNImport;
+use App\Imports\ByStartRowImport;
 use App\Models\GajiNonASN;
 use App\Models\Pegawai;
 use App\Models\Golru;
@@ -307,7 +307,7 @@ class GajiNonASNController extends Controller
             $tahun = $explode[2];
             
             // Get data
-            $array = Excel::toArray(new GajiNonASNImport, public_path('storage/spreadsheets/gaji-non-asn/'.$filename['name']));
+            $array = Excel::toArray(new ByStartRowImport(6), public_path('storage/spreadsheets/gaji-non-asn/'.$filename['name']));
             foreach($array[0] as $key=>$data) {
                 if($data[1] != null && $data[2] != null) {
                     // Get pegawai

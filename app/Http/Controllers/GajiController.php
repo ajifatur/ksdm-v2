@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\File;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
 use App\Exports\GajiExport;
-use App\Imports\GajiImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Gaji;
 use App\Models\JenisGaji;
 use App\Models\AnakSatker;
@@ -434,7 +434,7 @@ class GajiController extends Controller
             $file->move(public_path('storage/spreadsheets/gaji'), $new);
 
             // Get array
-            $array = Excel::toArray(new GajiImport, public_path('storage/spreadsheets/gaji/'.$new));
+            $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/spreadsheets/gaji/'.$new));
 
             $jenis = '';
             $anak_satker = '';
@@ -522,8 +522,8 @@ class GajiController extends Controller
                                 $gaji->pottabrum = $data[41];
                                 $gaji->bpjs = $data[48];
                                 $gaji->bpjs2 = $data[49];
-                                $gaji->nominal = $this->array_sum_range($data, 21, 33);
-                                $gaji->potongan = $this->array_sum_range($data, 34, 41) + $data[48] + $data[49];
+                                $gaji->nominal = array_sum_range($data, 21, 33);
+                                $gaji->potongan = array_sum_range($data, 34, 41) + $data[48] + $data[49];
                                 $gaji->save();
                             }
                             // Import GPP Lama
@@ -603,8 +603,8 @@ class GajiController extends Controller
                                 $gaji->pottabrum = $data[42];
                                 $gaji->bpjs = array_key_exists(49, $data) ? $data[49] : 0;
                                 $gaji->bpjs2 = array_key_exists(50, $data) ? $data[50] : 0;
-                                $gaji->nominal = $this->array_sum_range($data, 22, 34);
-                                $gaji->potongan = $this->array_sum_range($data, 35, 42) + $gaji->bpjs + $gaji->bpjs2;
+                                $gaji->nominal = array_sum_range($data, 22, 34);
+                                $gaji->potongan = array_sum_range($data, 35, 42) + $gaji->bpjs + $gaji->bpjs2;
                                 $gaji->save();
                             }
                         }
@@ -685,8 +685,8 @@ class GajiController extends Controller
                             $gaji->pottabrum = 0;
                             $gaji->bpjs = $data[42];
                             $gaji->bpjs2 = $data[43];
-                            $gaji->nominal = $this->array_sum_range($data, 23, 35);
-                            $gaji->potongan = $this->array_sum_range($data, 36, 40) + $data[42] + $data[43];
+                            $gaji->nominal = array_sum_range($data, 23, 35);
+                            $gaji->potongan = array_sum_range($data, 36, 40) + $data[42] + $data[43];
                             $gaji->save();
                         }
                     }
@@ -817,15 +817,6 @@ class GajiController extends Controller
             $update->anak_satker_id = $anak_satker->id;
             $update->save();
         }
-    }
-
-    // Sum array
-    public function array_sum_range($array, $first, $last) {
-        $sum = 0;
-        for($i=$first; $i<=$last; $i++) {
-            $sum += $array[$i];
-        }
-        return $sum;
     }
 
     public function kdanak_to_unit($kdanak) {

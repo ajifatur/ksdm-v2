@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
 use App\Exports\UangMakanExport;
-use App\Imports\UangMakanImport;
+use App\Imports\ByStartRowImport;
 use App\Models\UangMakan;
 use App\Models\AnakSatker;
 use App\Models\Pegawai;
@@ -56,7 +56,7 @@ class UangMakanImportController extends Controller
             $file->move(public_path('storage/spreadsheets/um'), $new);
 
             // Get array
-            $array = Excel::toArray(new UangMakanImport, public_path('storage/spreadsheets/um/'.$new));
+            $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/spreadsheets/um/'.$new));
 
             $anak_satker = '';
             $bulan = '';
@@ -152,7 +152,7 @@ class UangMakanImportController extends Controller
             $file->move(public_path('storage/spreadsheets/um'), $new);
 
             // Get array
-            $array = Excel::toArray(new UangMakanImport, public_path('storage/spreadsheets/um/'.$new));
+            $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/spreadsheets/um/'.$new));
 
             $anak_satker = '';
             $bulan = '';
@@ -247,7 +247,7 @@ class UangMakanImportController extends Controller
 		$file->move(public_path('storage/spreadsheets/um'), $new);
 
         // Get array
-		$array = Excel::toArray(new UangMakanImport, public_path('storage/spreadsheets/um/'.$new));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/spreadsheets/um/'.$new));
 
         $anak_satker = '';
         $bulan = '';

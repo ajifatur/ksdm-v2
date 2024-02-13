@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
-use App\Imports\PegawaiImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Pegawai;
 use App\Models\PegawaiNonAktif;
 use App\Models\GajiPokok;
@@ -292,7 +292,7 @@ class PegawaiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		$array = Excel::toArray(new PegawaiImport, public_path('storage/Konversi NPU.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Konversi NPU.xlsx'));
 
         $error = [];
         if(count($array)>0) {

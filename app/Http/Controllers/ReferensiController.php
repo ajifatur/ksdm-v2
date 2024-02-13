@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\FileExt;
-use App\Imports\ReferensiImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Referensi;
 use App\Models\JabatanDasar;
 use App\Models\SK;
@@ -76,7 +76,7 @@ class ReferensiController extends Controller
         // Get SK
         $sk = SK::find(12); // SK Remun Awal Tahun 2024
 
-		$array = Excel::toArray(new ReferensiImport, public_path('storage/Referensi_2024_01.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(3), public_path('storage/Referensi_2024_01.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {

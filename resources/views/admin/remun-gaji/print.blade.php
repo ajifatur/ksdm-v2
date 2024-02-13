@@ -1,42 +1,3 @@
-<?php
-
-// Cek mutasi
-function check_mutasi($pegawai, $bulan, $tahun) {
-    // Get mutasi terbaru
-    $mutasi = $pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
-		return $query->where('remun','=',1);
-	})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
-
-    // Get mutasi sebelumnya
-    $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
-		return $query->where('remun','=',1);
-	})->where('bulan','!=',$bulan)->orWhere('tahun','!=',$tahun)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
-
-    // Jika rangkap jabatan, mengecek perubahan
-    if($mutasi && count($mutasi->detail) > 1) {
-        $jabatan = [];
-        foreach($mutasi_sebelum->detail as $d) {
-            if($d->jabatan)
-                array_push($jabatan, $d->jabatan->nama);
-        }
-
-        $id = '';
-        foreach($mutasi->detail as $d) {
-            // if(!in_array($d->jabatan_id, $mutasi_sebelum->detail()->pluck('jabatan_id')->toArray())) {
-            if($d->status == 1 && !in_array($d->jabatan->nama, $jabatan)) {
-                $id = $d->jabatan->nama;
-            }
-        }
-        // if($id != '') return false;
-        if($id != '') return true;
-        else return false;
-    }
-    else
-        return true;
-}
-
-?>
-
 <html>
 <head>
     <title>{{ $title }}</title>
@@ -56,7 +17,7 @@ function check_mutasi($pegawai, $bulan, $tahun) {
 <body>
     <div id="title">
         DAFTAR PERHITUNGAN PEMBAYARAN REMUNERASI KOMPONEN GAJI UNSUR TENAGA {{ $kategori == 1 ? 'PENDIDIK' : 'KEPENDIDIKAN' }} UNNES<br>
-        BERDASAR {{ $sk->nama }} TANGGAL {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($sk->tanggal)) }} {{ $count_sk > 1 ? 'BESERTA PERUBAHANNYA' : '' }}<br>
+        BERDASAR {{ $sk->nama }} TANGGAL {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($sk->tanggal)) }} {{ $count_sk > 1 && $bulan > 1 ? 'BESERTA PERUBAHANNYA' : '' }}<br>
         BULAN {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($bulan)) }} {{ $tahun }} PADA {{ strtoupper($unit->nama) }}
     </div>
     <table style="width: 100%">
@@ -106,7 +67,7 @@ function check_mutasi($pegawai, $bulan, $tahun) {
                     $dibayarkan = $r->remun_gaji + $lebih_kurang->sum('selisih');
                     $mutasi = $r->pegawai->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
 						return $query->where('remun','=',1);
-					})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+					})->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kolektif','=',0)->first();
 
                     // Sum total
                     $total_terbayar += $lebih_kurang->sum('terbayar');

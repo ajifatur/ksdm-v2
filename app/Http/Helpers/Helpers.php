@@ -52,3 +52,72 @@ if(!function_exists('pegawai_spkgb')) {
         return $pegawai;
     }
 }
+
+// Cek mutasi
+if(!function_exists('check_mutasi')) {
+    function check_mutasi($pegawai, $bulan, $tahun) {
+        // Get mutasi terbaru
+        $mutasi = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
+            return $query->where('remun','=',1);
+        })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kolektif','=',0)->first();
+
+        // Set result
+        $result = false;
+        
+        // Get mutasi sebelumnya
+        if($mutasi) {
+            $mutasi_sebelum = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
+                return $query->where('remun','=',1);
+            })->where('id','!=',$mutasi->id)->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+        
+            // Jika rangkap jabatan, mengecek perubahan
+            if($mutasi_sebelum && count($mutasi_sebelum->detail) > 0) {
+                // Cek jabatan
+                $jabatan = [];
+                foreach($mutasi_sebelum->detail as $d) {
+                    if($d->jabatan)
+                        array_push($jabatan, $d->jabatan->nama);
+                }
+
+                $id = '';
+                foreach($mutasi->detail as $d) {
+                    if($d->status == 1 && !in_array($d->jabatan->nama, $jabatan)) {
+                        $id = $d->jabatan->nama;
+                    }
+                }
+
+                if($id != '') $result = true;
+                else {
+                    // Cek unit
+                    $unit = [];
+                    foreach($mutasi_sebelum->detail as $d) {
+                        if($d->jabatan)
+                            array_push($unit, $d->unit->nama);
+                    }
+
+                    foreach($mutasi->detail as $d) {
+                        if($d->status == 1 && !in_array($d->unit->nama, $unit)) {
+                            $id = $d->unit->nama;
+                        }
+                    }
+                    if($id != '') $result = true;
+                    else $result = false;
+                }
+            }
+            else $result = true;
+        }
+        
+        return $result;
+    }
+}
+
+// Array sum range
+if(!function_exists('array_sum_range')) {
+    function array_sum_range($array, $first, $last) {
+        $sum = 0;
+        for($i=$first; $i<=$last; $i++) {
+            $sum += $array[$i];
+        }
+        return $sum;
+    }
+}

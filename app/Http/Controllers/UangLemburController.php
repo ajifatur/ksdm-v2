@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
-use App\Imports\UangLemburImport;
+use App\Imports\ByStartRowImport;
 use App\Models\UangLembur;
 use App\Models\AnakSatker;
 use App\Models\Golru;
@@ -185,7 +185,7 @@ class UangLemburController extends Controller
             $file->move(public_path('storage/spreadsheets/ul'), $new);
 
             // Get array
-            $array = Excel::toArray(new UangLemburImport, public_path('storage/spreadsheets/ul/'.$new));
+            $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/spreadsheets/ul/'.$new));
 
             $anak_satker = '';
             $bulan = '';

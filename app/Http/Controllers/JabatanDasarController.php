@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\FileExt;
-use App\Imports\JabatanDasarImport;
+use App\Imports\ByStartRowImport;
 use App\Models\JabatanDasar;
 use App\Models\SK;
 
@@ -25,7 +25,7 @@ class JabatanDasarController extends Controller
         // Get SK
         $sk = SK::find(7);
 
-		$array = Excel::toArray(new JabatanDasarImport, public_path('assets/spreadsheets/Jabatan_Dasar_2_April.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Jabatan_Dasar_2_April.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {

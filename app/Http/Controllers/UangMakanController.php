@@ -13,7 +13,6 @@ use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
 use App\Exports\UangMakanExport;
-use App\Imports\UangMakanImport;
 use App\Models\UangMakan;
 use App\Models\AnakSatker;
 use App\Models\Pegawai;

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\GolruImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Golru;
 
 class GolruController extends Controller
@@ -26,7 +26,7 @@ class GolruController extends Controller
 		ini_set("max_execution_time", "-1");
 
         // Set file
-        $array = Excel::toArray(new GolruImport, public_path('assets/spreadsheets/Golru.xlsx'));
+        $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Golru.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {

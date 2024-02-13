@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Imports\ProdiImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Prodi;
 use App\Models\KriteriaProdi;
 
@@ -52,7 +52,7 @@ class ProdiController extends Controller
      */
     public function import(Request $request)
     {
-		$array = Excel::toArray(new ProdiImport, public_path('storage/Prodi_2024.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Prodi_2024.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {

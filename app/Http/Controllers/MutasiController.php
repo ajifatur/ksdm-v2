@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\MutasiImport;
-use App\Imports\RemunGajiImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Mutasi;
 use App\Models\MutasiDetail;
 use App\Models\MutasiKoorprodi;
@@ -575,7 +574,7 @@ class MutasiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-		$array = Excel::toArray(new RemunGajiImport, public_path('storage/Remun_Gaji_2024_02.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Remun_Gaji_2024_02.xlsx'));
         $bulan = 2;
         $tahun = 2024;
         $sk = 12;
@@ -741,128 +740,5 @@ class MutasiController extends Controller
 
         // Redirect
         return redirect($request->redirect)->with(['message' => 'Berhasil menghapus data.']);
-    }
-
-    /**
-     * Check.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function check(Request $request)
-    {	
-		// Get mutasi
-		$mutasi = Mutasi::whereHas('pegawai', function(Builder $query) {
-			return $query->where('status_kerja_id','=',1)->whereIn('status_kepeg_id',[1,2]);
-		})->orderBy('pegawai_id','asc')->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
-		
-		// View
-        return view('admin/mutasi/check', [
-            'mutasi' => $mutasi
-        ]);
-	}
-    
-    /**
-     * Import Peralihan BLU ke Pegawai Tetap
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function importBLU(Request $request)
-    {
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        // Set default values
-        $bulan = 10;
-        $tahun = 2023;
-        $uraian = "Peralihan BLU ke Pegawai Tetap PTNBH";
-
-        // Get SK
-        $sk = SK::where('jenis_id','=',1)->where('status','=',1)->first();
-
-		$array = Excel::toArray(new MutasiImport, public_path('storage/BLU 2023.xlsx'));
-
-        if(count($array)>0) {
-            foreach($array[0] as $data) {
-                if($data[0] != null) {
-                    // Get pegawai
-                    $pegawai = Pegawai::where('nip','=',trim($data[1]))->first();
-    
-                    // Get gaji pokok
-                    $gaji_pokok = GajiPokok::where('nama','=',$data[7])->first();
-    
-                    // Simpan mutasi
-                    $mutasi = Mutasi::where('jenis_id','=',13)->where('pegawai_id','=',$pegawai->id)->first();
-                    if(!$mutasi) $mutasi = new Mutasi;
-                    $mutasi->pegawai_id = $pegawai->id;
-                    $mutasi->sk_id = $sk->id;
-                    $mutasi->jenis_id = 13;
-                    $mutasi->status_kepeg_id = 3;
-                    $mutasi->golru_id = $gaji_pokok->golru_id;
-                    $mutasi->gaji_pokok_id = $gaji_pokok->id;
-                    $mutasi->bulan = 10;
-                    $mutasi->tahun = 2023;
-                    $mutasi->uraian = $uraian;
-                    $mutasi->tmt = '2023-10-01';
-                    $mutasi->remun_penerimaan = 0;
-                    $mutasi->remun_gaji = 0;
-                    $mutasi->remun_insentif = 0;
-                    $mutasi->save();
-    
-                    // Simpan pegawai
-                    $pegawai->golongan_id = $gaji_pokok->golru->golongan_id;
-                    $pegawai->golru_id = $gaji_pokok->golru_id;
-                    $pegawai->npu = $data[2];
-                    $pegawai->tmt_golongan = DateTimeExt::change($data[8]);
-                    $pegawai->save();
-    
-                    // Get mutasi pegawai
-                    $m = $pegawai->mutasi()->where('jenis_id','=',1)->where('tmt','<=',$mutasi->tmt)->first();
-                    if($m) {
-                        foreach($m->detail as $d) {
-                            // Simpan mutasi detail
-                            $detail = new MutasiDetail;
-                            $detail->mutasi_id = $mutasi->id;
-                            $detail->jabatan_id = $d->jabatan_id;
-                            $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
-                            $detail->unit_id = $d->unit_id;
-                            $detail->layer_id = $d->layer_id;
-                            $detail->status = $d->status;
-                            $detail->save();
-                        }
-                    }
-
-                    // Simpan perubahan
-                    $perubahan = $mutasi->perubahan;
-                    if(!$perubahan) $perubahan = new Perubahan;
-                    $perubahan->mutasi_id = $mutasi->id;
-                    $perubahan->sk_id = $gaji_pokok->sk_id;
-                    $perubahan->pejabat_id = 5;
-                    $perubahan->no_sk = $data[9];
-                    $perubahan->tanggal_sk = '2023-10-06';
-                    $perubahan->mk_tahun = $data[4];
-                    $perubahan->mk_bulan = $data[5];
-                    $perubahan->tmt = '2023-10-01';
-                    $perubahan->save();
-                }
-            }
-        }
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function jabatan(Request $request)
-    {
-        // Get mutasi
-        $mutasi = Mutasi::where('jenis_id','=',1)->orderBy('tmt','desc')->get();
-
-        // View
-        return view('admin/mutasi/jabatan', [
-            'mutasi' => $mutasi
-        ]);
     }
 }

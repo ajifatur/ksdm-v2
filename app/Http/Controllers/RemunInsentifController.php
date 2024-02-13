@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\RemunInsentifImport;
+use App\Imports\ByStartRowImport;
 use App\Models\RemunInsentif;
 use App\Models\LebihKurang;
 use App\Models\Pegawai;
@@ -258,7 +258,7 @@ class RemunInsentifController extends Controller
         // $sk = SK::find(2);
 
         // Get array
-		$array = Excel::toArray(new RemunInsentifImport, public_path('storage/Remun_Triwulan_IV_2023.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Remun_Triwulan_IV_2023.xlsx'));
 
         $error = [];
         $jabs = [];

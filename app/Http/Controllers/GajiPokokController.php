@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\GajiPokokImport;
+use App\Imports\ByStartRowImport;
 use App\Models\GajiPokok;
 use App\Models\Golru;
 use App\Models\Mutasi;
@@ -66,7 +66,7 @@ class GajiPokokController extends Controller
 		ini_set("max_execution_time", "-1");
 
         // Set file
-        $array = Excel::toArray(new GajiPokokImport, public_path('storage/Gaji Pokok PNS 2024.xlsx'));
+        $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Gaji Pokok PNS 2024.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {

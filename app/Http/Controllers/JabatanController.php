@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\FileExt;
-use App\Imports\JabatanImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Jabatan;
 use App\Models\JabatanDasar;
 use App\Models\GrupJabatan;
@@ -92,7 +92,7 @@ class JabatanController extends Controller
         // Get SK
         $sk = SK::find(12);
 
-		$array = Excel::toArray(new JabatanImport, public_path('storage/Jabatan_2024_01.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Jabatan_2024_01.xlsx'));
 
         if(count($array)>0) {
             foreach($array[0] as $data) {
@@ -133,94 +133,6 @@ class JabatanController extends Controller
                 $jabatan->sub = $data[1];
                 $jabatan->save();
             }
-        }
-    }
-
-    /**
-     * Import BUP
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function bup(Request $request)
-    {
-		$array = Excel::toArray(new JabatanImport, public_path('storage/BUP.xlsx'));
-
-        $error = [];
-        if(count($array)>0) {
-            foreach($array[0] as $data) {
-                if($data[0] != null) {
-                    // Get grup jabatan
-                    $jabatan = GrupJabatan::where('nama','=',$data[0])->first();
-                    if(!$jabatan) array_push($error, $data[0]);
-
-                    $jabatan->bup = $data[2];
-                    $jabatan->save();
-                }
-            }
-        }
-        var_dump($error);
-    }
-
-    /**
-     * Cek jabatan
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function check(Request $request)
-    {
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        // Get pegawai
-        $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
-            return $query->where('status','=',1);
-        })->orderBy('nip','asc')->get();
-
-        foreach($pegawai as $key=>$p) {
-            // Get mutasi jabatan
-            $mutasi = $p->mutasi()->where('jenis_id','=',1)->first();
-
-            // Get jabatan fungsional
-            $jf = $mutasi ? $mutasi->detail()->whereHas('jabatan', function (Builder $query) {
-                return $query->where('jenis_id','=',1);
-            })->first() : null;
-
-            // Get jabatan struktural
-            $js = $mutasi ? $mutasi->detail()->whereHas('jabatan', function (Builder $query) {
-                return $query->where('jenis_id','=',2);
-            })->first() : null;
-
-            // Update
-            $update_pegawai = Pegawai::find($p->id);
-            $update_pegawai->jabfung_id = $jf ? $jf->jabatan->grup_id : 0;
-            $update_pegawai->jabstruk_id = $js ? $js->jabatan->grup_id : 0;
-            $update_pegawai->save();
-        }
-        return;
-
-        // Get all jabatan
-        $jabatan = Jabatan::all();
-        foreach($jabatan as $j) {
-            // Update or create grup jabatan
-            if($j->sub == '-') {
-                $grup = GrupJabatan::where('nama','=',$j->nama)->first();
-                if(!$grup) $grup = new GrupJabatan;
-                if($j->jenis_id != 0) $grup->jenis_id = $j->jenis_id;
-                $grup->nama = $j->nama;
-                $grup->save();
-            }
-            else {
-                $grup = GrupJabatan::where('nama','=',$j->sub)->first();
-                if(!$grup) $grup = new GrupJabatan;
-                if($j->jenis_id != 0) $grup->jenis_id = $j->jenis_id;
-                $grup->nama = $j->sub;
-                $grup->save();
-            }
-
-            // Update jabatan
-            $jb = Jabatan::find($j->id);
-            $jb->grup_id = $grup->id;
-            $jb->save();
         }
     }
 }

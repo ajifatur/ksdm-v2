@@ -8,7 +8,6 @@ use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\RemunGajiImport;
 use App\Models\RemunGaji;
 use App\Models\Unit;
 use App\Models\Golongan;
