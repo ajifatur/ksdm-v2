@@ -8,7 +8,8 @@
  * importRemunGajiMei2023()
  * importRemunGajiJanuari2024()
  * importBLU()
- * cekJabatan
+ * cekJabatan()
+ * importKonversiNPU()
  */
 
 namespace App\Http\Controllers;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Ajifatur\Helpers\DateTimeExt;
-use App\Imports\MutasiImport;
+use App\Imports\ByStartRowImport;
 use App\Models\Mutasi;
 use App\Models\MutasiDetail;
 use App\Models\Angkatan;
@@ -885,5 +886,59 @@ class ArchivedController extends Controller
             $jb->grup_id = $grup->id;
             $jb->save();
         }
+    }
+    
+    /**
+     * Import
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function importKonversiNPU(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Konversi NPU.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[1] != null) {
+                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+                    // Pegawai BLU
+                    if($pegawai) {
+                        $pegawai->npu = $data[1];
+                        $pegawai->save();
+                    }
+                    // Pegawai Kontrak PPK
+                    else {
+                        $pegawai = new Pegawai;
+                        $pegawai->status_kepeg_id = 5; // Kontrak
+                        $pegawai->status_kerja_id = 1; // Aktif
+                        $pegawai->golongan_id = 0;
+                        $pegawai->golru_id = null;
+                        $pegawai->jabfung_id = 0;
+                        $pegawai->jabstruk_id = 0;
+                        $pegawai->unit_id = 0;
+                        $pegawai->jenis = 2; // Tendik
+                        $pegawai->nip = $data[1];
+                        $pegawai->npu = $data[1];
+                        $pegawai->nama = $data[2];
+                        $pegawai->gelar_depan = '';
+                        $pegawai->gelar_belakang = '';
+                        $pegawai->tanggal_lahir = substr($data[1],0,4).'-'.substr($data[1],4,2).'-'.substr($data[1],6,2);
+                        $pegawai->tempat_lahir = '';
+                        $pegawai->tmt_cpns = null;
+                        $pegawai->tmt_golongan = null;
+                        $pegawai->tmt_non_aktif = null;
+                        $pegawai->nama_supplier = null;
+                        $pegawai->nama_btn = null;
+                        $pegawai->norek_btn = null;
+                        $pegawai->save();
+                    }
+                }
+            }
+        }
+        var_dump($error);
     }
 }

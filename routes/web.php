@@ -235,13 +235,13 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/kp/import', 'SPKGBController@import')->name('admin.kp.import');
     // Route::get('/admin/jabatan/import', 'JabatanController@import')->name('admin.jabatan.import');
     // Route::get('/admin/jabatan-dasar/import', 'JabatanDasarController@import')->name('admin.jabatan-dasar.import');
-    // Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
+    Route::get('/admin/pegawai/import', 'PegawaiController@import')->name('admin.pegawai.import');
     // Route::get('/admin/remun-gaji/import', 'RemunGajiController@import')->name('admin.remun-gaji.import');
     // Route::get('/admin/remun-gaji/kekurangan/import', 'KekuranganRemunGajiController@import')->name('admin.remun-gaji.kekurangan.import');
     // Route::get('/admin/remun-insentif/import', 'RemunInsentifController@import')->name('admin.remun-insentif.import');
     // Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
-    Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
+    // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
     // Route::get('/admin/mutasi/import-blu', 'MutasiController@importBLU')->name('admin.mutasi.import-blu');
     // Route::get('/admin/referensi/import', 'ReferensiController@import')->name('admin.referensi.import');
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');
