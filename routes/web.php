@@ -54,7 +54,6 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // PGP
     Route::get('/admin/mutasi/pgp', 'PGPController@index')->name('admin.pgp.index');
-    // Route::get('/admin/mutasi/pgp/import', 'PGPController@import')->name('admin.pgp.import');
 
     // Remun Gaji
     Route::get('/admin/remun-gaji', 'RemunGajiController@index')->name('admin.remun-gaji.index');
@@ -122,7 +121,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // SK
     Route::get('/admin/sk', 'SKController@index')->name('admin.sk.index');
 	
-    // Golru
+    // Gaji Pokok
     Route::get('/admin/gaji-pokok', 'GajiPokokController@index')->name('admin.gaji-pokok.index');
 	
     // Pejabat Penandatangan
@@ -242,7 +241,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/remun-insentif/import', 'RemunInsentifController@import')->name('admin.remun-insentif.import');
     // Route::get('/admin/remun-15/import', 'Remun15Controller@import')->name('admin.remun-15.import');
     // Route::get('/admin/tunjangan-profesi/import', 'TunjanganProfesiController@import')->name('admin.tunjangan-profesi.import');
-    // Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
+    Route::get('/admin/mutasi/import', 'MutasiController@import')->name('admin.mutasi.import');
     // Route::get('/admin/mutasi/import-blu', 'MutasiController@importBLU')->name('admin.mutasi.import-blu');
     // Route::get('/admin/referensi/import', 'ReferensiController@import')->name('admin.referensi.import');
     // Route::get('/admin/golru/import', 'GolruController@import')->name('admin.golru.import');
@@ -250,6 +249,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/gaji/sync', 'GajiController@sync')->name('admin.gaji.sync');
     // Route::get('/admin/uang-makan/sync', 'UangMakanController@sync')->name('admin.uang-makan.sync');
     // Route::get('/admin/prodi/import', 'ProdiController@import')->name('admin.prodi.import');
+    // Route::get('/admin/mutasi/pgp/import', 'PGPController@import')->name('admin.pgp.import');
     Route::get('/admin/test/export', 'TestController@export')->name('admin.test.export');
     Route::get('/admin/test/import', 'TestController@import')->name('admin.test.import');
 });

@@ -74,7 +74,7 @@
                 <h1 class="mt-1 mb-3">{{ number_format($remun_insentif_total) }}</h1>
                 <div>
                     <span class="badge {{ $remun_insentif > 0 ? 'badge-primary-light' : 'badge-danger-light' }}"> <i class="mdi mdi-arrow-bottom-right"></i> {{ number_format($remun_insentif) }} </span>
-                    <span class="text-muted">pada Triwulan {{ $remun_insentif_terakhir->triwulan }} Tahun {{ $remun_insentif_terakhir->tahun }}</span>
+                    <span class="text-muted">pada Triwulan {{ $remun_insentif_terakhir->triwulan }}/{{ $remun_insentif_terakhir->tahun }}</span>
                 </div>
             </div>
         </div>

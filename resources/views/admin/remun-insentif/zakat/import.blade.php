@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Import Zakat Remun Insentif')
+@section('title', 'Import Zakat Remunerasi Insentif')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Import Zakat Remun Insentif</h1>
+    <h1 class="h3 mb-0">Import Zakat Remunerasi Insentif</h1>
 </div>
 <div class="row">
 	<div class="col-12">

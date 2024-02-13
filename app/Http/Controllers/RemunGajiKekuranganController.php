@@ -3,24 +3,14 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Excel;
 use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Models\RemunGaji;
-use App\Models\Unit;
-use App\Models\Golongan;
-use App\Models\Jabatan;
-use App\Models\SubJabatan;
-use App\Models\Pegawai;
-use App\Models\Proses;
 use App\Models\LebihKurang;
 use App\Models\Mutasi;
-use App\Models\MutasiDetail;
-use App\Models\SK;
-use App\Models\StatusKepegawaian;
-use App\Models\Referensi;
+use App\Models\Unit;
 
 class RemunGajiKekuranganController extends Controller
 {
@@ -66,16 +56,53 @@ class RemunGajiKekuranganController extends Controller
 
         $data = [];
         $isPusat = 0;
+        $total_pegawai = 0;
+        $total_terbayar = 0;
+        $total_seharusnya = 0;
+        $total_selisih = 0;
         foreach($unit as $u) {
             // Append pusat
-            if($isPusat == 0 && $u->pusat == 1) {
-                array_push($data, [
-                    'unit' => 'Pusat',
-                ]);
+            // if($isPusat == 0 && $u->pusat == 1) {
+            //     array_push($data, [
+            //         'unit' => 'Pusat',
+            //         'pegawai' => 0,
+            //         'terbayar' => 0,
+            //         'seharusnya' => 0,
+            //         'selisih' => 0,
+            //     ]);
+            // }
+
+            // Set pegawai, terbayar, seharusnya, selisih
+            $pegawai = 0;
+            $terbayar = 0;
+            $seharusnya = 0;
+            $selisih = 0;
+
+            // Get pegawai dalam unit
+            $pegawai_dalam_unit = RemunGaji::where('unit_id','=',$u->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->pluck('pegawai_id')->toArray();
+
+            // Get kekurangan
+            $kekurangan = LebihKurang::whereHas('pegawai', function(Builder $query) use ($pegawai_dalam_unit) {
+                return $query->whereIn('id',$pegawai_dalam_unit);
+            })->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->groupBy('pegawai_id')->get();
+            foreach($kekurangan as $key=>$k) {
+                $terbayar += LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->sum('terbayar');
+                $seharusnya += LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->sum('seharusnya');
+                $selisih += LebihKurang::where('pegawai_id','=',$k->pegawai_id)->where('bulan_proses','=',$bulan)->where('tahun_proses','=',$tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->sum('selisih');
             }
 
+            $total_pegawai += count($kekurangan);
+            $total_terbayar += $terbayar;
+            $total_seharusnya += $seharusnya;
+            $total_selisih += $selisih;
+
+            // Append unit
             array_push($data, [
                 'unit' => $u,
+                'pegawai' => count($kekurangan),
+                'terbayar' => $terbayar,
+                'seharusnya' => $seharusnya,
+                'selisih' => $selisih,
             ]);
 
             $isPusat = $u->pusat;
@@ -89,6 +116,10 @@ class RemunGajiKekuranganController extends Controller
             'tanggal' => $tanggal,
             'unit' => $unit,
             'data' => $data,
+            'total_pegawai' => $total_pegawai,
+            'total_terbayar' => $total_terbayar,
+            'total_seharusnya' => $total_seharusnya,
+            'total_selisih' => $total_selisih,
         ]);
     }
 

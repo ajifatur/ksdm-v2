@@ -108,6 +108,7 @@
     // DataTable
     Spandiv.DataTable("#datatable", {
         orderAll: true,
+        fixedHeader: true,
         pageLength: -1
     });
 </script>

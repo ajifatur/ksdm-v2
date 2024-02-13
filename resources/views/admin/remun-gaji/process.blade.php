@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Proses Remun Gaji')
+@section('title', 'Proses Remunerasi Gaji')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Proses Remun Gaji</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Proses Remunerasi Gaji</h1>
     <div class="btn-group">
         <a href="#" class="btn btn-sm btn-primary btn-process"><i class="bi-plus me-1"></i> Tambah</a>
     </div>

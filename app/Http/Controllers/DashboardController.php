@@ -45,7 +45,7 @@ class DashboardController extends Controller
         // Sum remun insentif
         $remun_insentif_terakhir = RemunInsentif::latest('tahun')->latest('triwulan')->whereIn('triwulan',[1,2,3,4])->first();
         $remun_insentif_total = RemunInsentif::where('tahun','=',date('Y'))->whereIn('triwulan',[1,2,3,4])->sum('remun_insentif') + LebihKurang::where('tahun_proses','=',date('Y'))->where('triwulan_proses','!=',0)->sum('selisih');
-        $remun_insentif = RemunInsentif::where('triwulan','=',$remun_insentif_terakhir->triwulan)->whereIn('triwulan',[1,2,3,4])->where('tahun','=',date('Y'))->sum('remun_insentif') + LebihKurang::where('triwulan_proses','=',$remun_insentif_terakhir->triwulan)->where('tahun_proses','=',date('Y'))->sum('selisih');
+        $remun_insentif = RemunInsentif::where('triwulan','=',$remun_insentif_terakhir->triwulan)->whereIn('triwulan',[1,2,3,4])->where('tahun','=',$remun_insentif_terakhir->tahun)->sum('remun_insentif') + LebihKurang::where('triwulan_proses','=',$remun_insentif_terakhir->triwulan)->where('tahun_proses','=',$remun_insentif_terakhir->tahun)->sum('selisih');
 
         // Sum gaji induk ASN
         $gaji_induk_total = Gaji::where('tahun','=',date('Y'))->sum('nominal') - Gaji::where('tahun','=',date('Y'))->sum('potongan');

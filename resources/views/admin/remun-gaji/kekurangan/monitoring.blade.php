@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Monitoring Kekurangan Remun Gaji')
+@section('title', 'Monitoring Kekurangan Remunerasi Gaji')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Monitoring Kekurangan Remun Gaji</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Monitoring Kekurangan Remunerasi Gaji</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -27,47 +27,61 @@
                         <thead class="bg-light">
                             <tr>
                                 <th>Unit</th>
+                                <th width="90">Pegawai</th>
+                                <th width="90">Terbayar</th>
+                                <th width="90">Selisih</th>
+                                <th width="90">Seharusnya</th>
                                 <th width="30">Excel Simkeu</th>
                                 <th width="30">Laporan PDF</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($data as $d)
-                            <tr>
-                                <td>{{ is_object($d['unit']) ? $d['unit']->pusat == 1 ? 'Pusat - '.$d['unit']->nama : $d['unit']->nama : $d['unit'] }}</td>
-                                <td align="center">
-                                    @if(is_object($d['unit']))
-                                        @if($d['unit']->pusat == 0)
+                                @if($d['pegawai'] > 0)
+                                <tr>
+                                    <td>{{ is_object($d['unit']) ? $d['unit']->pusat == 1 ? 'Pusat - '.$d['unit']->nama : $d['unit']->nama : $d['unit'] }}</td>
+                                    <td align="right">{{ number_format($d['pegawai']) }}</td>
+                                    <td align="right">{{ number_format($d['terbayar']) }}</td>
+                                    <td align="right">{{ number_format($d['selisih']) }}</td>
+                                    <td align="right">{{ number_format($d['seharusnya']) }}</td>
+                                    <td align="center">
+                                        @if(is_object($d['unit']))
+                                            @if($d['unit']->pusat == 0)
+                                                <div class="btn-group">
+                                                    <a href="{{ route('admin.remun-gaji.kekurangan.export.single', ['kategori' => 1, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
+                                                    <a href="{{ route('admin.remun-gaji.kekurangan.export.single', ['kategori' => 2, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                                </div>
+                                            @else
+                                                -
+                                            @endif
+                                        @else
                                             <div class="btn-group">
-                                                <a href="{{ route('admin.remun-gaji.kekurangan.export.single', ['kategori' => 1, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                                <a href="{{ route('admin.remun-gaji.kekurangan.export.single', ['kategori' => 2, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
+                                                <a href="{{ route('admin.remun-gaji.kekurangan.export.pusat', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
+                                                <a href="{{ route('admin.remun-gaji.kekurangan.export.pusat', ['kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td align="center">
+                                        @if(is_object($d['unit']))
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.remun-gaji.kekurangan.print', ['kategori' => 1, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Dosen"><i class="bi-file-pdf"></i></a>
+                                                <a href="{{ route('admin.remun-gaji.kekurangan.print', ['kategori' => 2, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Tendik"><i class="bi-file-pdf"></i></a>
                                             </div>
                                         @else
                                             -
                                         @endif
-                                    @else
-                                        <div class="btn-group">
-                                            <a href="{{ route('admin.remun-gaji.kekurangan.export.pusat', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
-                                            <a href="{{ route('admin.remun-gaji.kekurangan.export.pusat', ['kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download"><i class="bi-file-excel"></i></a>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td align="center">
-                                    @if(is_object($d['unit']))
-                                        <div class="btn-group">
-                                            <a href="{{ route('admin.remun-gaji.kekurangan.print', ['kategori' => 1, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" target="_blank" data-bs-toggle="tooltip" title="Download PDF Dosen"><i class="bi-file-pdf"></i></a>
-                                            <a href="{{ route('admin.remun-gaji.kekurangan.print', ['kategori' => 2, 'unit' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" target="_blank" data-bs-toggle="tooltip" title="Download PDF Tendik"><i class="bi-file-pdf"></i></a>
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                                @endif
                             @endforeach
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
                                 <td align="center">Total</td>
+                                <td align="right">{{ number_format($total_pegawai) }}</td>
+                                <td align="right">{{ number_format($total_terbayar) }}</td>
+                                <td align="right">{{ number_format($total_selisih) }}</td>
+                                <td align="right">{{ number_format($total_seharusnya) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.remun-gaji.kekurangan.export.single', ['kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
@@ -108,7 +122,8 @@
     // Change the select
     $(document).on("change", ".card-header select", function() {
 		var periode = $("select[name=periode]").val();
-        window.location.href = Spandiv.URL("{{ route('admin.remun-gaji.kekurangan.monitoring') }}", {periode: periode});
+        if(periode != null)
+            window.location.href = Spandiv.URL("{{ route('admin.remun-gaji.kekurangan.monitoring') }}", {periode: periode});
     });
 </script>
 

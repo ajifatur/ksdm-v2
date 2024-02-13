@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Perubahan Remun Gaji')
+@section('title', 'Perubahan Remunerasi Gaji')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Perubahan Remun Gaji</h1>
+    <h1 class="h3 mb-2 mb-sm-0">Perubahan Remunerasi Gaji</h1>
     <a href="{{ route('admin.remun-gaji.monitoring', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali ke Monitoring</a>
 </div>
 <div class="row">
