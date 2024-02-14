@@ -27,12 +27,13 @@ class TunjanganProfesiBulanController extends Controller
         // Get tahun
         $tahun = $request->query('tahun') ?: date('Y');
 
+		// Get jenis
+		$jenis = JenisTunjanganProfesi::all();
+
         $data = [];
         for($bulan=1; $bulan<=12; $bulan++) {
 			$tunjangan_profesi = [];
 			
-			// Get jenis
-			$jenis = JenisTunjanganProfesi::all();
 			foreach($jenis as $j) {
 				// Get tunjangan
 				$tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
@@ -42,7 +43,7 @@ class TunjanganProfesiBulanController extends Controller
 				// Push to array
 				$tunjangan_profesi[strtolower(str_replace('-','_',$j->file))] = [
 					'jenis' => $j,
-					'pegawai' => $tunjangan->count(),
+					'pegawai' => $tunjangan->groupBy('pegawai_id')->count(),
 					'tunjangan' => $tunjangan->sum('tunjangan'),
 					'diterimakan' => $tunjangan->sum('diterimakan'),
 				];
@@ -70,6 +71,7 @@ class TunjanganProfesiBulanController extends Controller
         // View
         return view('admin/tunjangan-profesi/bulan/recap', [
             'tahun' => $tahun,
+            'jenis' => $jenis,
             'data' => $data,
             'total_tunjangan' => $total_tunjangan
         ]);

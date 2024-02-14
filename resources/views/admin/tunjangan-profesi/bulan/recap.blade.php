@@ -32,30 +32,46 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2">Bulan</th>
-								<th colspan="4">Nominal Kotor</th>
-                                <th rowspan="2" width="80">Total Nominal Kotor</th>
+                                @foreach($jenis as $j)
+                                <th colspan="2">{{ $j->nama }}</th>
+                                @endforeach
+                                <th colspan="2">Total</th>
                                 <th rowspan="2" width="50">Opsi</th>
                             </tr>
 							<tr>
-                                <th width="80">Kehormatan Profesor</th>
-                                <th width="80">Profesi GB</th>
-                                <th width="80">Profesi Non GB</th>
-                                <th width="80">Profesi Non PNS</th>
+                                @foreach($jenis as $j)
+                                <th width="80">Pegawai</th>
+                                <th width="80">Nominal</th>
+                                @endforeach
+                                <th width="80">Pegawai</th>
+                                <th width="80">Nominal</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php
+                                foreach($jenis as $key=>$j) {
+                                    $pegawai[$key] = 0;
+                                }
+                            ?>
                             @foreach($data as $d)
                             <tr>
 								<td>
                                     <span class="d-none">{{ $d['bulan'] < 10 ? '0'.$d['bulan'] : $d['bulan'] }}</span>
                                     {{ $d['bulan_nama'] }}
                                 </td>
-								<?php $total_kotor_per_bulan = 0; ?>
+								<?php $total_pegawai = 0; ?>
+								<?php $total_nominal = 0; ?>
+                                <?php $i = 0; ?>
 								@foreach($d['tunjangan_profesi'] as $tp)
+								<td align="right">{{ number_format($tp['pegawai']) }}</td>
 								<td align="right">{{ number_format($tp['tunjangan']) }}</td>
-								<?php $total_kotor_per_bulan += $tp['tunjangan']; ?>
+								<?php $total_pegawai += $tp['pegawai']; ?>
+								<?php $pegawai[$i] += $tp['pegawai']; ?>
+								<?php $total_nominal += $tp['tunjangan']; ?>
+                                <?php $i++; ?>
 								@endforeach
-								<td align="right">{{ number_format($total_kotor_per_bulan) }}</td>
+								<td align="right">{{ number_format($total_pegawai) }}</td>
+								<td align="right">{{ number_format($total_nominal) }}</td>
                                 <td align="center">
 									<div class="btn-group">
 										@foreach($d['tunjangan_profesi'] as $tp)
@@ -70,9 +86,11 @@
                         <tfoot class="bg-light fw-bold">
                             <tr>
                                 <td align="center">Total</td>
-								@foreach($total_tunjangan as $t)
+								@foreach($total_tunjangan as $key=>$t)
+								<td align="right">{{ number_format($pegawai[$key]) }}</td>
 								<td align="right">{{ number_format($t) }}</td>
 								@endforeach
+								<td align="right">{{ number_format(array_sum($pegawai)) }}</td>
 								<td align="right">{{ number_format(array_sum($total_tunjangan)) }}</td>
                                 <td align="center"></td>
                             </tr>

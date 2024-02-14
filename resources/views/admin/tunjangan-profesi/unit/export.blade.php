@@ -12,13 +12,15 @@
             <th align="center" width="10"><b>BULAN</b></th>
             <th align="center" width="10"><b>TAHUN</b></th>
             <th align="center" width="20"><b>JENIS</b></th>
+            <th align="center" width="20"><b>KETERANGAN</b></th>
 
         </tr>
     </thead>
     <tbody>
-        @foreach($data as $key=>$d)
+        @php $i = 1; @endphp
+        @foreach($data['tunjangan'] as $key=>$d)
             <tr>
-                <td>{{ ($key+1) }}</td>
+                <td>{{ $i }}</td>
                 <td>{{ $d->nip }}</td>
                 <td>{{ $d->nama }}</td>
                 <td>{{ $d->nama_rekening }}</td>
@@ -29,7 +31,26 @@
                 <td>{{ $d->bulan }}</td>
                 <td>{{ $d->tahun }}</td>
                 <td>{{ $d->angkatan->jenis->nama }}</td>
+                <td></td>
             </tr>
+            @php $i++; @endphp
+        @endforeach
+        @foreach($data['kekurangan'] as $key=>$d)
+            <tr>
+                <td>{{ $i }}</td>
+                <td>{{ $d->nip }}</td>
+                <td>{{ $d->nama }}</td>
+                <td>{{ $d->nama_rekening }}</td>
+                <td>{{ $d->nomor_rekening }}</td>
+                <td>{{ $d->detail->sum('tunjangan') }}</td>
+                <td>{{ $d->detail->sum('pph') }}</td>
+                <td>{{ $d->detail->sum('diterimakan') }}</td>
+                <td>{{ $d->bulan }}</td>
+                <td>{{ $d->tahun }}</td>
+                <td>{{ $d->angkatan->jenis->nama }}</td>
+                <td>Kekurangan</td>
+            </tr>
+            @php $i++; @endphp
         @endforeach
     </tbody>
 </table>

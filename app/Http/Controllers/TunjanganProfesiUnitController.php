@@ -35,12 +35,13 @@ class TunjanganProfesiUnitController extends Controller
 			$query->where('end_date','>=',$tanggal)->orWhereNull('end_date');
 		})->where('pusat','=',0)->whereNotIn('nama',['-','Sekolah Pascasarjana','Pascasarjana'])->orderBy('num_order','asc')->get();
 
+        // Get jenis
+        $jenis = JenisTunjanganProfesi::all();
+
         $data = [];
         foreach($unit as $u) {
 			$tunjangan_profesi = [];
 			
-			// Get jenis
-			$jenis = JenisTunjanganProfesi::all();
 			foreach($jenis as $j) {
 				// Get tunjangan
 				$tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($j) {
@@ -50,7 +51,7 @@ class TunjanganProfesiUnitController extends Controller
 				// Push to array
 				$tunjangan_profesi[strtolower(str_replace('-','_',$j->file))] = [
 					'jenis' => $j,
-					'pegawai' => $tunjangan->count(),
+					'pegawai' => $tunjangan->groupBy('pegawai_id')->count(),
 					'tunjangan' => $tunjangan->sum('tunjangan'),
 					'diterimakan' => $tunjangan->sum('diterimakan'),
 				];
@@ -77,6 +78,7 @@ class TunjanganProfesiUnitController extends Controller
         // View
         return view('admin/tunjangan-profesi/unit/recap', [
             'unit' => $unit,
+            'jenis' => $jenis,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'data' => $data,
@@ -99,24 +101,62 @@ class TunjanganProfesiUnitController extends Controller
 		// Get unit
 		$unit = Unit::findOrFail($id);
 
+        // Get kekurangan
+        // 0: Semua, 1: Ya, 2: Tidak
+        $kekurangan = $request->query('kekurangan') ?: 0;
+
+        // Set tunjangan, kekurangan tunjangan
+        $tunjangan = [];
+        $kekurangan_tunjangan = [];
+
         // Get jenis
         $jenis = JenisTunjanganProfesi::find($request->query('jenis'));
 
         if($jenis) {
-            // Get tunjangan profesi
-            $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($jenis) {
-                return $query->where('jenis_id','=',$jenis->id);
-            })->where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+            if($kekurangan == 0 || $kekurangan == 2) {
+                // Get tunjangan profesi
+                $tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($jenis) {
+                    return $query->where('jenis_id','=',$jenis->id);
+                })->where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->where('kekurangan','=',0)->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+            }
+
+            if($kekurangan == 0 || $kekurangan == 1) {
+                // Get kekurangan tunjangan profesi
+                $kekurangan_tunjangan = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($jenis) {
+                    return $query->where('jenis_id','=',$jenis->id);
+                })->where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->where('kekurangan','=',1)->groupBy('pegawai_id')->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+                foreach($kekurangan_tunjangan as $key=>$k) {
+                    $kekurangan_tunjangan[$key]->detail = TunjanganProfesi::whereHas('angkatan', function (Builder $query) use ($jenis) {
+                        return $query->where('jenis_id','=',$jenis->id);
+                    })->where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->where('kekurangan','=',1)->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+                }
+            }
 
             // Download
-            return Excel::download(new TunjanganProfesiUnitExport($tunjangan), 'Tunjangan Profesi '.$unit->nama.' ('.$jenis->nama.') - '.$request->tahun.' '.DateTimeExt::month($request->bulan).'.xlsx');
+            return Excel::download(new TunjanganProfesiUnitExport([
+                'tunjangan' => $tunjangan,
+                'kekurangan' => $kekurangan_tunjangan,
+            ]), 'Tunjangan Profesi '.$unit->nama.' ('.$jenis->nama.') - '.$request->tahun.' '.DateTimeExt::month($request->bulan).'.xlsx');
         }
         else {
-            // Get tunjangan profesi
-            $tunjangan = TunjanganProfesi::where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+            if($kekurangan == 0 || $kekurangan == 2) {
+                // Get tunjangan profesi
+                $tunjangan = TunjanganProfesi::where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->where('kekurangan','=',0)->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+            }
+
+            if($kekurangan == 0 || $kekurangan == 1) {
+                // Get kekurangan tunjangan profesi
+                $kekurangan_tunjangan = TunjanganProfesi::where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->where('kekurangan','=',1)->groupBy('pegawai_id')->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+                foreach($kekurangan_tunjangan as $key=>$k) {
+                    $kekurangan_tunjangan[$key]->detail = TunjanganProfesi::where('unit_id','=',$unit->id)->where('bulan','=',$request->query('bulan'))->where('tahun','=',$request->query('tahun'))->where('kekurangan','=',1)->orderBy('pegawai_id','asc')->orderBy('angkatan_id','asc')->get();
+                }
+            }
 
             // Download
-            return Excel::download(new TunjanganProfesiUnitExport($tunjangan), 'Tunjangan Profesi '.$unit->nama.' - '.$request->tahun.' '.DateTimeExt::month($request->bulan).'.xlsx');
+            return Excel::download(new TunjanganProfesiUnitExport([
+                'tunjangan' => $tunjangan,
+                'kekurangan' => $kekurangan_tunjangan,
+            ]), 'Tunjangan Profesi '.$unit->nama.' - '.$request->tahun.' '.DateTimeExt::month($request->bulan).'.xlsx');
         }
     }
 }
