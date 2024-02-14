@@ -14,9 +14,7 @@
                 <select name="periode" class="form-select form-select-sm">
                     <option value="" disabled>--Pilih Periode--</option>
                     @foreach($periode as $p)
-                        @foreach($p['bulan'] as $b)
-                        <option value="">{{ \Ajifatur\Helpers\DateTimeExt::month($b) }} {{ $p['tahun'] }}</option>
-                        @endforeach
+                        <option value="{{ $p['tahun'] }}-{{ $p['bulan'] }}" {{ $periode_tahun == $p['tahun'] && $periode_bulan == $p['bulan'] ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($p['bulan']) }} {{ $p['tahun'] }}</option>
                     @endforeach
                 </select>
             </div>
@@ -44,6 +42,7 @@
                                 <td align="right">{{ number_format($d['diterimakan']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ route('admin.tunjangan-profesi.export', ['jenis' => $d['jenis']->id, 'bulan' => $periode_bulan, 'tahun' => $periode_tahun, 'kekurangan' => 1]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -58,6 +57,7 @@
                                 <td align="right">{{ number_format($total['diterimakan']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ route('admin.tunjangan-profesi.export', ['bulan' => $periode_bulan, 'tahun' => $periode_tahun, 'kekurangan' => 1]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -85,11 +85,12 @@
     // Select2
     Spandiv.Select2("select[name=periode]");
 
-    // // Change the select
-    // $(document).on("change", ".card-header select", function() {
-    //     var jenis = $("select[name=jenis]").val();
-    //     window.location.href = Spandiv.URL("{{ route('admin.sk.index') }}", {jenis: jenis});
-    // });
+    // Change the select
+    $(document).on("change", ".card-header select", function() {
+        var periode = $("select[name=periode]").val();
+        if(periode != null)
+            window.location.href = Spandiv.URL("{{ route('admin.tunjangan-profesi.kekurangan.monitoring') }}", {periode: periode});
+    });
 </script>
 
 @endsection
