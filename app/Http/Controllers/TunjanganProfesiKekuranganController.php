@@ -60,16 +60,16 @@ class TunjanganProfesiKekuranganController extends Controller
             // Count tunjangan by jenis
             $tunjangan_jenis = TunjanganProfesi::whereHas('angkatan', function(Builder $query) use ($j) {
                 return $query->where('jenis_id','=',$j->id);
-            })->where('kekurangan','=',1)->where('tahun','=',$tahun)->where('bulan','=',$bulan)->count();
+            })->where('kekurangan','=',1)->where('tahun','=',$periode_tahun)->where('bulan','=',$periode_bulan)->count();
 
             if($tunjangan_jenis > 0) {
                 // Count pegawai
-                $pegawai = count(TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$tahun)->where('bulan','=',$bulan)->groupBy('pegawai_id')->get());
+                $pegawai = count(TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$periode_tahun)->where('bulan','=',$periode_bulan)->groupBy('pegawai_id')->get());
 
                 // Sum tunjangan, pph, diterimakan
-                $tunjangan = TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$tahun)->where('bulan','=',$bulan)->sum('tunjangan');
-                $pph = TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$tahun)->where('bulan','=',$bulan)->sum('pph');
-                $diterimakan = TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$tahun)->where('bulan','=',$bulan)->sum('diterimakan');
+                $tunjangan = TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$periode_tahun)->where('bulan','=',$periode_bulan)->sum('tunjangan');
+                $pph = TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$periode_tahun)->where('bulan','=',$periode_bulan)->sum('pph');
+                $diterimakan = TunjanganProfesi::where('kekurangan','=',1)->where('tahun','=',$periode_tahun)->where('bulan','=',$periode_bulan)->sum('diterimakan');
 
                 // Push to array
                 array_push($data, [
