@@ -12,7 +12,8 @@ use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
 use App\Imports\ByStartRowImport;
 use App\Models\GajiKontrak;
-use App\Models\JenisGajiKontrak;
+use App\Models\JenisGaji;
+use App\Models\KategoriKontrak;
 use App\Models\Pegawai;
 use App\Models\SKKontrak;
 use App\Models\Unit;
@@ -27,26 +28,30 @@ class GajiKontrakController extends Controller
      */
     public function index(Request $request)
     {
-        // Get jenis gaji
-        $jenis_gaji = JenisGajiKontrak::all();
+        // Get jenis
+        $jenis = JenisGaji::findOrFail($request->query('jenis'));
 
-        // Get bulan, tahun, jenis
+        // Get kategori kontrak
+        $kategori_kontrak = KategoriKontrak::orderBy('num_order','asc')->get();
+
+        // Get bulan, tahun, kategori
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
-        $jenis = in_array($request->query('jenis'), $jenis_gaji->pluck('id')->toArray()) ? $request->query('jenis') : null;
+        $kategori = in_array($request->query('kategori'), $kategori_kontrak->pluck('id')->toArray()) ? KategoriKontrak::find($request->query('kategori')) : null;
 
         // Get gaji
         $gaji_kontrak = [];
-        if($jenis != null) {
-            $gaji_kontrak = GajiKontrak::where('jenis_id','=',$jenis)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+        if($kategori != null) {
+            $gaji_kontrak = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$kategori->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
         }
 
         // View
         return view('admin/gaji-kontrak/index', [
-            'jenis_gaji' => $jenis_gaji,
+            'jenis' => $jenis,
+            'kategori_kontrak' => $kategori_kontrak,
             'bulan' => $bulan,
             'tahun' => $tahun,
-            'jenis' => $jenis,
+            'kategori' => $kategori,
             'gaji_kontrak' => $gaji_kontrak,
         ]);
     }
@@ -58,26 +63,18 @@ class GajiKontrakController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function monitoring(Request $request)
-    {
-        echo "Sedang Maintenance";
-        return;
-        
-        // Get jenis dan status
+    {        
+        // Get jenis
         $jenis = JenisGaji::find($request->query('jenis'));
-        $status = $request->query('status');
 
         $tahun_bulan_grup = [];
         if($jenis->grup == 1) {
             // Get tahun grup
-            $tahun_grup = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
-                return $query->where('jenis','=',$status);
-            })->where('jenis_id','=',$jenis->id)->orderBy('tahun','desc')->groupBy('tahun')->pluck('tahun')->toArray();
+            $tahun_grup = GajiKontrak::where('jenis_id','=',$jenis->id)->orderBy('tahun','desc')->groupBy('tahun')->pluck('tahun')->toArray();
 
             // Get bulan grup
             foreach($tahun_grup as $t) {
-                $bulan_grup = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
-                    return $query->where('jenis','=',$status);
-                })->where('jenis_id','=',$jenis->id)->where('tahun','=',$t)->orderBy('bulan','desc')->groupBy('bulan')->pluck('bulan')->toArray();
+                $bulan_grup = GajiKontrak::where('jenis_id','=',$jenis->id)->where('tahun','=',$t)->orderBy('bulan','desc')->groupBy('bulan')->pluck('bulan')->toArray();
                 array_push($tahun_bulan_grup, [
                     'tahun' => $t,
                     'bulan' => $bulan_grup
@@ -103,65 +100,47 @@ class GajiKontrakController extends Controller
         // Get jenis gaji
         $jenis_gaji = JenisGaji::all();
 
-        // Get anak satker
-        $anak_satker = AnakSatker::where('jenis','=',$status)->get();
+        // Get kategori kontrak
+        $kategori_kontrak = KategoriKontrak::orderBy('num_order','asc')->get();
 
         $data = [];
         $total = [
-            'dosen_jumlah' => 0,
-            'dosen_nominal' => 0,
-            'dosen_potongan' => 0,
-            'tendik_jumlah' => 0,
-            'tendik_nominal' => 0,
-            'tendik_potongan' => 0,
+            'pegawai' => 0,
+            'kotor' => 0,
+            'bersih' => 0,
         ];
-        foreach($anak_satker as $a) {
+        foreach($kategori_kontrak as $k) {
             // Get gaji
             if($jenis) {
-                $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $a) {
-                    return $query->where('jenis','=',$status)->where('id','=',$a->id);
-                })->where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+                $gaji = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$k->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
             }
             else {
-                $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status, $a) {
-                    return $query->where('jenis','=',$status)->where('id','=',$a->id);
-                })->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+                $gaji = GajiKontrak::where('kategori_id','=',$k->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
             }
 
-
             // Set angka
-            $dosen_jumlah = $gaji->where('jenis','=',1)->count();
-            $dosen_nominal = $gaji->where('jenis','=',1)->sum('nominal');
-            $dosen_potongan = $gaji->where('jenis','=',1)->sum('potongan');
-            $tendik_jumlah = $gaji->where('jenis','=',2)->count();
-            $tendik_nominal = $gaji->where('jenis','=',2)->sum('nominal');
-            $tendik_potongan = $gaji->where('jenis','=',2)->sum('potongan');
+            $pegawai = $gaji->count();
+            $kotor = $gaji->sum('kotor');
+            $bersih = $gaji->sum('bersih');
 
             // Push data
             array_push($data, [
-                'anak_satker' => $a,
-                'dosen_jumlah' => $dosen_jumlah,
-                'dosen_nominal' => $dosen_nominal,
-                'dosen_potongan' => $dosen_potongan,
-                'tendik_jumlah' => $tendik_jumlah,
-                'tendik_nominal' => $tendik_nominal,
-                'tendik_potongan' => $tendik_potongan,
+                'kategori' => $k,
+                'pegawai' => $pegawai,
+                'kotor' => $kotor,
+                'bersih' => $bersih,
             ]);
 
             // Total
-            $total['dosen_jumlah'] += $dosen_jumlah;
-            $total['dosen_nominal'] += $dosen_nominal;
-            $total['dosen_potongan'] += $dosen_potongan;
-            $total['tendik_jumlah'] += $tendik_jumlah;
-            $total['tendik_nominal'] += $tendik_nominal;
-            $total['tendik_potongan'] += $tendik_potongan;
+            $total['pegawai'] += $pegawai;
+            $total['kotor'] += $kotor;
+            $total['bersih'] += $bersih;
         }
 
         // View
-        return view('admin/gaji/monitoring', [
-            'anak_satker' => $anak_satker,
+        return view('admin/gaji-kontrak/monitoring', [
+            'kategori_kontrak' => $kategori_kontrak,
             'jenis' => $jenis,
-            'status' => $status,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'tahun_bulan_grup' => $tahun_bulan_grup,

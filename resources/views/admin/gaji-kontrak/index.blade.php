@@ -1,22 +1,23 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'List Gaji Pegawai Tidak Tetap')
+@section('title', 'List '.$jenis->nama.' Pegawai Tidak Tetap')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">List Gaji Pegawai Tidak Tetap</h1>
+    <h1 class="h3 mb-2 mb-sm-0">List {{ $jenis->nama }} Pegawai Tidak Tetap</h1>
 </div>
 <div class="row">
 	<div class="col-12">
 		<div class="card">
             <form method="get" action="">
+                <input type="hidden" name="jenis" value="{{ $jenis->id }}">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
                     <div>
-                        <select name="jenis" class="form-select form-select-sm">
+                        <select name="kategori" class="form-select form-select-sm">
                             <option value="0">--Pilih Kategori--</option>
-                            @foreach($jenis_gaji as $j)
-                            <option value="{{ $j->id }}" {{ Request::query('jenis') == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
+                            @foreach($kategori_kontrak as $k)
+                            <option value="{{ $k->id }}" {{ Request::query('kategori') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -56,13 +57,16 @@
                             <tr>
                                 <th rowspan="2" width="5">No</th>
                                 <th rowspan="2">Nama / NIP</th>
-                                <th colspan="5">Penghasilan</th>
+                                <th rowspan="2">Unit</th>
+                                <th colspan="{{ $kategori && $kategori->kategori == 1 ? 5 : 4 }}">Penghasilan</th>
                                 <th colspan="2">Potongan</th>
                                 <th rowspan="2" width="80">Gaji Bersih</th>
                             </tr>
                             <tr>
                                 <th width="80">Gaji Pokok</th>
+                                @if($kategori && $kategori->kategori == 1)
                                 <th width="80">Tunj. Dosen NIDK</th>
+                                @endif
                                 <th width="80">Tunj. Lainnya</th>
                                 <th width="80">Tunj. BPJS Kes. (4%),<br>Tunj. BPJS Ket.</th>
                                 <th width="80">Jumlah Penghasilan Kotor</th>
@@ -75,8 +79,11 @@
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
                                 <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
+                                <td>{{ $g->unit ? $g->unit->nama : ($g->kategori->nama == 'Tendik Labschool' ? 'LP2M' : '-') }}</td>
                                 <td align="right">{{ number_format($g->gjpokok) }}</td>
+                                @if($kategori && $kategori->kategori == 1)
                                 <td align="right">{{ number_format($g->tjdosen) }}</td>
+                                @endif
                                 <td align="right">{{ number_format($g->tjlain) }}</td>
                                 <td align="right">{{ number_format($g->tjbpjskes4) }}<br>{{ number_format($g->tjbpjsket) }}</td>
                                 <td align="right">{{ number_format($g->kotor) }}</td>
@@ -88,9 +95,11 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="2" align="center">Total</td>
+                                <td colspan="3" align="center">Total</td>
                                 <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('gjpokok')) }}</td>
+                                @if($kategori && $kategori->kategori == 1)
                                 <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('tjdosen')) }}</td>
+                                @endif
                                 <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('tjlain')) }}</td>
                                 <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('tjbpjskes4')) }}<br>{{ number_format($gaji_kontrak->sum('tjbpjsket')) }}</td>
                                 <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('kotor')) }}</td>

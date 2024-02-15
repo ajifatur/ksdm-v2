@@ -49,10 +49,18 @@ class GajiKontrak extends Model
     }
     
     /**
-     * Jenis Gaji Kontrak.
+     * Jenis Gaji.
      */
     public function jenis()
     {
-        return $this->belongsTo(JenisGajiKontrak::class, 'jenis_id');
+        return $this->belongsTo(JenisGaji::class, 'jenis_id');
+    }
+    
+    /**
+     * Kategori.
+     */
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriKontrak::class, 'kategori_id');
     }
 }
