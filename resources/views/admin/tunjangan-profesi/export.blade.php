@@ -23,7 +23,7 @@
         @foreach($data['tunjangan'] as $key=>$d)
             <tr>
                 <td>{{ $i }}</td>
-                <td>{{ $d->npu != null ? $d->npu : $d->nip }}</td>
+                <td>{{ $d->pegawai->npu != null ? $d->pegawai->npu : $d->pegawai->nip }}</td>
                 <td>{{ $d->nama }}</td>
                 <td>{{ $d->nama_rekening }}</td>
                 <td>{{ $d->nomor_rekening }}</td>
@@ -42,7 +42,7 @@
         @foreach($data['kekurangan'] as $key=>$d)
             <tr>
                 <td>{{ $i }}</td>
-                <td>{{ $d->npu != null ? $d->npu : $d->nip }}</td>
+                <td>{{ $d->pegawai->npu != null ? $d->pegawai->npu : $d->pegawai->nip }}</td>
                 <td>{{ $d->nama }}</td>
                 <td>{{ $d->nama_rekening }}</td>
                 <td>{{ $d->nomor_rekening }}</td>
