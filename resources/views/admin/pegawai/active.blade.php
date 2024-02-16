@@ -23,7 +23,7 @@
                                 <th rowspan="2" width="200">Tanggal Lahir</th>
                                 <th rowspan="2" width="80">Pangkat/Golru</th>
                                 <th rowspan="2" width="80">MKG</th>
-                                <th colspan="2">Jabatan Fungsional</th>
+                                <th colspan="3">Jabatan Fungsional</th>
                                 <th colspan="2">Jabatan Struktural</th>
                                 <th rowspan="2" width="80">Kategori</th>
                                 <th rowspan="2" width="80">Status Kepegawaian</th>
@@ -31,6 +31,7 @@
                             </tr>
                             <tr>
                                 <th width="200">Jabatan</th>
+                                <th width="200">Jabatan (Mutasi)</th>
                                 <th width="200">Unit</th>
                                 <th width="200">Jabatan</th>
                                 <th width="200">Unit</th>
@@ -38,6 +39,14 @@
                         </thead>
                         <tbody>
                             @foreach($pegawai as $p)
+                            <?php
+                                $mutasi = $p->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
+                                    return $query->where('status','=',1);
+                                })->first();
+                                $jabfung = $mutasi ? $mutasi->detail()->whereHas('jabatan', function(\Illuminate\Database\Eloquent\Builder $query) {
+                                    return $query->where('jenis_id','=',1);
+                                })->first() : null;
+                            ?>
                             <tr>
                                 <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->npu != null ? $p->npu : $p->nip }}</a></td>
                                 <td>{{ $p->nama }}</td>
@@ -48,6 +57,7 @@
                                 <td>{{ $p->golru ? $p->golru->indonesia.', '.$p->golru->nama : '-' }}</td>
                                 <td>'{{ $p->masa_kerja ? $p->masa_kerja->nama : '-' }}</td>
                                 <td>{{ $p->jabfung ? $p->jabfung->nama : '' }}</td>
+                                <td>{{ $jabfung && $jabfung->jabatan->grup ? $jabfung->jabatan->grup->nama : '-' }}</td>
                                 <td>{{ $p->unit ? $p->unit->nama : '' }}</td>
                                 <td>{{ $p->jabstruk ? $p->jabstruk->nama : '' }}</td>
                                 <td>{{ $p->unit_jabstruk ? $p->unit_jabstruk->unit->nama : '' }}</td>
