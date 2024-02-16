@@ -80,7 +80,7 @@
                         <tbody>
                             @foreach($mutasi as $m)
                             <tr class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'bg-secondary text-white' : '' }}">
-                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">'{{ $m->pegawai->npu != null ? $m->pegawai->npu : $m->pegawai->nip }}</a></td>
+                                <td><a class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'text-white' : '' }}" href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">'{{ $m->pegawai->npu != null ? $m->pegawai->npu : $m->pegawai->nip }}</a></td>
                                 <td>{{ strtoupper($m->pegawai->nama) }}</td>
                                 <td>
                                     {{ $m->jenis->nama }}
