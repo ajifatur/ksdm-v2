@@ -178,7 +178,7 @@
 		</table>
 		<br>
 		@if(in_array($s->pegawai->status_kepegawaian->nama, ['PNS','CPNS']))
-			@if($spkgb->mutasi->tmt >= '2024-02-02')
+			@if($s->mutasi->tmt >= '2024-02-02')
 				Sesuai dengan Peraturan Pemerintah Nomor 5 Tahun 2024, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
 			@else
 				Sesuai dengan Peraturan Pemerintah Nomor 15 Tahun 2019, kepada pegawai tersebut mohon dapat dibayarkan penghasilannya berdasarkan gaji pokoknya yang baru.
