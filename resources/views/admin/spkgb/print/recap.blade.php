@@ -13,9 +13,9 @@
         REKAPITULASI SURAT PEMBERITAHUAN KENAIKAN GAJI BERKALA (SPKGB)
         <br>
         {{ in_array($jenis, [1,2]) ? $jenis == 1 ? 'DOSEN' : 'TENDIK' : '' }}
-        @if(Request::query('type') == 1)
+        @if(Request::query('tipe') == 1)
             PEGAWAI NEGERI SIPIL
-        @elseif(Request::query('type') == 2)
+        @elseif(Request::query('tipe') == 2)
             PEGAWAI TETAP PTNBH
         @endif
         <br>
