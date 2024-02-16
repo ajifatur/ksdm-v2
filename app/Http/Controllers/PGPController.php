@@ -52,19 +52,40 @@ class PGPController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-        // // Get PGP
-        // $pgp = Mutasi::whereHas('jenis', function(Builder $query) {
-        //     return $query->where('nama','=','PGP');
-        // })->get();
-        // foreach($pgp as $p) {
-        //     // Update perubahan
-        //     $perubahan = Perubahan::where('mutasi_id','=',$p->id)->first();
-        //     $bulan = $perubahan->mk_bulan;
-        //     $perubahan->mk_bulan = ($bulan == 0) ? 11 : $perubahan->mk_bulan - 1;
-        //     $perubahan->mk_tahun = ($bulan == 0) ? $perubahan->mk_tahun - 1 : $perubahan->mk_tahun;
-        //     $perubahan->save();
-        // }
-        // return;
+        // Get PGP
+        $pgp = Mutasi::whereHas('jenis', function(Builder $query) {
+            return $query->where('nama','=','PGP');
+        })->get();
+        foreach($pgp as $p) {
+            // Update perubahan
+            $perubahan = Perubahan::where('mutasi_id','=',$p->id)->first();
+        }
+
+        // Set file
+        $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/PGP_2024.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[0] != null) {
+                    // Get pegawai
+                    $pegawai = Pegawai::where('nip','=',$data[0])->first();
+
+                    // Get PGP
+                    $pgp = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
+                        return $query->where('nama','=','PGP');
+                    })->first();
+
+                    // Get perubahan
+                    if($pgp) {
+                        $perubahan = Perubahan::where('mutasi_id','=',$pgp->id)->first();
+                        $perubahan->no_sk = $data[2];
+                        $perubahan->save();
+                    }
+                }
+            }
+        }
+        return;
 
         // // Update SPKGB Maret 2024
         // // Get SPKGB
