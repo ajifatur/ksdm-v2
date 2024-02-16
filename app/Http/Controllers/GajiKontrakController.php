@@ -113,10 +113,10 @@ class GajiKontrakController extends Controller
         foreach($kategori_kontrak as $k) {
             // Get gaji
             if($jenis) {
-                $gaji = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$k->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+                $gaji = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$k->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->get();
             }
             else {
-                $gaji = GajiKontrak::where('kategori_id','=',$k->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+                $gaji = GajiKontrak::where('kategori_id','=',$k->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->get();
             }
 
             // Set angka
@@ -208,7 +208,8 @@ class GajiKontrakController extends Controller
 
         // Get data
         $error = [];
-        $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Gaji_Kontrak_2024_01.xlsx'));
+        // $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Gaji_Kontrak_2024_02.xlsx'));
+        $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/Gaji_Kontrak_Susulan_2024_01.xlsx'));
         if(count($array)>0) {
             foreach($array[0] as $key=>$data) {
                 if($data[2] != null) {
@@ -234,8 +235,9 @@ class GajiKontrakController extends Controller
                     if(!$gaji_kontrak) $gaji_kontrak = new GajiKontrak;
                     $gaji_kontrak->pegawai_id = $pegawai->id;
                     $gaji_kontrak->sk_id = $sk->id;
-                    $gaji_kontrak->jenis_id = $data[18];
-                    $gaji_kontrak->unit_id = $unit ? $unit->id : 0;
+                    $gaji_kontrak->jenis_id = 2; // 1
+                    $gaji_kontrak->kategori_id = $data[18];
+                    $gaji_kontrak->unit_id = $pegawai->unit_id;
                     $gaji_kontrak->status_kawin = $pegawai->status_kawin;
                     $gaji_kontrak->status_pajak = $pegawai->status_pajak;
                     $gaji_kontrak->gjpokok = $data[6];
