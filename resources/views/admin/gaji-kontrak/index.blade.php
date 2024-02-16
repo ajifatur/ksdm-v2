@@ -50,7 +50,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 @endif
-                @if($gaji_kontrak != [])
+                @if($gaji != [])
                 <div class="table-responsive">
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
@@ -75,7 +75,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($gaji_kontrak as $key=>$g)
+                            @foreach($gaji as $key=>$g)
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
                                 <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
@@ -96,16 +96,16 @@
                         <tfoot class="bg-light fw-bold">
                             <tr>
                                 <td colspan="3" align="center">Total</td>
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('gjpokok')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('gjpokok')) }}</td>
                                 @if($kategori && $kategori->kategori == 1)
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('tjdosen')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('tjdosen')) }}</td>
                                 @endif
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('tjlain')) }}</td>
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('tjbpjskes4')) }}<br>{{ number_format($gaji_kontrak->sum('tjbpjsket')) }}</td>
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('kotor')) }}</td>
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('iuranbpjskes1')) }}<br>{{ number_format($gaji_kontrak->sum('iuranbpjsket3')) }}</td>
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('jmlbpjskes')) }}<br>{{ number_format($gaji_kontrak->sum('jmlbpjsket')) }}</td>
-                                <td align="right" valign="top">{{ number_format($gaji_kontrak->sum('bersih')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('tjlain')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('tjbpjskes4')) }}<br>{{ number_format($gaji->sum('tjbpjsket')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('kotor')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('iuranbpjskes1')) }}<br>{{ number_format($gaji->sum('iuranbpjsket3')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('jmlbpjskes')) }}<br>{{ number_format($gaji->sum('jmlbpjsket')) }}</td>
+                                <td align="right" valign="top">{{ number_format($gaji->sum('bersih')) }}</td>
                             </tr>
                         </tfoot>
                     </table>

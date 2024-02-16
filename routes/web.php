@@ -177,6 +177,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Gaji Pegawai Tidak Tetap
     Route::get('/admin/gaji-kontrak', 'GajiKontrakController@index')->name('admin.gaji-kontrak.index');
     Route::get('/admin/gaji-kontrak/monitoring', 'GajiKontrakController@monitoring')->name('admin.gaji-kontrak.monitoring');
+    Route::get('/admin/gaji-kontrak/export', 'GajiKontrakController@export')->name('admin.gaji-kontrak.export');
 
     // Uang Makan ASN
     Route::get('/admin/uang-makan', 'UangMakanController@index')->name('admin.uang-makan.index');

@@ -68,12 +68,7 @@
                                 <th rowspan="2" width="80">Pegawai</th>
                                 <th rowspan="2" width="80">Nominal Kotor</th>
                                 <th rowspan="2" width="80">Nominal Bersih</th>
-                                <th colspan="3">Opsi</th>
-                            </tr>
-                            <tr>
-                                <th width="30">Lihat</th>
-                                <th width="30">Excel</th>
-                                <th width="30">PDF</th>
+                                <th rowspan="2" width="30">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,23 +82,7 @@
                                     <div class="btn-group">
                                         @if($jenis)
                                         <a href="{{ route('admin.gaji-kontrak.index', ['kategori' => $d['kategori']->id, 'jenis' => $jenis->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
-                                        @endif
-                                        <!-- <a href="{{ route('admin.gaji.monthly', ['id' => $d['kategori']->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Lihat Rekap Bulanan"><i class="bi-calendar-check"></i></a> -->
-                                    </div>
-                                </td>
-                                <td align="center">
-                                    <div class="btn-group">
-                                        @if($jenis)
-                                        <!-- <a href="{{ route('admin.gaji.export', ['id' => $d['kategori']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['id' => $d['kategori']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a> -->
-                                        @endif
-                                    </div>
-                                </td>
-                                <td align="center">
-                                    <div class="btn-group">
-                                        @if($jenis)
-                                        <!-- <a href="{{ route('admin.gaji.print', ['id' => $d['kategori']->id, 'jenis' => $jenis->id, 'kategori' => 1, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download PDF Dosen" target="_blank"><i class="bi-file-pdf"></i></a>
-                                        <a href="{{ route('admin.gaji.print', ['id' => $d['kategori']->id, 'jenis' => $jenis->id, 'kategori' => 2, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download PDF Tendik" target="_blank"><i class="bi-file-pdf"></i></a> -->
+                                        <a href="{{ route('admin.gaji-kontrak.export', ['kategori' => $d['kategori']->id, 'jenis' => $jenis->id,'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel"><i class="bi-file-excel"></i></a>
                                         @endif
                                     </div>
                                 </td>
@@ -116,15 +95,7 @@
                                 <td align="right">{{ number_format($total['pegawai']) }}</td>
                                 <td align="right">{{ number_format($total['kotor']) }}</td>
                                 <td align="right">{{ number_format($total['bersih']) }}</td>
-                                <td align="center" colspan="3">
-                                    @if($jenis)
-                                    <div class="btn-group">
-                                        <!-- <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
-                                        <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a> -->
-                                    </div>
-                                    @endif
-                                </td>
+                                <td align="center"></td>
                             </tr>
                         </tfoot>
                     </table>
