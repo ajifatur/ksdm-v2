@@ -65,34 +65,36 @@
                         </thead>
                         <tbody>
                             @foreach($data as $d)
-                            <tr>
-                                <td>{{ $d['angkatan'] }}</td>
-                                <td>{{ $d['jenis'] }}</td>
-                                <td align="right">{{ number_format($d['pegawai']) }}</td>
-                                <td align="right">
-                                    @if(count($d['pegawai_non_aktif']) > 0)
-                                        <a href="#" class="btn-pegawai-non-aktif text-danger" data-id="{{ $d['id'] }}" data-nama="{{ implode(' - ', $d['pegawai_non_aktif']) }}">{{ count($d['pegawai_non_aktif']) }}</a>
-                                    @else
-                                        {{ count($d['pegawai_non_aktif']) }}
-                                    @endif
-                                </td>
-                                <td align="right">{{ number_format($d['tunjangan']) }}</td>
-                                <td align="right">{{ number_format($d['pph']) }}</td>
-                                <td align="right">{{ number_format($d['diterimakan']) }}</td>
-                                <td align="center">
-                                    <div class="btn-group">
-                                        @if($d['id'] != '')
-                                            <a href="{{ route('admin.tunjangan-profesi.print.single', ['id' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
-                                            <a href="{{ route('admin.tunjangan-profesi.csv.single', ['id' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
-                                            <a href="{{ route('admin.tunjangan-profesi.print.sptjm', ['angkatan' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
+                                @if($d['pegawai'] > 0)
+                                <tr>
+                                    <td>{{ $d['angkatan'] }}</td>
+                                    <td>{{ $d['jenis'] }}</td>
+                                    <td align="right">{{ number_format($d['pegawai']) }}</td>
+                                    <td align="right">
+                                        @if(count($d['pegawai_non_aktif']) > 0)
+                                            <a href="#" class="btn-pegawai-non-aktif text-danger" data-id="{{ $d['id'] }}" data-nama="{{ implode(' - ', $d['pegawai_non_aktif']) }}">{{ count($d['pegawai_non_aktif']) }}</a>
                                         @else
-                                            <a href="{{ route('admin.tunjangan-profesi.print.non-pns', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
-                                            <a href="{{ route('admin.tunjangan-profesi.csv.non-pns', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
-										<a href="{{ route('admin.tunjangan-profesi.print.sptjm', ['jenis' => 4, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
+                                            {{ count($d['pegawai_non_aktif']) }}
                                         @endif
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td align="right">{{ number_format($d['tunjangan']) }}</td>
+                                    <td align="right">{{ number_format($d['pph']) }}</td>
+                                    <td align="right">{{ number_format($d['diterimakan']) }}</td>
+                                    <td align="center">
+                                        <div class="btn-group">
+                                            @if($d['id'] != '')
+                                                <a href="{{ route('admin.tunjangan-profesi.print.single', ['id' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
+                                                <a href="{{ route('admin.tunjangan-profesi.csv.single', ['id' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
+                                                <a href="{{ route('admin.tunjangan-profesi.print.sptjm', ['angkatan' => $d['id'], 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
+                                            @else
+                                                <a href="{{ route('admin.tunjangan-profesi.print.non-pns', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
+                                                <a href="{{ route('admin.tunjangan-profesi.csv.non-pns', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download CSV"><i class="bi-download"></i></a>
+                                            <a href="{{ route('admin.tunjangan-profesi.print.sptjm', ['jenis' => 4, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Cetak PDF SPTJM" target="_blank"><i class="bi-file-pdf"></i></a>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
                             @endforeach
                         </tbody>
                         <tfoot class="bg-light fw-bold">

@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
-use App\Exports\GajiKontrakExport;
 use App\Imports\ByStartRowImport;
 use App\Models\GajiKontrak;
 use App\Models\JenisGaji;
@@ -43,7 +42,11 @@ class GajiKontrakController extends Controller
         // Get gaji
         $gaji = [];
         if($kategori != null) {
-            $gaji = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$kategori->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
+            $gaji = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$kategori->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->orderBy(
+                Unit::select('num_order')->whereColumn((new GajiKontrak)->getTable().'.unit_id', (new Unit)->getTable().'.id')
+            )->orderBy(
+                Pegawai::select('nama')->whereColumn((new GajiKontrak)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
+            )->where('tahun','=',$tahun)->get();
         }
 
         // View
@@ -149,48 +152,6 @@ class GajiKontrakController extends Controller
             'data' => $data,
             'total' => $total,
         ]);
-    }
-
-    /**
-     * Export.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function export(Request $request)
-    {
-		ini_set("memory_limit", "-1");
-		ini_set("max_execution_time", "-1");
-
-        // Get jenis
-        $jenis = JenisGaji::findOrFail($request->query('jenis'));
-
-        // Get kategori kontrak
-        $kategori_kontrak = KategoriKontrak::orderBy('num_order','asc')->get();
-
-        // Get bulan, tahun, kategori
-        $bulan = $request->query('bulan') ?: date('n');
-        $tahun = $request->query('tahun') ?: date('Y');
-        $kategori = in_array($request->query('kategori'), $kategori_kontrak->pluck('id')->toArray()) ? KategoriKontrak::find($request->query('kategori')) : null;
-
-        // Get gaji
-        $gaji = [];
-        if($kategori != null) {
-            $gaji = GajiKontrak::where('jenis_id','=',$jenis->id)->where('kategori_id','=',$kategori->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->get();
-        }
-
-        // Set nama file
-        $filename = $jenis->nama.' '.($kategori ? $kategori->nama : '').' ('.$tahun.' '.DateTimeExt::month($bulan).').xlsx';
-
-        // Return
-        return Excel::download(new GajiKontrakExport([
-            'jenis' => $jenis,
-            'kategori_kontrak' => $kategori_kontrak,
-            'bulan' => $bulan,
-            'tahun' => $tahun,
-            'kategori' => $kategori,
-            'gaji' => $gaji,
-        ]), $filename);
     }
     
     /**

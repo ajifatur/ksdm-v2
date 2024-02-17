@@ -18,7 +18,7 @@
         <td align="center" valign="middle" width="8" height="60"><b>No</b></td>
         <td align="center" valign="middle" width="35"><b>Nama/NIK/NPWP</b></td>
         <td align="center" valign="middle" width="20"><b>NRP/NPU</b></td>
-        <td align="center" valign="middle" width="16"><b>Status Kawin / Status Pajak</b></td>
+        <td align="center" valign="middle" width="14"><b>Status Kawin / Status Pajak</b></td>
         <td align="center" valign="middle" width="16"><b>No &amp; Tanggal Perjanjian Kerja</b></td>
         <td align="center" valign="middle" width="14" bgcolor="#00B050"><b>Gaji Pokok</b></td>
         @if(($data['kategori'] && $data['kategori']->kategori == 1) || $data['kategori'] == null)
@@ -81,6 +81,24 @@
         <td align="right" valign="middle">{{ $d->nomor_rekening }}</td>
     </tr>
     @endforeach
+
+    <tr>
+        <td align="center" valign="middle" colspan="5" height="45"><b>JUMLAH</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('gjpokok') }}</b></td>
+        @if(($data['kategori'] && $data['kategori']->kategori == 1) || $data['kategori'] == null)
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('tjdosen') }}</b></td>
+        @endif
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('tjlain') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('tjbpjskes4') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('tjbpjsket') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('kotor') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('iuranbpjskes1') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('iuranbpjsket3') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('jmlbpjskes') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('jmlbpjsket') }}</b></td>
+        <td align="right" valign="middle"><b>{{ $data['gaji']->sum('bersih') }}</b></td>
+        <td></td>
+    </tr>
 
     <!-- Break -->
     <tr>

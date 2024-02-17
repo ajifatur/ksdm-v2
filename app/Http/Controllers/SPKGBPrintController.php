@@ -77,10 +77,10 @@ class SPKGBPrintController extends Controller
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
-                })->with('unit')->orderBy(
-                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                })->orderBy(
+                    Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
                 )->orderBy(
-                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                    Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
                 )->get();
             }
             else {
@@ -90,10 +90,10 @@ class SPKGBPrintController extends Controller
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
-                })->with('unit')->orderBy(
-                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                })->orderBy(
+                    Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
                 )->orderBy(
-                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                    Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
                 )->get();
             }
         }
@@ -104,10 +104,10 @@ class SPKGBPrintController extends Controller
                 });
             })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                 return $query->has('perubahan')->where('tmt','=',$tanggal);
-            })->with('unit')->orderBy(
-                Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+            })->orderBy(
+                Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
             )->orderBy(
-                Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
             )->get();
         }
 
@@ -151,10 +151,10 @@ class SPKGBPrintController extends Controller
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
-                })->with('unit')->orderBy(
-                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                })->orderBy(
+                    Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
                 )->orderBy(
-                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                    Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
                 )->get();
             }
             else {
@@ -164,10 +164,10 @@ class SPKGBPrintController extends Controller
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
-                })->with('unit')->orderBy(
-                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                })->orderBy(
+                    Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
                 )->orderBy(
-                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                    Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
                 )->get();
             }
         }
@@ -179,10 +179,10 @@ class SPKGBPrintController extends Controller
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
-                })->with('unit')->orderBy(
-                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                })->orderBy(
+                    Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
                 )->orderBy(
-                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                    Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
                 )->get();
             }
             else {
@@ -192,10 +192,10 @@ class SPKGBPrintController extends Controller
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
-                })->with('unit')->orderBy(
-                    Unit::select('num_order')->whereColumn('tbl_spkgb.unit_id', 'tbl_unit.id')
+                })->orderBy(
+                    Unit::select('num_order')->whereColumn((new SPKGB)->getTable().'.unit_id', (new Unit)->getTable().'.id')
                 )->orderBy(
-                    Pegawai::select('nama')->whereColumn('tbl_spkgb.pegawai_id', 'tbl_pegawai.id')
+                    Pegawai::select('nama')->whereColumn((new SPKGB)->getTable().'.pegawai_id', (new Pegawai)->getTable().'.id')
                 )->get();
             }
         }

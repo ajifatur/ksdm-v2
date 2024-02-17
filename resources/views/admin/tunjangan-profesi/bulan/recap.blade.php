@@ -65,8 +65,8 @@
 								@foreach($d['tunjangan_profesi'] as $tp)
 								<td align="right">{{ number_format($tp['pegawai']) }}</td>
 								<td align="right">{{ number_format($tp['tunjangan']) }}</td>
-								<?php $total_pegawai += $tp['pegawai']; ?>
-								<?php $pegawai[$i] += $tp['pegawai']; ?>
+								<?php if($tp['jenis']->id != 1) $total_pegawai += $tp['pegawai']; ?>
+								<?php if($tp['jenis']->id != 1) $pegawai[$i] += $tp['pegawai']; ?>
 								<?php $total_nominal += $tp['tunjangan']; ?>
                                 <?php $i++; ?>
 								@endforeach
@@ -87,7 +87,7 @@
                             <tr>
                                 <td align="center">Total</td>
 								@foreach($total_tunjangan as $key=>$t)
-								<td align="right">{{ number_format($pegawai[$key]) }}</td>
+								<td align="right">{{ $key == 0 ? number_format($pegawai[1]) : number_format($pegawai[$key]) }}</td>
 								<td align="right">{{ number_format($t) }}</td>
 								@endforeach
 								<td align="right">{{ number_format(array_sum($pegawai)) }}</td>

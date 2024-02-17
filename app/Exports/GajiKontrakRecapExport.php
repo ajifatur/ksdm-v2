@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-class GajiKontrakExport extends StringValueBinder implements WithCustomValueBinder, FromView
+class GajiKontrakRecapExport extends StringValueBinder implements WithCustomValueBinder, FromView
 {
 	use Exportable;
 
@@ -48,7 +48,7 @@ class GajiKontrakExport extends StringValueBinder implements WithCustomValueBind
     public function view(): View
     {
     	// View
-    	return view('admin/gaji-kontrak/export/single', [
+    	return view('admin/gaji-kontrak/export/recap', [
     		'data' => $this->data
     	]);
     }

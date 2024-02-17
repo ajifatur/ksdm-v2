@@ -115,7 +115,7 @@ class TunjanganProfesiController extends Controller
                 ]);
 
                 // Count total
-                $total['pegawai'] += $tunjangan->count();
+                if($jenis || (!$jenis && $a->jenis->id != 1)) $total['pegawai'] += $tunjangan->count();
                 $total['pegawai_non_aktif'] += $pegawai_non_aktif->count();
                 $total['tunjangan'] += $tunjangan->sum('tunjangan');
                 $total['pph'] += $tunjangan->sum('pph');
