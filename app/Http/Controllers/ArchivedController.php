@@ -7,7 +7,7 @@
  * importUangMakanPPPK()
  * importRemunGajiMei2023()
  * importRemunGajiJanuari2024()
- * importBLU()
+ * importBUP()
  * cekJabatan()
  * importKonversiNPU()
  */

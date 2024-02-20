@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Exports\SPKGBExport;
+use App\Imports\ByStartRowImport;
 use App\Models\Pegawai;
 use App\Models\Mutasi;
 use App\Models\MutasiDetail;
@@ -562,5 +563,35 @@ class SPKGBController extends Controller
             'tahun' => $tahun,
             'tipe' => $tipe,
         ]), 'Template Siradi SPKGB '.($tipe == 1 ? 'PNS' : 'Pegawai Tetap Non ASN').' '.(in_array($jenis, [1,2]) ? $jenis == 1 ? 'Dosen' : 'Tendik' : '').' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx');
+    }
+
+    /**
+     * Import
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function import(Request $request)
+    {
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/SPKGB_2024_04.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $data) {
+                if($data[2] != null) {
+                    // Get pegawai
+                    $pegawai = Pegawai::where('nip','=',$data[2])->first();
+
+                    // Get perubahan
+                    $perubahan = Perubahan::whereHas('mutasi', function(Builder $query) use ($pegawai) {
+                        return $query->where('pegawai_id','=',$pegawai->id);
+                    })->where('tmt','=','2024-04-01')->first();
+                    if($perubahan) {
+                        $perubahan->no_sk = $data[1];
+                        $perubahan->save();
+                    }
+                }
+            }
+        }
+        var_dump($error);
     }
 }
