@@ -25,6 +25,10 @@
 		#address tr td {vertical-align: top;}
 		#identity tr td {vertical-align: top; line-height: 13px;}
 		#cc ol {padding-left: 18px; margin-bottom: 0px;}
+
+		/* Footer */
+		#footer {position: absolute; font-family: 'sans-serif'; font-size: 11px; line-height: 13px; bottom: 5px; left: 90px; right: 50px; padding-top: 1px; border-top: 1px solid black;}
+		#footer img {width: 80px;}
     </style>
 </head>
 <body>
@@ -230,5 +234,13 @@
 			Universitas Negeri Semarang
 		</div>
     </div>
+    <div id="footer">
+		<table>
+			<tr>
+				<td width="75"><img src="{{ public_path('assets/images/default/BSrE.png') }}"></td>
+				<td>Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh Balai<br>Sertifikasi Elektronik (BSrE)</td>
+			</tr>
+		</table>
+	</div>
 </body>
 </html>
