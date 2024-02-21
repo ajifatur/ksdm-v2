@@ -117,13 +117,13 @@
 										<td>{{ number_format($p['sesudah'],0,',',',') }}</td>
                                     </tr>
                                 @endforeach
-                                @foreach($perubahan_unit as $p)
+                                @foreach($perubahan_anak_satker as $p)
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p['pegawai']->id]) }}">'{{ $p['pegawai']->nip }}</a></td>
                                         <td>{{ strtoupper($p['pegawai']->nama) }}</td>
 										<td>{{ $p['pegawai']->jenis == 1 ? 'Dosen' : 'Tendik' }}
                                         <td>{{ $p['pegawai']->unit ? $p['pegawai']->unit->nama : '-' }}</td>
-                                        <td>Perubahan Unit Kerja</td>
+                                        <td>Perubahan Anak Satker</td>
 										<td>{{ $p['sebelum'] ? $p['sebelum']->nama : '-' }}</td>
 										<td>{{ $p['sesudah'] ? $p['sesudah']->nama : '-' }}</td>
                                     </tr>

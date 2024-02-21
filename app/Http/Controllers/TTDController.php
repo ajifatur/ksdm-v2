@@ -25,7 +25,9 @@ class TTDController extends Controller
         $ttd = TTD::orderBy('nama','asc')->orderBy('tanggal_selesai','desc')->get();
 
         foreach($ttd as $key=>$t) {
-            if($t->tanggal_mulai <= date('Y-m-d') && $t->tanggal_selesai >= date('Y-m-d'))
+            if($t->tanggal_mulai <= date('Y-m-d') && $t->tanggal_selesai == null)
+                $ttd[$key]->status = 'Aktif';
+            elseif($t->tanggal_mulai <= date('Y-m-d') && $t->tanggal_selesai >= date('Y-m-d'))
                 $ttd[$key]->status = 'Aktif';
             else
                 $ttd[$key]->status = 'Tidak Aktif';

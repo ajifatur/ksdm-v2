@@ -33,7 +33,7 @@
                                 </td>
                                 <td>
                                     <span class="d-none">{{ $t->tanggal_selesai }}</span>
-                                    {{ date('d/m/Y', strtotime($t->tanggal_selesai)) }}
+                                    {{ $t->tanggal_selesai != null ? date('d/m/Y', strtotime($t->tanggal_selesai)) : '-' }}
                                 </td>
                                 <td><span class="{{ $t->status == 'Aktif' ? 'text-success' : 'text-danger' }}">{{ $t->status }}</span></td>
                             </tr>

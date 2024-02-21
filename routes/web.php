@@ -127,6 +127,12 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 	
     // Pejabat Penandatangan
     Route::get('/admin/ttd', 'TTDController@index')->name('admin.ttd.index');
+	
+    // Program Studi
+    Route::get('/admin/prodi', 'ProdiController@index')->name('admin.prodi.index');
+	
+    // UMK
+    Route::get('/admin/umk', 'UMKController@index')->name('admin.umk.index');
 
     // Tunjangan Profesi
     Route::get('/admin/tunjangan-profesi', 'TunjanganProfesiController@index')->name('admin.tunjangan-profesi.index');

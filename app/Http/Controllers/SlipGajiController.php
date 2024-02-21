@@ -24,7 +24,7 @@ class SlipGajiController extends Controller
     public function index(Request $request)
     {
         // Get slip gaji
-        $slip_gaji = SlipGaji::orderBy('tanggal','desc')->get();
+        $slip_gaji = SlipGaji::orderBy('tanggal','desc')->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
 
         // View
         return view('admin/slip-gaji/index', [

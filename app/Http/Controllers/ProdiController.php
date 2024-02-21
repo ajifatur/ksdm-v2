@@ -26,22 +26,18 @@ class ProdiController extends Controller
         // Check the access
         // has_access(__METHOD__, Auth::user()->role_id);
 
-        $jenis = in_array($request->query('jenis'), [1,2]) ? $request->query('jenis') : 1;
-        $visibilitas = $request->query('visibilitas') == 1 ? 1 : 0;
+        // Get tahun
+        $tahun = $request->query('tahun') ?: date('Y');
 
-        // Get SK
-        $sk = SK::where('jenis_id','=',1)->where('status','=',1)->first();
-
-        // Get grup jabatan
-        $grup = GrupJabatan::whereHas('jabatan', function (Builder $query) use ($sk, $jenis) {
-            return $query->where('sk_id','=',$sk->id)->where('jenis_id','=',$jenis);
+        // Get prodi
+        $prodi = Prodi::whereHas('kriteria', function(Builder $query) use($tahun) {
+            return $query->where('tahun','=',$tahun);
         })->get();
 		
 		// View
-		return view('admin/jabatan/index', [
-			'grup' => $grup,
-			'jenis' => $jenis,
-			'visibilitas' => $visibilitas,
+		return view('admin/prodi/index', [
+			'tahun' => $tahun,
+			'prodi' => $prodi,
 		]);
     }
 

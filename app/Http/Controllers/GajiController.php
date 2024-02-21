@@ -758,7 +758,7 @@ class GajiController extends Controller
 		$perubahan_tjfungs = [];
 		$perubahan_tjistri = [];
 		$perubahan_tjanak = [];
-		$perubahan_unit = [];
+		$perubahan_anak_satker = [];
 		foreach($gaji_bulan_ini as $g) {
 			// Get gaji bulan sebelumnya
 			$gs = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
@@ -769,7 +769,7 @@ class GajiController extends Controller
 				if($g->tjfungs != $gs->tjfungs) array_push($perubahan_tjfungs, ['pegawai' => $g->pegawai, 'sebelum' => $gs->tjfungs, 'sesudah' => $g->tjfungs]);
 				if(($g->tjistri / (($g->gjpokok * 10) / 100)) != ($gs->tjistri / (($gs->gjpokok * 10) / 100))) array_push($perubahan_tjistri, ['pegawai' => $g->pegawai, 'sebelum' => ($gs->tjistri / (($gs->gjpokok * 10) / 100)), 'sesudah' => ($g->tjistri / (($g->gjpokok * 10) / 100))]);
 				if(($g->tjanak / (($g->gjpokok * 2) / 100)) != ($gs->tjanak / (($gs->gjpokok * 2) / 100))) array_push($perubahan_tjanak, ['pegawai' => $g->pegawai, 'sebelum' => ($gs->tjanak / (($gs->gjpokok * 2) / 100)), 'sesudah' => ($g->tjanak / (($g->gjpokok * 2) / 100))]);
-				if($g->unit_id != $gs->unit_id) array_push($perubahan_unit, ['pegawai' => $g->pegawai, 'sebelum' => $gs->unit, 'sesudah' => $g->unit]);
+				if($g->anak_satker_id != $gs->anak_satker_id) array_push($perubahan_anak_satker, ['pegawai' => $g->pegawai, 'sebelum' => $gs->anak_satker, 'sesudah' => $g->anak_satker]);
 			}
 		}
 		
@@ -786,7 +786,7 @@ class GajiController extends Controller
             'perubahan_tjfungs' => $perubahan_tjfungs,
             'perubahan_tjistri' => $perubahan_tjistri,
             'perubahan_tjanak' => $perubahan_tjanak,
-            'perubahan_unit' => $perubahan_unit,
+            'perubahan_anak_satker' => $perubahan_anak_satker,
         ]);
     }
 

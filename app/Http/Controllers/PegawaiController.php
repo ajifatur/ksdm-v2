@@ -138,12 +138,7 @@ class PegawaiController extends Controller
             $unit = [];
             if($mutasi) {
                 foreach($mutasi->detail as $d) {
-                    if($d->jabatan && !in_array($d->jabatan->nama, $jabatan)) {
-                        if($d->jabatan->grup->nama == 'Koordinator Program Studi')
-                            array_push($jabatan, 'Koordinator Program Studi');
-                        else
-                            array_push($jabatan, $d->jabatan->nama);
-                    }
+                    if($d->jabatan && !in_array(jabatan($d->jabatan), $jabatan)) array_push($jabatan, jabatan($d->jabatan));
                     if($d->unit && !in_array($d->unit->nama, $unit)) array_push($unit, $d->unit->nama);
                 }
             }
@@ -165,6 +160,11 @@ class PegawaiController extends Controller
         foreach($pegawai->remun_gaji as $r) {
             // Get kekurangan
             $kekurangan = LebihKurang::where('pegawai_id','=',$pegawai->id)->where('bulan_proses','=',$r->bulan)->where('tahun_proses','=',$r->tahun)->where('triwulan_proses','=',0)->where('kekurangan','=',1)->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
+            foreach($kekurangan as $key=>$k) {
+                // Get remun terbayar dan remun seharusnya
+                $kekurangan[$key]->remun_terbayar = $pegawai->remun_gaji()->where('bulan','=',$k->bulan)->where('tahun','=',$k->tahun)->first();
+                $kekurangan[$key]->remun_seharusnya = $pegawai->remun_gaji()->where('bulan','=',$r->bulan)->where('tahun','=',$r->tahun)->first();
+            }
 
             if(count($kekurangan) > 0) {
                 // Count
@@ -191,6 +191,11 @@ class PegawaiController extends Controller
             // Get lebih kurang
             $lebih_kurang = $pegawai->lebih_kurang()->where('bulan_proses','=',$r->bulan)->where('tahun_proses','=',$r->tahun)->where('triwulan_proses','=',0)->where('selisih','!=',0)->where('kekurangan','=',0)->get();
             $dibayarkan = $r->remun_gaji + $lebih_kurang->sum('selisih');
+            foreach($lebih_kurang as $key=>$lk) {
+                // Get remun terbayar dan remun seharusnya
+                $lebih_kurang[$key]->remun_terbayar = $pegawai->remun_gaji()->where('bulan','=',$lk->bulan)->where('tahun','=',$lk->tahun)->first();
+                $lebih_kurang[$key]->remun_seharusnya = $pegawai->remun_gaji()->where('bulan','=',$r->bulan)->where('tahun','=',$r->tahun)->first();
+            }
 
             // Count
             $remun_gaji_total['terbayar'] += $lebih_kurang->sum('terbayar');

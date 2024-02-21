@@ -1,19 +1,19 @@
 <?php
 
 /**
- * 
  * pegawai_spkgb()
  * check_mutasi()
  * kdanak_to_unit()
  * array_sum_range()
  * nip_baru()
- * 
+ * jabatan()
  */
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\AnakSatker;
 use App\Models\GajiPokok;
 use App\Models\Pegawai;
+use App\Models\Jabatan;
 use App\Models\SK;
 
 // Get pegawai yang SPKGB
@@ -154,5 +154,19 @@ if(!function_exists('array_sum_range')) {
 if(!function_exists('nip_baru')) {
     function nip_baru($pegawai) {
         return $pegawai->npu != null ? $pegawai->npu : $pegawai->nip;
+    }
+}
+
+// Jabatan
+if(!function_exists('jabatan')) {
+    function jabatan($jabatan) {
+        if($jabatan->grup->nama == 'Koordinator Program Studi')
+            return 'Koordinator Program Studi';
+        elseif($jabatan->sub != '-')
+            return $jabatan->sub;
+        elseif($jabatan->sub == '-')
+            return $jabatan->nama;
+        else
+            return '-';
     }
 }

@@ -10,6 +10,7 @@
  * importBUP()
  * cekJabatan()
  * importKonversiNPU()
+ * updateUpahGajiNonASN()
  */
 
 namespace App\Http\Controllers;
@@ -940,5 +941,28 @@ class ArchivedController extends Controller
             }
         }
         var_dump($error);
+    }
+    
+    /**
+     * Import
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateUpahGajiNonASN(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        $gaji = GajiNonASN::all();
+        foreach($gaji as $g) {
+            // Get umk
+            $umk = UMK::where('tahun','=',$g->tahun)->first();
+
+            // Update
+            $update = GajiNonASN::find($g->id);
+            $update->upah = $g->nominal > $umk->umk ? $g->nominal : $umk->umk;
+            $update->save();
+        }
+        return;
     }
 }

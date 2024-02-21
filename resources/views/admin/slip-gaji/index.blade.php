@@ -43,7 +43,7 @@
                                     <span class="d-none">{{ $s->tahun }} {{ $s->bulan }}</span>
                                     {{ \Ajifatur\Helpers\DateTimeExt::month($s->bulan) }} {{ $s->tahun }}
                                 </td>
-                                <td>{{ $s->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $s->pegawai->id]) }}">{{ $s->pegawai->nip }}</a></td>
                                 <td>{{ strtoupper($s->pegawai->nama) }}</td>
                                 <td align="center">
                                     <div class="btn-group">

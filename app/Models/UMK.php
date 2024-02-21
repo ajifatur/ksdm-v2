@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AnakSatker extends Model
+class UMK extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class AnakSatker extends Model
      *
      * @var string
      */
-    protected $table = 'tbl_anak_satker';
+    protected $table = 'tbl_umk';
 
     /**
      * The attributes that are mass assignable.
@@ -23,12 +23,4 @@ class AnakSatker extends Model
      */
     protected $fillable = [
     ];
-    
-    /**
-     * Unit.
-     */
-    public function unit()
-    {
-        return $this->belongsTo(Unit::class, 'unit_id');
-    }
 }

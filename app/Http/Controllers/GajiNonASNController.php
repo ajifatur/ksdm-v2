@@ -16,6 +16,7 @@ use App\Models\Pegawai;
 use App\Models\Golru;
 use App\Models\SK;
 use App\Models\Mutasi;
+use App\Models\UMK;
 use App\Models\Unit;
 
 class GajiNonASNController extends Controller
@@ -173,26 +174,32 @@ class GajiNonASNController extends Controller
                     // Get pegawai
                     $pegawai = Pegawai::where('nip','=',$data[1])->orWhere('npu','=',$data[1])->first();
 
-                    // Simpan gaji
-                    $gaji = GajiNonASN::where('pegawai_id','=',$pegawai->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
-                    if(!$gaji) $gaji = new GajiNonASN;
-                    $gaji->sk_id = $sk->id;
-                    $gaji->pegawai_id = $pegawai->id;
-                    $gaji->golru_id = 0;
-                    $gaji->unit_id = $pegawai->unit_id;
-                    $gaji->jenis = $pegawai->jenis;
-                    $gaji->bulan = $bulan;
-                    $gaji->tahun = $tahun;
-                    $gaji->gjpokok = is_int($data[3]) ? $data[3] : $data[4];
-                    $gaji->tjistri = is_int($data[3]) ? $data[4] : $data[5];
-                    $gaji->tjanak = is_int($data[3]) ? $data[5] : $data[6];
-                    $gaji->tjberas = is_int($data[3]) ? $data[6] : $data[7];
-                    $gaji->tjumum = is_int($data[3]) ? $data[7] : $data[8];
-                    $gaji->tjfungs = is_int($data[3]) ? $data[8] : $data[9];
-                    $gaji->bpjskes1 = is_int($data[3]) ? $data[11] : $data[12];
-                    $gaji->bpjsket3 = is_int($data[3]) ? $data[12] : $data[13];
-                    $gaji->nominal = is_int($data[3]) ? $data[9] : $data[10];
-                    $gaji->save();
+                    if($pegawai) {
+                        // Simpan gaji
+                        $gaji = GajiNonASN::where('pegawai_id','=',$pegawai->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+                        if(!$gaji) $gaji = new GajiNonASN;
+                        $gaji->sk_id = $sk->id;
+                        $gaji->pegawai_id = $pegawai->id;
+                        $gaji->golru_id = 0;
+                        $gaji->unit_id = $pegawai->unit_id;
+                        $gaji->jenis = $pegawai->jenis;
+                        $gaji->bulan = $bulan;
+                        $gaji->tahun = $tahun;
+                        $gaji->gjpokok = is_int($data[3]) ? $data[3] : $data[4];
+                        $gaji->tjistri = is_int($data[3]) ? $data[4] : $data[5];
+                        $gaji->tjanak = is_int($data[3]) ? $data[5] : $data[6];
+                        $gaji->tjberas = is_int($data[3]) ? $data[6] : $data[7];
+                        $gaji->tjumum = is_int($data[3]) ? $data[7] : $data[8];
+                        $gaji->tjfungs = is_int($data[3]) ? $data[8] : $data[9];
+                        $gaji->bpjskes1 = is_int($data[3]) ? $data[11] : $data[12];
+                        $gaji->bpjsket3 = is_int($data[3]) ? $data[12] : $data[13];
+                        $gaji->nominal = is_int($data[3]) ? $data[9] : $data[10];
+                        $gaji->upah = is_int($data[3]) ? $data[10] : $data[11];
+                        $gaji->save();
+                    }
+                    else {
+                        array_push($error, $data[2]);
+                    }
                 }
             }
         }
@@ -277,82 +284,4 @@ class GajiNonASNController extends Controller
             'perubahan_unit' => $perubahan_unit,
         ]);
     }
-
-    /**
-     * Sync
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function sync(Request $request)
-    {
-		ini_set("memory_limit", "-1");
-        ini_set("max_execution_time", "-1");
-
-        // Get SK
-        $sk = SK::where('jenis_id','=',5)->where('status','=',1)->first();
-
-        // Get gaji
-        $gaji = Gaji::where('jenis_id','=',$request->query('jenis'))->get();
-        
-        foreach($gaji as $g) {
-            // Get anak satker
-            $anak_satker = AnakSatker::where('kode','=',$g->kdanak)->first();
-
-            // Update
-            $update = Gaji::find($g->id);
-            $update->sk_id = $sk->id;
-            $update->anak_satker_id = $anak_satker->id;
-            $update->save();
-        }
-    }
-
-    // Sum array
-    public function array_sum_range($array, $first, $last) {
-        $sum = 0;
-        for($i=$first; $i<=$last; $i++) {
-            $sum += $array[$i];
-        }
-        return $sum;
-    }
-
-    public function kdanak_to_unit($kdanak) {
-        if($kdanak == "00") $anak = 6;
-        elseif($kdanak == "01") $anak = 26;
-        elseif($kdanak == "02") $anak = 10;
-        elseif($kdanak == "03") $anak = 9;
-        elseif($kdanak == "04") $anak = 7;
-        elseif($kdanak == "05") $anak = 0;
-        elseif($kdanak == "06") $anak = 11;
-        elseif($kdanak == "07") $anak = 4;
-        elseif($kdanak == "08") $anak = 4;
-        elseif($kdanak == "09") $anak = 4;
-        elseif($kdanak == "10") $anak = 1;
-        elseif($kdanak == "11") $anak = 2;
-        elseif($kdanak == "12") $anak = 12;
-        else $anak = 0;
-
-        return $anak;
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    // public function index(Request $request)
-    // {
-    //     // Get mutasi peralihan BLU ke PTNBH
-    //     $mutasi = Mutasi::where('jenis_id','=',13)->get();
-    //     foreach($mutasi as $key=>$m) {
-    //         // Get gaji
-    //         $mutasi[$key]->gaji = GajiNonASN::where('pegawai_id','=',$m->pegawai_id)->orderBy('tahun','desc')->orderBy('bulan','desc')->get();
-    //     }
-
-    //     // View
-    //     return view('admin/gaji-non-asn/index', [
-    //         'mutasi' => $mutasi,
-    //     ]);
-    // }
 }
