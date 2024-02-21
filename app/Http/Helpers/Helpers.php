@@ -1,6 +1,17 @@
 <?php
 
+/**
+ * 
+ * pegawai_spkgb()
+ * check_mutasi()
+ * kdanak_to_unit()
+ * array_sum_range()
+ * nip_baru()
+ * 
+ */
+
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\AnakSatker;
 use App\Models\GajiPokok;
 use App\Models\Pegawai;
 use App\Models\SK;
@@ -111,6 +122,23 @@ if(!function_exists('check_mutasi')) {
     }
 }
 
+// Konversi kode anak satker ke unit
+if(!function_exists('kdanak_to_unit')) {
+    function kdanak_to_unit($kdanak, $pegawai_id) {
+        // Get anak satker
+        $anak_satker = AnakSatker::where('kode','=',$kdanak)->first();
+
+        if($anak_satker->unit_id != 0)
+            return $anak_satker->unit_id;
+        else {
+            // Get pegawai
+            $pegawai = Pegawai::find($pegawai_id);
+
+            return $pegawai->unit_id;
+        }
+    }
+}
+
 // Array sum range
 if(!function_exists('array_sum_range')) {
     function array_sum_range($array, $first, $last) {
@@ -119,5 +147,12 @@ if(!function_exists('array_sum_range')) {
             $sum += $array[$i];
         }
         return $sum;
+    }
+}
+
+// NIP baru
+if(!function_exists('nip_baru')) {
+    function nip_baru($pegawai) {
+        return $pegawai->npu != null ? $pegawai->npu : $pegawai->nip;
     }
 }

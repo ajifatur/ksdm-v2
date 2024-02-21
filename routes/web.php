@@ -179,6 +179,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Gaji Pegawai Tidak Tetap
     Route::get('/admin/gaji-kontrak', 'GajiKontrakController@index')->name('admin.gaji-kontrak.index');
     Route::get('/admin/gaji-kontrak/monitoring', 'GajiKontrakController@monitoring')->name('admin.gaji-kontrak.monitoring');
+    Route::get('/admin/gaji-kontrak/print', 'GajiKontrakController@print')->name('admin.gaji-kontrak.print');
     Route::get('/admin/gaji-kontrak/export/single', 'GajiKontrakExportController@single')->name('admin.gaji-kontrak.export.single');
     Route::get('/admin/gaji-kontrak/export/list', 'GajiKontrakExportController@list')->name('admin.gaji-kontrak.export.list');
     Route::get('/admin/gaji-kontrak/export/recap', 'GajiKontrakExportController@recap')->name('admin.gaji-kontrak.export.recap');

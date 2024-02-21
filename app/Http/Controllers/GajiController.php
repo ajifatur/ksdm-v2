@@ -490,7 +490,7 @@ class GajiController extends Controller
                                 // Simpan gaji induk
                                 $gaji->sk_id = $sk->id;
                                 $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
-                                $gaji->unit_id = $this->kdanak_to_unit($data[1]);
+                                $gaji->unit_id = kdanak_to_unit($data[1], $pegawai->id);
                                 $gaji->anak_satker_id = $a->id;
                                 $gaji->jenis_id = $jenis->id;
                                 $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
@@ -571,7 +571,7 @@ class GajiController extends Controller
                                 // Simpan gaji
                                 $gaji->sk_id = $sk->id;
                                 $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
-                                $gaji->unit_id = $this->kdanak_to_unit($data[2]);
+                                $gaji->unit_id = kdanak_to_unit($data[2], $pegawai->id);
                                 $gaji->anak_satker_id = $a->id;
                                 $gaji->jenis_id = $jenis->id;
                                 $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
@@ -653,7 +653,7 @@ class GajiController extends Controller
                             // Simpan gaji induk
                             $gaji->sk_id = $sk->id;
                             $gaji->pegawai_id = $pegawai ? $pegawai->id : 0;
-                            $gaji->unit_id = $this->kdanak_to_unit($data[1]);
+                            $gaji->unit_id = kdanak_to_unit($data[1], $pegawai->id);
                             $gaji->anak_satker_id = $a->id;
                             $gaji->jenis_id = $jenis->id;
                             $gaji->jenis = $pegawai ? $pegawai->jenis : 0;
@@ -801,40 +801,35 @@ class GajiController extends Controller
 		ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
 
-        // Get SK
-        $sk = SK::where('jenis_id','=',5)->where('status','=',1)->first();
-
         // Get gaji
-        $gaji = Gaji::where('jenis_id','=',$request->query('jenis'))->get();
+        $gaji = Gaji::whereDoesntHave('unit')->get();
         
         foreach($gaji as $g) {
-            // Get anak satker
-            $anak_satker = AnakSatker::where('kode','=',$g->kdanak)->first();
-
+            var_dump($g->anak_satker->nama);
+            echo "<br>";
             // Update
-            $update = Gaji::find($g->id);
-            $update->sk_id = $sk->id;
-            $update->anak_satker_id = $anak_satker->id;
-            $update->save();
+            // $update = Gaji::find($g->id);
+            // $update->unit_id = $g->pegawai->unit_id;
+            // $update->save();
         }
     }
 
-    public function kdanak_to_unit($kdanak) {
-        if($kdanak == "00") $anak = 6;
-        elseif($kdanak == "01") $anak = 26;
-        elseif($kdanak == "02") $anak = 10;
-        elseif($kdanak == "03") $anak = 9;
-        elseif($kdanak == "04") $anak = 7;
-        elseif($kdanak == "05") $anak = 0;
-        elseif($kdanak == "06") $anak = 11;
-        elseif($kdanak == "07") $anak = 4;
-        elseif($kdanak == "08") $anak = 4;
-        elseif($kdanak == "09") $anak = 4;
-        elseif($kdanak == "10") $anak = 1;
-        elseif($kdanak == "11") $anak = 2;
-        elseif($kdanak == "12") $anak = 12;
-        else $anak = 0;
+    // public function kdanak_to_unit($kdanak) {
+    //     if($kdanak == "00") $anak = 6;
+    //     elseif($kdanak == "01") $anak = 26;
+    //     elseif($kdanak == "02") $anak = 10;
+    //     elseif($kdanak == "03") $anak = 9;
+    //     elseif($kdanak == "04") $anak = 7;
+    //     elseif($kdanak == "05") $anak = 0;
+    //     elseif($kdanak == "06") $anak = 11;
+    //     elseif($kdanak == "07") $anak = 4;
+    //     elseif($kdanak == "08") $anak = 4;
+    //     elseif($kdanak == "09") $anak = 4;
+    //     elseif($kdanak == "10") $anak = 1;
+    //     elseif($kdanak == "11") $anak = 2;
+    //     elseif($kdanak == "12") $anak = 12;
+    //     else $anak = 0;
 
-        return $anak;
-    }
+    //     return $anak;
+    // }
 }

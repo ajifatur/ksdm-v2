@@ -77,7 +77,7 @@ class UangMakanImportController extends Controller
 
                         // Simpan uang makan
                         $uang_makan->pegawai_id = $pegawai ? $pegawai->id : 0;
-                        $uang_makan->unit_id = $this->kdanak_to_unit($request->anak_satker);
+                        $uang_makan->unit_id = kdanak_to_unit($request->anak_satker, $pegawai->id);
                         $uang_makan->anak_satker_id = $as->id;
                         $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
                         $uang_makan->kdanak = $request->anak_satker;
@@ -276,7 +276,7 @@ class UangMakanImportController extends Controller
 
                         // Simpan uang makan
                         $uang_makan->pegawai_id = $pegawai ? $pegawai->id : 0;
-                        $uang_makan->unit_id = $this->kdanak_to_unit($request->anak_satker);
+                        $uang_makan->unit_id = kdanak_to_unit($request->anak_satker, $pegawai->id);
                         $uang_makan->anak_satker_id = $as->id;
                         $uang_makan->jenis = $pegawai ? $pegawai->jenis : 0;
                         $uang_makan->kdanak = $request->anak_satker;
@@ -318,22 +318,22 @@ class UangMakanImportController extends Controller
         return redirect()->route('admin.uang-makan.monitoring', ['bulan' => $bulanAngka, 'tahun' => $tahun])->with(['message' => 'Berhasil memproses data.']);
     }
 
-    public function kdanak_to_unit($kdanak) {
-        if($kdanak == "00") $anak = 6;
-        elseif($kdanak == "01") $anak = 26;
-        elseif($kdanak == "02") $anak = 10;
-        elseif($kdanak == "03") $anak = 9;
-        elseif($kdanak == "04") $anak = 7;
-        elseif($kdanak == "05") $anak = 0;
-        elseif($kdanak == "06") $anak = 11;
-        elseif($kdanak == "07") $anak = 4;
-        elseif($kdanak == "08") $anak = 4;
-        elseif($kdanak == "09") $anak = 4;
-        elseif($kdanak == "10") $anak = 1;
-        elseif($kdanak == "11") $anak = 2;
-        elseif($kdanak == "12") $anak = 12;
-        else $anak = 0;
+    // public function kdanak_to_unit($kdanak) {
+    //     if($kdanak == "00") $anak = 6;
+    //     elseif($kdanak == "01") $anak = 26;
+    //     elseif($kdanak == "02") $anak = 10;
+    //     elseif($kdanak == "03") $anak = 9;
+    //     elseif($kdanak == "04") $anak = 7;
+    //     elseif($kdanak == "05") $anak = 0;
+    //     elseif($kdanak == "06") $anak = 11;
+    //     elseif($kdanak == "07") $anak = 4;
+    //     elseif($kdanak == "08") $anak = 4;
+    //     elseif($kdanak == "09") $anak = 4;
+    //     elseif($kdanak == "10") $anak = 1;
+    //     elseif($kdanak == "11") $anak = 2;
+    //     elseif($kdanak == "12") $anak = 12;
+    //     else $anak = 0;
 
-        return $anak;
-    }
+    //     return $anak;
+    // }
 }
