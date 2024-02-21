@@ -89,6 +89,7 @@
                                 <td align="right">{{ number_format($total['dosen_nominal'] + $total['tendik_nominal']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ route('admin.gaji-non-asn.export', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel Rekap"><i class="bi-file-excel"></i></a>
                                     </div>
                                 </td>
                             </tr>

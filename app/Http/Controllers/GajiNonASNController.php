@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Ajifatur\Helpers\DateTimeExt;
 use Ajifatur\Helpers\FileExt;
+use App\Exports\GajiNonASNExport;
 use App\Imports\ByStartRowImport;
 use App\Models\GajiNonASN;
 use App\Models\Pegawai;
@@ -120,104 +121,6 @@ class GajiNonASNController extends Controller
     }
 
     /**
-     * Monthly Recap.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function monthly(Request $request)
-    {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-        $tahun = $request->query('tahun') ?: date('Y');
-
-        // Get jenis
-        $jenis = JenisGaji::find($request->query('jenis'));
-
-        // Get jenis gaji
-        $jenis_gaji = JenisGaji::all();
-
-        // Get anak satker
-        $anak_satker_all = AnakSatker::all();
-
-        // Get anak satker
-        $anak_satker = AnakSatker::find($request->query('id'));
-
-        // Get gaji
-        $gaji = [];
-        if($anak_satker) {
-            if($jenis)
-                $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->get();
-            else
-                $gaji = Gaji::where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->get();
-        }
-
-        // Get kategori gaji
-        $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'tjdaerah', 'tjpencil', 'tjlain', 'tjkompen', 'pembul', 'tjberas', 'tjpph', 'potpfkbul', 'potpfk2', 'potpfk10', 'potpph', 'potswrum', 'potkelbtj', 'potlain', 'pottabrum', 'bpjs', 'bpjs2'];
-
-        // View
-        return view('admin/gaji/monthly', [
-            'tahun' => $tahun,
-            'anak_satker_all' => $anak_satker_all,
-            'anak_satker' => $anak_satker,
-            'gaji' => $gaji,
-            'jenis' => $jenis,
-            'jenis_gaji' => $jenis_gaji,
-            'kategori_gaji' => $kategori_gaji,
-        ]);
-    }
-
-    /**
-     * Annually Recap.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function annually(Request $request)
-    {
-		ini_set("memory_limit", "-1");
-        ini_set("max_execution_time", "-1");
-
-        // Get tipe
-        $tipe = $request->query('tipe');
-
-        // Get tahun
-        $tahun = $request->query('tahun') ?: date('Y');
-
-        // Get jenis
-        $jenis = JenisGaji::find($request->query('jenis'));
-
-        // Get jenis gaji
-        $jenis_gaji = JenisGaji::all();
-
-        // Get anak satker
-        $anak_satker = AnakSatker::where('jenis','=',$tipe)->get();
-
-        // Get gaji
-        $gaji = [];
-        if($jenis && in_array($request->query('kategori'), [1,2])) {
-            $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use ($tipe) {
-                return $query->where('jenis','=',$tipe);
-            })->where('jenis_id','=',$jenis->id)->where('jenis','=',$request->query('kategori'))->where('tahun','=',$tahun)->get();
-        }
-
-        // Get kategori gaji
-        $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'pembul', 'tjberas', 'tjpph'];
-
-        // View
-        return view('admin/gaji/annually', [
-            'tipe' => $tipe,
-            'tahun' => $tahun,
-            'anak_satker' => $anak_satker,
-            'gaji' => $gaji,
-            'jenis' => $jenis,
-            'jenis_gaji' => $jenis_gaji,
-            'kategori_gaji' => $kategori_gaji,
-        ]);
-    }
-
-    /**
      * Export to Excel.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -231,54 +134,11 @@ class GajiNonASNController extends Controller
         $bulan = $request->query('bulan') ?: date('n');
         $tahun = $request->query('tahun') ?: date('Y');
 
-        // Get jenis
-        $jenis = JenisGaji::findOrFail($request->query('jenis'));
-
-        // Get anak satker
-        $anak_satker = AnakSatker::find($request->query('id'));
-
-        // Set kategori
-        $kategori = ($request->query('kategori') == 1 || $request->query('kategori') == 2) ? $request->query('kategori') == 1 ? 'Dosen' : 'Tendik' : '';
-    
-        // Get kategori gaji
-        $kategori_gaji = ['gjpokok', 'tjistri', 'tjanak', 'tjupns', 'tjstruk', 'tjfungs', 'tjdaerah', 'tjpencil', 'tjlain', 'tjkompen', 'pembul', 'tjberas', 'tjpph', 'potpfkbul', 'potpfk2', 'potpfk10', 'potpph', 'potswrum', 'potkelbtj', 'potlain', 'pottabrum', 'bpjs', 'bpjs2'];
-
-        // Jika anak satker dan kategori diketahui
-        if($anak_satker && $kategori != '') {
-            // Get gaji
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('kdanak','=',$anak_satker->kode)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
-
-            // Set nama file
-            $filename = $jenis->kode.' '.$anak_satker->nama.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
-        }
-        // Jika anak satker tidak diketahui dan kategori diketahui
-        elseif(!$anak_satker && $kategori != '') {
-            // Get gaji
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('jenis','=',$request->query('kategori'))->get();
-
-            // Set nama file
-            $filename = $jenis->kode.' '.$tahun.' '.DateTimeExt::month($bulan).' ('.$kategori.').xlsx';
-        }
-        // Jika anak satker dan kategori tidak diketahui
-        else {
-            // Get gaji
-            $gaji = Gaji::where('jenis_id','=',$jenis->id)->where('tahun','=',$tahun)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->get();
-
-            // Set nama file
-            $filename = $jenis->kode.' '.$tahun.' '.DateTimeExt::month($bulan).'.xlsx';
-        }
-
-        if(count($gaji) <= 0) {
-            echo "Tidak ada data!";
-            return;
-        }
+        // Get gaji
+        $gaji = GajiNonASN::where('tahun','=',$tahun)->where('bulan','=',$bulan)->get();
 
         // Return
-        return Excel::download(new GajiExport([
-            'gaji' => $gaji,
-            'kategori' => $kategori,
-            'kategori_gaji' => $kategori_gaji,
-        ]), $filename);
+        return Excel::download(new GajiNonASNExport($gaji), 'Gaji Pegawai Tetap Non ASN ('.$tahun.' '.DateTimeExt::month($bulan).').xlsx');
     }
     
     /**

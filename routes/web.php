@@ -123,6 +123,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 	
     // Gaji Pokok
     Route::get('/admin/gaji-pokok', 'GajiPokokController@index')->name('admin.gaji-pokok.index');
+    Route::get('/admin/gaji-pokok/export', 'GajiPokokController@export')->name('admin.gaji-pokok.export');
 	
     // Pejabat Penandatangan
     Route::get('/admin/ttd', 'TTDController@index')->name('admin.ttd.index');
@@ -172,6 +173,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Gaji Pegawai Tetap Non ASN
     Route::get('/admin/gaji-non-asn', 'GajiNonASNController@index')->name('admin.gaji-non-asn.index');
     Route::get('/admin/gaji-non-asn/monitoring', 'GajiNonASNController@monitoring')->name('admin.gaji-non-asn.monitoring');
+    Route::get('/admin/gaji-non-asn/export', 'GajiNonASNController@export')->name('admin.gaji-non-asn.export');
     Route::get('/admin/gaji-non-asn/import', 'GajiNonASNController@import')->name('admin.gaji-non-asn.import');
 
     // Gaji Pegawai Tidak Tetap
