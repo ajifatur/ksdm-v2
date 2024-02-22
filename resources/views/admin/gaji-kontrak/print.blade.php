@@ -3,13 +3,12 @@
     <title>{{ $title }}</title>
     <style>
         #title {width: 100%; text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 25px; line-height: 20px;}
-        table {border-collapse: collapse; font-size: 11px;}
+        #data {border-collapse: collapse; font-size: 11px;}
         #data thead tr th {border: #333 solid 1.5px;word-wrap: break-word; word-break: break-all;}
         #data tbody tr td {border: #333 solid 1.5px; padding-right: 3px; padding-left: 3px;}
         #data tfoot tr td {border: #333 solid 1.5px; padding-right: 3px; padding-left: 3px;}
         #data tfoot tr#sign td {border-width: 0px;}
-        #data .wrap-text {word-wrap: break-word; word-break: break-all;}
-        #sign-content {margin-top: 20px;}
+        #sign-content {margin-top: 20px; font-size: 12px;}
         .page-break {page-break-after: always;}
         .d-none {display: none;}
     </style>
@@ -72,7 +71,7 @@
                 <td valign="middle">{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->nik }}<br>{{ $g->pegawai->npwp }}</td>
                 <td valign="middle">{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
                 <td align="center" valign="middle">{{ $g->status_kawin }}<br>{{ $g->status_pajak }}</td>
-                <td valign="middle" class="wrap-text">{{ $g->sk->no_sk }}</td>
+                <td valign="middle">{{ substr($g->sk->no_sk,0,15) }}<br>{{ substr($g->sk->no_sk,15) }}</td>
                 <td align="right" valign="middle">{{ number_format($g->gjpokok,0,'.','.') }}</td>
                 @if(($kategori && $kategori->kategori == 1) || $kategori == null)
                 <td align="right" valign="middle">{{ number_format($g->tjdosen,0,'.','.') }}</td>
@@ -109,20 +108,37 @@
                 <td></td>
             </tr>
             <tr id="sign">
-                <td colspan="10" height="80" valign="top">
+                <td colspan="{{ ($kategori && $kategori->kategori == 1) || $kategori == null ? 17 : 16 }}" height="80" valign="top">
                     <table width="100%" id="sign-content">
                         <tr>
-                            <td width="75%"></td>
+                            <td width="3%"></td>
+                            <td width="72%">
+                                <br>
+                                Mengetahui,
+                                <br>
+                                Pejabat Pembuat Komitmen
+                                <br>
+                                <br>
+                                <br>
+                                <br>
+                                <br>
+                                Siti Mursidah, S.Pd., M.Si.
+                                <br>
+                                NIP. 197710262005022001
+                            </td>
                             <td width="25%">
+                                Semarang, {{ \Ajifatur\Helpers\DateTimeExt::full(date('Y-m-d')) }}
+                                <br>
                                 <br>
                                 PPABP
                                 <br>
                                 <br>
                                 <br>
                                 <br>
-                                Ari Pamungkas, S.E.
                                 <br>
-                                NIP. 198109242005011001
+                                Sonny Broma Migusti, S.E.
+                                <br>
+                                NPU. 1985081220231021001
                             </td>
                         </tr>
                     </table>
