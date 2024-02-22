@@ -478,7 +478,7 @@
                                         </tr>
                                         <tr>
                                             <th width="130">Gaji Pokok,<br>Tunj. Istri,<br>Tunj. Anak</th>
-                                            <th width="130">Tunj. Fungsional,<br>Tunj. Umum,<br>Tunj. Beras</th>
+                                            <th width="130">Tunj. Fungsional,<br>Tunj. Umum,<br>Tunj. Beras<br>Pembulatan</th>
                                             <th width="130">Jumlah Penghasilan Kotor</th>
                                             <th width="130">BPJS Kesehatan (1%)</th>
                                             <th width="130">BPJS Ketenagakerjaan (3%)</th>
@@ -492,12 +492,12 @@
                                             <td>{{ \Ajifatur\Helpers\DateTimeExt::month((int)$g->bulan) }} {{ $g->tahun }}</td>
                                             <td>{{ $g->unit ? $g->unit->nama : '-' }}</td>
                                             <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
-                                            <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}</td>
-                                            <td align="right">{{ number_format($g->nominal) }}</td>
+                                            <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}<br>{{ number_format($g->pembul) }}</td>
+                                            <td align="right">{{ number_format($g->nominal + $g->pembul) }}</td>
                                             <td align="right">{{ number_format($g->bpjskes1) }}</td>
                                             <td align="right">{{ number_format($g->bpjsket3) }}</td>
                                             <td align="right">{{ number_format($g->bpjskes1 + $g->bpjsket3) }}</td>
-                                            <td align="right">{{ number_format($g->nominal) }}</td>
+                                            <td align="right">{{ number_format($g->bersih) }}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -506,11 +506,11 @@
                                             <td colspan="3" align="center">Total</td>
                                             <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('gjpokok') + $pegawai->gaji_non_asn()->sum('tjistri') + $pegawai->gaji_non_asn()->sum('tjanak')) }}</td>
                                             <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('tjfungs') + $pegawai->gaji_non_asn()->sum('tjumum') + $pegawai->gaji_non_asn()->sum('tjberas')) }}</td>
-                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('nominal')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('nominal') + $pegawai->gaji_non_asn()->sum('pembul')) }}</td>
                                             <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bpjskes1')) }}</td>
                                             <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bpjsket3')) }}</td>
                                             <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bpjskes1') + $pegawai->gaji_non_asn()->sum('bpjsket3')) }}</td>
-                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('nominal')) }}</td>
+                                            <td align="right">{{ number_format($pegawai->gaji_non_asn()->sum('bersih')) }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>

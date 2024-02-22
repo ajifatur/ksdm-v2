@@ -81,8 +81,10 @@ class GajiNonASNController extends Controller
         $total = [
             'dosen_jumlah' => 0,
             'dosen_nominal' => 0,
+            'dosen_bersih' => 0,
             'tendik_jumlah' => 0,
             'tendik_nominal' => 0,
+            'tendik_bersih' => 0,
         ];
         foreach($unit as $u) {
             // Get gaji
@@ -90,24 +92,30 @@ class GajiNonASNController extends Controller
 
             // Set angka
             $dosen_jumlah = $gaji->where('jenis','=',1)->count();
-            $dosen_nominal = $gaji->where('jenis','=',1)->sum('nominal');
+            $dosen_nominal = $gaji->where('jenis','=',1)->sum('nominal') + $gaji->where('jenis','=',1)->sum('pembul');
+            $dosen_bersih = $gaji->where('jenis','=',1)->sum('bersih');
             $tendik_jumlah = $gaji->where('jenis','=',2)->count();
-            $tendik_nominal = $gaji->where('jenis','=',2)->sum('nominal');
+            $tendik_nominal = $gaji->where('jenis','=',2)->sum('nominal') + $gaji->where('jenis','=',2)->sum('pembul');
+            $tendik_bersih = $gaji->where('jenis','=',2)->sum('bersih');
 
             // Push data
             array_push($data, [
                 'unit' => $u,
                 'dosen_jumlah' => $dosen_jumlah,
                 'dosen_nominal' => $dosen_nominal,
+                'dosen_bersih' => $dosen_bersih,
                 'tendik_jumlah' => $tendik_jumlah,
                 'tendik_nominal' => $tendik_nominal,
+                'tendik_bersih' => $tendik_bersih,
             ]);
 
             // Count total
             $total['dosen_jumlah'] += $dosen_jumlah;
             $total['dosen_nominal'] += $dosen_nominal;
+            $total['dosen_bersih'] += $dosen_bersih;
             $total['tendik_jumlah'] += $tendik_jumlah;
             $total['tendik_nominal'] += $tendik_nominal;
+            $total['tendik_bersih'] += $tendik_bersih;
         }
 
         // View
@@ -191,10 +199,12 @@ class GajiNonASNController extends Controller
                         $gaji->tjberas = is_int($data[3]) ? $data[6] : $data[7];
                         $gaji->tjumum = is_int($data[3]) ? $data[7] : $data[8];
                         $gaji->tjfungs = is_int($data[3]) ? $data[8] : $data[9];
+                        $gaji->pembul = is_int($data[3]) ? $data[16] : $data[17];
                         $gaji->bpjskes1 = is_int($data[3]) ? $data[11] : $data[12];
                         $gaji->bpjsket3 = is_int($data[3]) ? $data[12] : $data[13];
                         $gaji->nominal = is_int($data[3]) ? $data[9] : $data[10];
                         $gaji->upah = is_int($data[3]) ? $data[10] : $data[11];
+                        $gaji->bersih = is_int($data[3]) ? $data[15] : $data[16];
                         $gaji->save();
                     }
                     else {

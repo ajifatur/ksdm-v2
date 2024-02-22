@@ -46,18 +46,21 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2">Unit</th>
-                                <th colspan="2">Dosen</th>
-                                <th colspan="2">Tendik</th>
-                                <th colspan="2">Total</th>
+                                <th colspan="3">Dosen</th>
+                                <th colspan="3">Tendik</th>
+                                <th colspan="3">Total</th>
                                 <th rowspan="2" width="60">Opsi</th>
                             </tr>
                             <tr>
                                 <th width="80">Pegawai</th>
-                                <th width="80">Nominal</th>
+                                <th width="80">Nominal Kotor</th>
+                                <th width="80">Nominal Bersih</th>
                                 <th width="80">Pegawai</th>
-                                <th width="80">Nominal</th>
+                                <th width="80">Nominal Kotor</th>
+                                <th width="80">Nominal Bersih</th>
                                 <th width="80">Pegawai</th>
-                                <th width="80">Nominal</th>
+                                <th width="80">Nominal Kotor</th>
+                                <th width="80">Nominal Bersih</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -66,10 +69,13 @@
                                 <td>{{ $d['unit']->nama }}</td>
                                 <td align="right">{{ number_format($d['dosen_jumlah']) }}</td>
                                 <td align="right">{{ number_format($d['dosen_nominal']) }}</td>
+                                <td align="right">{{ number_format($d['dosen_bersih']) }}</td>
                                 <td align="right">{{ number_format($d['tendik_jumlah']) }}</td>
                                 <td align="right">{{ number_format($d['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($d['tendik_bersih']) }}</td>
                                 <td align="right">{{ number_format($d['dosen_jumlah'] + $d['tendik_jumlah']) }}</td>
                                 <td align="right">{{ number_format($d['dosen_nominal'] + $d['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($d['dosen_bersih'] + $d['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.gaji-non-asn.index', ['id' => $d['unit']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
@@ -83,10 +89,13 @@
                                 <td align="center">Total</td>
                                 <td align="right">{{ number_format($total['dosen_jumlah']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_nominal']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_bersih']) }}</td>
                                 <td align="right">{{ number_format($total['tendik_jumlah']) }}</td>
                                 <td align="right">{{ number_format($total['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total['tendik_bersih']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_jumlah'] + $total['tendik_jumlah']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_nominal'] + $total['tendik_nominal']) }}</td>
+                                <td align="right">{{ number_format($total['dosen_bersih'] + $total['tendik_bersih']) }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.gaji-non-asn.export', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel Rekap"><i class="bi-file-excel"></i></a>

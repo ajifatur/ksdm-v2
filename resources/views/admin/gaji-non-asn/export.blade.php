@@ -11,9 +11,11 @@
             <th align="center" width="15"><b>TJBERAS</b></th>
             <th align="center" width="15"><b>TJUMUM</b></th>
             <th align="center" width="15"><b>TJFUNGS</b></th>
+            <th align="center" width="15"><b>PEMBUL</b></th>
             <th align="center" width="15"><b>BPJSKES1</b></th>
             <th align="center" width="15"><b>BPJSKET3</b></th>
-            <th align="center" width="15"><b>NOMINAL</b></th>
+            <th align="center" width="15"><b>KOTOR</b></th>
+            <th align="center" width="15"><b>BERSIH</b></th>
 
         </tr>
     </thead>
@@ -38,9 +40,11 @@
                 <td>{{ $d->tjberas }}</td>
                 <td>{{ $d->tjumum }}</td>
                 <td>{{ $d->tjfungs }}</td>
+                <td>{{ $d->pembul }}</td>
                 <td>{{ $d->bpjskes1 }}</td>
                 <td>{{ $d->bpjsket3 }}</td>
                 <td>{{ $d->nominal }}</td>
+                <td>{{ $d->bersih }}</td>
             </tr>
         @endforeach
     </tbody>

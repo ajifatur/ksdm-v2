@@ -63,7 +63,7 @@
                             </tr>
                             <tr>
                                 <th width="80">Gaji Pokok,<br>Tunj. Istri,<br>Tunj. Anak</th>
-                                <th width="80">Tunj. Fungsional,<br>Tunj. Umum,<br>Tunj. Beras</th>
+                                <th width="80">Tunj. Fungsional,<br>Tunj. Umum,<br>Tunj. Beras<br>Pembulatan</th>
                                 <th width="80">Jumlah Penghasilan Kotor</th>
                                 <th width="80">BPJS Kesehatan (1%)</th>
                                 <th width="80">BPJS Ketenagakerjaan (3%)</th>
@@ -77,22 +77,22 @@
                                 <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
                                 <td>{{ $g->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
-                                <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}</td>
-                                <td align="right">{{ number_format($g->nominal) }}</td>
+                                <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}<br>{{ number_format($g->pembul) }}</td>
+                                <td align="right">{{ number_format($g->nominal + $g->pembul) }}</td>
                                 <td align="right">{{ number_format($g->bpjskes1) }}</td>
                                 <td align="right">{{ number_format($g->bpjsket3) }}</td>
                                 <td align="right">{{ number_format($g->bpjskes1 + $g->bpjsket3) }}</td>
-                                <td align="right">{{ number_format($g->nominal) }}</td>
+                                <td align="right">{{ number_format($g->bersih) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
                                 <td colspan="5" align="center">Total</td>
-                                <td align="right">{{ number_format($gaji->sum('nominal')) }}</td>
+                                <td align="right">{{ number_format($gaji->sum('nominal') + $gaji->sum('pembul')) }}</td>
                                 <td colspan="2"></td>
                                 <td align="right">{{ number_format($gaji->sum('bpjskes1') + $gaji->sum('bpjsket3')) }}</td>
-                                <td align="right">{{ number_format($gaji->sum('nominal')) }}</td>
+                                <td align="right">{{ number_format($gaji->sum('bersih')) }}</td>
                             </tr>
                         </tfoot>
                     </table>
