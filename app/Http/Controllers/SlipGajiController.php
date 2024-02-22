@@ -244,7 +244,11 @@ class SlipGajiController extends Controller
         $salary_cuts = $gaji_induk->potpfk10 + $gaji_induk->bpjs + $gaji_induk->potpph;
 
         // Get bendahara pengeluaran
-        $bendahara_pengeluaran = TTD::where('kode','=','bpeng')->where('tanggal_mulai','<=',$slip_gaji->tanggal)->where('tanggal_selesai','>=',$slip_gaji->tanggal)->first();
+        $bendahara_pengeluaran = TTD::where('kode','=','bpeng')->where(function($query) use ($slip_gaji) {
+			$query->where('tanggal_mulai','<=',$slip_gaji->tanggal)->orWhereNull('tanggal_mulai');
+		})->where(function($query) use ($slip_gaji) {
+			$query->where('tanggal_selesai','>=',$slip_gaji->tanggal)->orWhereNull('tanggal_selesai');
+		})->first();
 
         // Set title
         $title = ($bahasa == 'en' ? 'Salary Slip' : 'Slip Gaji').'_'.$slip_gaji->pegawai->nip;
