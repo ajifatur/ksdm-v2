@@ -160,12 +160,16 @@ if(!function_exists('nip_baru')) {
 // Jabatan
 if(!function_exists('jabatan')) {
     function jabatan($jabatan) {
-        if($jabatan->grup->nama == 'Koordinator Program Studi')
-            return 'Koordinator Program Studi';
-        elseif($jabatan->sub != '-')
-            return $jabatan->sub;
-        elseif($jabatan->sub == '-')
-            return $jabatan->nama;
+        if($jabatan) {
+            if($jabatan->grup && $jabatan->grup->nama == 'Koordinator Program Studi')
+                return 'Koordinator Program Studi';
+            elseif($jabatan->sub != '-')
+                return $jabatan->sub;
+            elseif($jabatan->sub == '-')
+                return $jabatan->nama;
+            else
+                return '-';
+        }
         else
             return '-';
     }

@@ -114,16 +114,22 @@
                             <table class="table table-sm table-hover table-bordered mt-3">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th width="5">No</th>
-                                        <th>Jenis / Deskripsi</th>
-                                        <th>Status Kepeg.</th>
-                                        <th>Golru</th>
-                                        <th>MKG</th>
-                                        <th>Jabatan</th>
-                                        <th>Unit</th>
-                                        <th>TMT</th>
-                                        <th>Diproses</th>
-                                        <th width="20">Opsi</th>
+                                        <th rowspan="2" width="5">No</th>
+                                        <th rowspan="2">Jenis / Deskripsi</th>
+                                        <th rowspan="2">Status Kepeg.</th>
+                                        <th rowspan="2">Golru</th>
+                                        <th rowspan="2">MKG</th>
+                                        <th rowspan="2">Jabatan</th>
+                                        <th rowspan="2">Unit</th>
+                                        <th rowspan="2">TMT</th>
+                                        <!-- <th>Diproses</th> -->
+                                        <th colspan="3">Proses</th>
+                                        <th rowspan="2" width="20">Opsi</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Remun</th>
+                                        <th>Serdos</th>
+                                        <th>Proses</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -155,11 +161,16 @@
                                                 @endforeach
                                             </td>
                                             <td>{{ $m->tmt != null ? date('d/m/Y', strtotime($m->tmt)) : '-' }}</td>
+                                            {{--
                                             @if($m->jenis->remun == 1 && ($m->bulan != 0 || $m->tahun != 0))
                                                 <td>{{ \Ajifatur\Helpers\DateTimeExt::month($m->bulan) }} {{ $m->tahun }}</td>
                                             @else
                                                 <td>-</td>
                                             @endif
+                                            --}}
+                                            <td>{{ $m->proses_remun != null ? date('d/m/Y', strtotime($m->proses_remun)) : '-' }}</td>
+                                            <td>{{ $m->proses_serdos != null ? date('d/m/Y', strtotime($m->proses_serdos)) : '-' }}</td>
+                                            <td>{{ $m->proses != null ? date('d/m/Y', strtotime($m->proses)) : '-' }}</td>
                                             <td align="center">
                                                 <div class="btn-group">
                                                     <a href="{{ route('admin.mutasi.edit', ['id' => $pegawai->id, 'mutasi_id' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>

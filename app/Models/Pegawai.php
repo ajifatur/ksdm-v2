@@ -85,7 +85,8 @@ class Pegawai extends Model
      */
     public function mutasi()
     {
-        return $this->hasMany(Mutasi::class)->orderBy('tahun','desc')->orderBy('bulan','desc')->orderBy('tmt','desc')->orderBy('gaji_pokok_id','desc');
+        // return $this->hasMany(Mutasi::class)->orderBy('tahun','desc')->orderBy('bulan','desc')->orderBy('tmt','desc')->orderBy('gaji_pokok_id','desc');
+        return $this->hasMany(Mutasi::class)->orderByRaw("proses IS NULL DESC")->orderBy('proses','desc')->orderBy('tmt','desc')->orderBy('gaji_pokok_id','desc');
     }
 
     /**

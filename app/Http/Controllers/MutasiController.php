@@ -741,4 +741,42 @@ class MutasiController extends Controller
         // Redirect
         return redirect($request->redirect)->with(['message' => 'Berhasil menghapus data.']);
     }
+
+    /**
+     * Sync
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function sync(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        // Get mutasi
+        // $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();
+        // return view('admin/mutasi/sync', [
+        //     'mutasi' => $mutasi,
+        // ]);
+
+        // Get mutasi
+        $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();
+        foreach($mutasi as $m) {
+            $update = Mutasi::find($m->id);
+            if($m->jenis->remun == 1) {
+                $update->proses_remun = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+                $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+            }
+            if($m->jenis->serdos == 1) {
+                if($m->tahun >= 2024 && $m->bulan <= 2 && $m->pegawai->jenis == 1) {
+                    $update->proses_serdos = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+                }
+                else {
+                    $update->proses_serdos = null;
+                    $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+                }
+            }
+            $update->save();
+        }
+    }
 }
