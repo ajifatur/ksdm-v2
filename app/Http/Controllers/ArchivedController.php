@@ -11,6 +11,7 @@
  * cekJabatan()
  * importKonversiNPU()
  * updateUpahGajiNonASN()
+ * importUangMakanNonASN()
  */
 
 namespace App\Http\Controllers;
@@ -963,6 +964,58 @@ class ArchivedController extends Controller
             $update->upah = $g->nominal > $umk->umk ? $g->nominal : $umk->umk;
             $update->save();
         }
+        return;
+    }
+    
+    /**
+     * Import
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function importUangMakanNonASN(Request $request)
+    {
+        ini_set("memory_limit", "-1");
+        ini_set("max_execution_time", "-1");
+
+        $error = [];
+        $files = FileExt::get(public_path('storage/spreadsheets/um-non-asn'));
+        foreach($files as $file) {
+            // Get file
+            $filename = FileExt::info($file->getRelativePathname());
+
+            // Set bulan, tahun
+            $bulan = 1;
+            $tahun = 2024;
+            
+            // Get data
+            $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/spreadsheets/um-non-asn/'.$filename['name']));
+            foreach($array[0] as $key=>$data) {
+                if($data[0] != null) {
+                    // Get pegawai
+                    $pegawai = Pegawai::where('nip','=',$data[0])->orWhere('npu','=',$data[0])->first();
+
+                    if($pegawai) {
+                        // Simpan uang makan
+                        $uang_makan = UangMakanNonASN::where('pegawai_id','=',$pegawai->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
+                        if(!$uang_makan) $uang_makan = new UangMakanNonASN;
+                        $uang_makan->pegawai_id = $pegawai->id;
+                        $uang_makan->unit_id = $pegawai->unit_id;
+                        $uang_makan->status_kepeg_id = $pegawai->status_kepeg_id;
+                        $uang_makan->jenis = $pegawai->jenis;
+                        $uang_makan->bulan = $bulan;
+                        $uang_makan->tahun = $tahun;
+                        $uang_makan->nip = $data[0];
+                        $uang_makan->nama = $data[1];
+                        $uang_makan->nominal = $data[3];
+                        $uang_makan->save();
+                    }
+                    else {
+                        array_push($error, $data[1]);
+                    }
+                }
+            }
+        }
+        var_dump($error);
         return;
     }
 }

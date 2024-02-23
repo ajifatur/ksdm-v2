@@ -68,7 +68,12 @@
                                 <th rowspan="2" width="80">Pegawai</th>
                                 <th rowspan="2" width="80">Nominal Kotor</th>
                                 <th rowspan="2" width="80">Nominal Bersih</th>
-                                <th rowspan="2" width="30">Opsi</th>
+                                <th colspan="3" width="30">Opsi</th>
+                            </tr>
+                            <tr>
+                                <th width="10">Lihat</th>
+                                <th width="10">List</th>
+                                <th width="10">MyKeu</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,7 +87,20 @@
                                     <div class="btn-group">
                                         @if($jenis)
                                         <a href="{{ route('admin.gaji-kontrak.index', ['kategori' => $d['kategori']->id, 'jenis' => $jenis->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Lihat List"><i class="bi-eye"></i></a>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        @if($jenis)
                                         <a href="{{ route('admin.gaji-kontrak.export.list', ['kategori' => $d['kategori']->id, 'jenis' => $jenis->id,'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel List"><i class="bi-file-excel"></i></a>
+                                        <a href="{{ route('admin.gaji-kontrak.print', ['kategori' => $d['kategori']->id, 'jenis' => $jenis->id,'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Download PDF List" target="_blank"><i class="bi-file-pdf"></i></a>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div class="btn-group">
+                                        @if($jenis)
                                         <a href="{{ route('admin.gaji-kontrak.export.single', ['kategori' => $d['kategori']->id, 'jenis' => $jenis->id,'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Upload MyKeu"><i class="bi-file-excel"></i></a>
                                         @endif
                                     </div>
@@ -96,7 +114,7 @@
                                 <td align="right">{{ number_format($total['pegawai']) }}</td>
                                 <td align="right">{{ number_format($total['kotor']) }}</td>
                                 <td align="right">{{ number_format($total['bersih']) }}</td>
-                                <td align="center">
+                                <td align="center" colspan="3">
                                     <div class="btn-group">
                                         @if($jenis)
                                         <a href="{{ route('admin.gaji-kontrak.export.recap', ['jenis' => $jenis->id,'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download Excel Rekap"><i class="bi-file-excel"></i></a>
