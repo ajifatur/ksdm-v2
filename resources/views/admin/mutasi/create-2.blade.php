@@ -56,7 +56,8 @@
                                     <input type="hidden" name="unit_id[]" value="{{ $d->unit_id }}">
                                     <div class="mb-2">
                                         <div class="input-group">
-                                            <input type="text" class="form-control form-control-sm" value="{{ jabatan($d->jabatan) }} - {{ $d->unit->nama }}" disabled>
+                                            <input type="text" class="form-control form-control-sm" value="{{ $d->jabatan->sub != '-' ? $d->jabatan->sub : $d->jabatan->nama }}" disabled>
+                                            <input type="text" class="form-control form-control-sm" value="{{ $d->unit->nama }}" disabled>
                                             <button class="btn btn-outline-primary btn-add" title="Tambah"><i class="bi-plus"></i></button>
                                             <button class="btn btn-outline-warning btn-edit" title="Edit" data-id="{{ $key }}" data-detail="{{ $d->id }}" data-jabatan="{{ $d->jabatan_id }}" data-jabatanremun="{{ $d->jabatan_remun }}" data-unit="{{ $d->unit_id }}"><i class="bi-pencil"></i></button>
                                             @if(count($mutasi->detail) <= 1)
@@ -187,7 +188,6 @@
                             </div>
                         </div>
                     </div>
-                    @if($pegawai->jenis == 1)
                     <hr>
                     <div class="" id="serdos">
                         <div class="row mb-3">
@@ -235,7 +235,6 @@
                             </div>
                         </div>
                     </div>
-                    @endif
                     <hr>
                     <div class="row">
                         <div class="col-lg-2 col-md-3"></div>
@@ -265,7 +264,7 @@
                         <select name="jabatan" class="form-select form-select-sm {{ $errors->has('jabatan') ? 'border-danger' : '' }}">
                             <option value="" disabled selected>--Pilih--</option>
                             @foreach($jabatan as $j)
-                            <option value="{{ $j->id }}">{{ jabatan($j) }}</option>
+                            <option value="{{ $j->id }}">{{ $j->sub != '-' ? $j->sub : $j->nama }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -295,10 +294,6 @@
 @section('js')
 
 <script>
-    // Disabled
-    $("#perubahan").find("input:text, select").attr("disabled","disabled");
-    $("#serdos").find("input:text, select").attr("disabled","disabled");
-
     // Select2
     Spandiv.Select2("select[name=jenis_mutasi]");
     Spandiv.Select2("select[name=golru]");
@@ -315,20 +310,28 @@
         var serdos = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("serdos");
         var perubahan = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("perubahan");
         if($(this).val() == 1) {
-            $("#perubahan").find("input:text, select").attr("disabled","disabled");
-            $("#serdos").find("input:text, select").attr("disabled","disabled");
+            // $("#jabatan-unit").removeClass("d-none");
+            $("#uraian").removeClass("d-none");
+            $("#perubahan").addClass("d-none");
+            $("#serdos").addClass("d-none");
         }
         else if(perubahan == 1) {
-            $("#perubahan").find("input:text, select").removeAttr("disabled");
-            $("#serdos").find("input:text, select").attr("disabled","disabled");
+            // $("#jabatan-unit").addClass("d-none");
+            $("#uraian").addClass("d-none");
+            $("#perubahan").removeClass("d-none");
+            $("#serdos").addClass("d-none");
         }
         else if(remun == 0 && serdos == 1 && perubahan == 0) {
-            $("#perubahan").find("input:text, select").attr("disabled","disabled");
-            $("#serdos").find("input:text, select").removeAttr("disabled");
+            // $("#jabatan-unit").addClass("d-none");
+            $("#uraian").addClass("d-none");
+            $("#perubahan").addClass("d-none");
+            $("#serdos").removeClass("d-none");
         }
         else {
-            $("#perubahan").find("input:text, select").attr("disabled","disabled");
-            $("#serdos").find("input:text, select").attr("disabled","disabled");
+            // $("#jabatan-unit").addClass("d-none");
+            $("#uraian").addClass("d-none");
+            $("#perubahan").addClass("d-none");
+            $("#serdos").addClass("d-none");
         }
     });
 
@@ -432,7 +435,8 @@
         html += '<input type="hidden" name="unit_id[]" value="' + unit + '">';
         html += '<div class="mb-2">';
         html += '<div class="input-group">';
-        html += '<input type="text" class="form-control form-control-sm" value="' + jabatan_nama + ' - ' + unit_nama + '" disabled>';
+        html += '<input type="text" class="form-control form-control-sm" value="' + jabatan_nama + '" disabled>';
+        html += '<input type="text" class="form-control form-control-sm" value="' + unit_nama + '" disabled>';
         html += '<button class="btn btn-outline-primary btn-add" title="Tambah"><i class="bi-plus"></i></button>';
         html += '<button class="btn btn-outline-warning btn-edit" title="Edit" data-id="" data-detail="' + id + '" data-jabatan="' + jabatan + '" data-unit="' + unit + '"><i class="bi-pencil"></i></button>';
         html += '<button class="btn btn-outline-danger btn-delete" title="Hapus"><i class="bi-trash"></i></button>';

@@ -92,7 +92,9 @@ class MutasiController extends Controller
             foreach($mutasi as $key=>$m) {
                 // Get tunjangan profesi terakhir
                 $mutasi[$key]->tunjangan_profesi = $m->pegawai->tunjangan_profesi()->whereHas('angkatan', function(Builder $query) {
-                    return $query->where('jenis_id','!=',1);
+                    return $query->whereHas('jenis', function(Builder $query) {
+                        return $query->where('nama','!=','Kehormatan Profesor');
+                    });
                 })->first();
             }
         }
@@ -119,8 +121,13 @@ class MutasiController extends Controller
 
         // Get SK
         $sk = SK::whereHas('jenis', function(Builder $query) {
-            return $query->where('nama','=','Remun Gaji');
+            return $query->where('nama','=','Remunerasi Gaji');
         })->where('status','=',1)->first();
+
+        // Get SK Gaji Pokok PNS
+        $sk_gapok_pns = SK::whereHas('jenis', function(Builder $query) {
+            return $query->where('nama','=','Gaji Pokok PNS');
+        })->orderBy('awal_tahun','desc')->get();
 
         // Get mutasi
         $mutasi = $pegawai->mutasi()->first();
@@ -144,16 +151,19 @@ class MutasiController extends Controller
         $golru = Golru::all();
 
         // Get gaji pokok
-        if($pegawai->status_kepegawaian->golru == 1)
-            $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
+        if($pegawai->status_kepegawaian->golru == 1) {
+            $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok()->where('sk_id','=',$mutasi->gaji_pokok->sk_id)->get();
+        }
         else
             $gaji_pokok = [];
 
         // Get jabatan
-        $jabatan = Jabatan::where('sk_id','=',$sk->id)->orderBy('nama','asc')->get();
+        $jabatan = Jabatan::whereHas('sk', function(Builder $query) {
+            return $query->where('awal_tahun','=',date('Y'));
+        })->orderBy('nama','asc')->get();
 
         // Get unit
-        $unit = Unit::where('nama','!=','-')->orderBy('num_order','asc')->get();
+        $unit = Unit::orderBy('num_order','asc')->get();
 
         // Get pejabat
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
@@ -171,6 +181,7 @@ class MutasiController extends Controller
         return view('admin/mutasi/create', [
             'pegawai' => $pegawai,
             'sk' => $sk,
+            'sk_gapok_pns' => $sk_gapok_pns,
             'mutasi' => $mutasi,
             'jenis_mutasi' => $jenis_mutasi,
             'status_kepegawaian' => $status_kepegawaian,
@@ -474,6 +485,25 @@ class MutasiController extends Controller
                 $mutasi->remun_gaji = 0;
                 $mutasi->remun_insentif = 0;
                 $mutasi->save();
+
+                // Get mutasi pegawai
+                if($request->id == 0) {
+                    $m = $pegawai->mutasi()->where('jenis_id','=',1)->first();
+                    if($m) {
+                        foreach($m->detail as $d) {
+                            // Simpan mutasi detail
+                            $detail = new MutasiDetail;
+                            $detail->mutasi_id = $mutasi->id;
+                            $detail->jabatan_id = $d->jabatan_id;
+                            $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
+                            $detail->unit_id = $d->unit_id;
+                            $detail->layer_id = $d->layer_id;
+                            $detail->angkatan_id = 0;
+                            $detail->status = $d->status;
+                            $detail->save();
+                        }
+                    }
+                }
 
                 // Jika sanksi
                 if($jenis_mutasi->nama != 'Sanksi') {

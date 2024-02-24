@@ -45,6 +45,9 @@ class PegawaiController extends Controller
      */
     public function active(Request $request)
     {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
         // Get pegawai
         $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
             return $query->where('status','=',1);
@@ -77,6 +80,9 @@ class PegawaiController extends Controller
      */
     public function inactive(Request $request)
     {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
         $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
             return $query->where('status','=',0);
         })->orderBy('tmt_non_aktif','desc')->get();
@@ -102,7 +108,7 @@ class PegawaiController extends Controller
         // Get pegawai by keyword
         $pegawai = [];
         if(session('keyword') != null && session('keyword') != '')
-            $pegawai = Pegawai::where('nama','like','%'.session('keyword').'%')->orWhere('nip','like','%'.session('keyword').'%')->orderBy('nip','asc')->get();
+            $pegawai = Pegawai::where('nama','like','%'.session('keyword').'%')->orWhere('nip','like','%'.session('keyword').'%')->orWhere('npu','like','%'.session('keyword').'%')->orderBy('nip','asc')->get();
 
         // View
         return view('admin/pegawai/search', [
@@ -122,33 +128,26 @@ class PegawaiController extends Controller
         // Get pegawai
         $pegawai = Pegawai::findOrFail($id);
 
-        // Set jabatan, unit, golru, MKG
-        $jabatan = '-';
-        $unit = '-';
-        $golru = '-';
-        $mkg = '-';
-        if($pegawai->status_kerja->status == 1) {
-            // Get mutasi pegawai
-            $mutasi = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
-                return $query->where('status','=',1);
-            })->first();
+        // Get mutasi pegawai
+        $mutasi = $pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
+            return $query->where('status','=',1);
+        })->first();
 
-            // Get jabatan dan unit
-            $jabatan = [];
-            $unit = [];
-            if($mutasi) {
-                foreach($mutasi->detail as $d) {
-                    if($d->jabatan && !in_array(jabatan($d->jabatan), $jabatan)) array_push($jabatan, jabatan($d->jabatan));
-                    if($d->unit && !in_array($d->unit->nama, $unit)) array_push($unit, $d->unit->nama);
-                }
+        // Get jabatan dan unit
+        $jabatan = [];
+        $unit = [];
+        if($mutasi) {
+            foreach($mutasi->detail as $d) {
+                if($d->jabatan && !in_array(jabatan($d->jabatan), $jabatan)) array_push($jabatan, jabatan($d->jabatan));
+                if($d->unit && !in_array($d->unit->nama, $unit)) array_push($unit, $d->unit->nama);
             }
-            $jabatan = implode(' / ', $jabatan);
-            $unit = implode(' / ', $unit);
-
-            // Get golru dan MKG
-            $golru = ($mutasi && $mutasi->golru) ? $mutasi->golru->nama : '-';
-            $mkg = ($mutasi && $mutasi->gaji_pokok) ? $mutasi->gaji_pokok->nama : '-';
         }
+        $jabatan = implode(' / ', $jabatan);
+        $unit = implode(' / ', $unit);
+
+        // Get golru dan MKG
+        $golru = ($mutasi && $mutasi->golru) ? $mutasi->golru->nama : '-';
+        $mkg = ($mutasi && $mutasi->gaji_pokok) ? $mutasi->gaji_pokok->nama : '-';
 
         // Get remun gaji
         $remun_gaji = [];
@@ -362,9 +361,9 @@ class PegawaiController extends Controller
             $pegawai->save();
 
             // Redirect
-            if(in_array($pegawai->status_kepegawaian->nama, ['CPNS','PNS']))
+            if($pegawai->status_kepegawaian->grup->nama == 'PNS')
     			return redirect()->route('admin.pantauan.mkg', ['tipe' => 1])->with(['message' => 'Berhasil mengupdate TMT Golongan pegawai.']);
-            elseif(in_array($pegawai->status_kepegawaian->nama, ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN','Non PNS']))
+            elseif($pegawai->status_kepegawaian->grup->nama == 'Pegawai Tetap Non ASN')
                 return redirect()->route('admin.pantauan.mkg', ['tipe' => 2])->with(['message' => 'Berhasil mengupdate TMT Golongan pegawai.']);
         }
     }

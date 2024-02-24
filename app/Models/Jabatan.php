@@ -33,6 +33,14 @@ class Jabatan extends Model
     }
     
     /**
+     * SK.
+     */
+    public function sk()
+    {
+        return $this->belongsTo(SK::class, 'sk_id');
+    }
+    
+    /**
      * Jabatan Dasar.
      */
     public function jabatan_dasar()
