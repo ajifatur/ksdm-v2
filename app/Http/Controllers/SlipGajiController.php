@@ -43,7 +43,9 @@ class SlipGajiController extends Controller
         $pegawai = Pegawai::whereHas('status_kerja', function (Builder $query) {
             return $query->where('status','=',1);
         })->whereHas('status_kepegawaian', function (Builder $query) {
-            return $query->whereIn('nama', ['PNS','CPNS','PPPK']);
+            return $query->whereHas('grup', function(Builder $query) {
+                return $query->whereIn('nama',['PNS','PPPK']);
+            });
         })->get();
 
         // View

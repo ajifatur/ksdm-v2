@@ -96,7 +96,7 @@ class RemunGajiController extends Controller
                 // Count mutasi
                 $proses[$key]->mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
                     return $query->where('remun','=',1);
-                })->where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->count();
+                })->where('proses','=',$p->tahun.'-'.($p->bulan < 10 ? '0'.$p->bulan : $p->bulan).'-01')->count();
 
                 // Count pegawai
                 $proses[$key]->pegawai = RemunGaji::where('bulan','=',$p->bulan)->where('tahun','=',$p->tahun)->count();
@@ -116,6 +116,7 @@ class RemunGajiController extends Controller
         elseif($request->method() == "POST") {
             // Set tanggal proses
             $tanggal = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-'.$request->tanggal;
+            $tanggal_1 = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-01';
 
             // Set tanggal periode sebelumnya
             $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
@@ -127,10 +128,10 @@ class RemunGajiController extends Controller
             $mutasi = collect();
             $mutasi_1 = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('remun','=',1);
-            })->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
+            })->where('proses_remun','=',$tanggal_1)->get();
             $mutasi_2 = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('remun','=',1);
-            })->where('bulan','=',0)->where('tahun','=',0)->where('tmt','<=',$tanggal)->get();
+            })->whereNull('proses_remun')->where('tmt','<=',$tanggal)->get();
             $mutasi = $mutasi->merge($mutasi_1)->merge($mutasi_2);
 
             // Loop mutasi
@@ -167,9 +168,10 @@ class RemunGajiController extends Controller
 					if($m->tmt <= $tanggal_sebelum) {
 						// Loop tanggal
 						$temp_tanggal = $tanggal_sebelum;
+                        $temp_tanggal_1 = date('Y-m', strtotime($temp_tanggal)).'-01';
 						while($temp_tanggal >= $m->tmt) {
 							// Get mutasi sebelum
-							$mutasi_sebelum = Mutasi::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($temp_tanggal)))->where('tahun','=',date('Y', strtotime($temp_tanggal)))->first();
+							$mutasi_sebelum = Mutasi::where('pegawai_id','=',$m->pegawai_id)->where('proses_remun','=',$temp_tanggal_1)->first();
 
 							// Get remun gaji bulan sebelumnya
 							$rg = RemunGaji::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($temp_tanggal)))->where('tahun','=',date('Y', strtotime($temp_tanggal)))->first();
@@ -762,6 +764,9 @@ class RemunGajiController extends Controller
      */
     public function compare($sebelum, $sesudah, $bulan, $tahun)
     {
+        // Set tanggal
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
+
         // Cek pegawai masuk
         $masuk = [];
         if(count($sesudah) > 0) {
@@ -788,8 +793,8 @@ class RemunGajiController extends Controller
             $pegawai_masuk = Pegawai::whereIn('id', $masuk)->get();
             foreach($pegawai_masuk as $key=>$p) {
                 // Get mutasi jabatan fungsional
-                $mutasi = $p->mutasi_detail()->whereHas('mutasi', function(Builder $query) use ($bulan, $tahun) {
-                    return $query->where('jenis_id','=',1)->where('bulan','!=',$bulan)->orWhere('tahun','!=',$tahun);
+                $mutasi = $p->mutasi_detail()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                    return $query->where('jenis_id','=',1)->where('proses_remun','!=',$tanggal);
                 })->where('status','=',1)->first();
                 $pegawai_masuk[$key]->mutasi_sebelum = $mutasi;
 
@@ -798,8 +803,8 @@ class RemunGajiController extends Controller
                     array_push($unit_asal, $mutasi->unit->nama);
 
                 // Get mutasi jabatan
-                $mutasi_sebelum = $p->mutasi_detail()->whereHas('mutasi', function(Builder $query) use ($bulan, $tahun) {
-                    return $query->where('bulan','!=',$bulan)->orWhere('tahun','!=',$tahun);
+                $mutasi_sebelum = $p->mutasi_detail()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                    return $query->where('proses_remun','!=',$tanggal);
                 })->where('status','=',1)->first();
                 if(!$mutasi_sebelum)
                     $pegawai_baru = true;
@@ -814,8 +819,8 @@ class RemunGajiController extends Controller
             $pegawai_keluar = Pegawai::whereIn('id', $keluar)->get();
             foreach($pegawai_keluar as $key=>$p) {
                 // Get mutasi jabatan
-                $mutasi = $p->mutasi_detail()->whereHas('mutasi', function(Builder $query) use ($bulan, $tahun) {
-                    return $query->where('bulan','=',$bulan)->where('tahun','=',$tahun);
+                $mutasi = $p->mutasi_detail()->whereHas('mutasi', function(Builder $query) use ($tanggal) {
+                    return $query->where('proses_remun','=',$tanggal);
                 })->where('status','=',1)->first();
                 $pegawai_keluar[$key]->mutasi_sesudah = $mutasi;
 

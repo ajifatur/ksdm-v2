@@ -22,7 +22,7 @@ class StatusKepegawaianController extends Controller
         // has_access(__METHOD__, Auth::user()->role_id);
 
         // Get status kepegawaian
-        $status_kepegawaian = StatusKepegawaian::orderBy('persentase','desc')->get();
+        $status_kepegawaian = StatusKepegawaian::orderBy('grup_id','asc')->orderBy('persentase','desc')->get();
 		
 		// View
 		return view('admin/status-kepegawaian/index', [

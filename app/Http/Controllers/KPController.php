@@ -63,7 +63,9 @@ class KPController extends Controller
 				return $query->where('nama','=','Mutasi Pangkat');
 			})->whereHas('pegawai', function(Builder $query) {
 				return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama', ['PNS','CPNS']);
+                    return $query->whereHas('grup', function(Builder $query) {
+                        return $query->where('nama','=','PNS');
+                    });
                 })->where('jenis','=',1);
 			})->where('tmt','=',$t)->count();
 			
@@ -72,7 +74,9 @@ class KPController extends Controller
 				return $query->where('nama','=','Mutasi Pangkat');
 			})->whereHas('pegawai', function(Builder $query) {
 				return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama', ['PNS','CPNS']);
+                    return $query->whereHas('grup', function(Builder $query) {
+                        return $query->where('nama','=','PNS');
+                    });
                 })->where('jenis','=',2);
 			})->where('tmt','=',$t)->count();
 
@@ -81,7 +85,9 @@ class KPController extends Controller
 				return $query->where('nama','=','Mutasi Pangkat');
 			})->whereHas('pegawai', function(Builder $query) {
 				return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                    return $query->whereHas('grup', function(Builder $query) {
+                        return $query->where('nama','=','Pegawai Tetap Non ASN');
+                    });
                 })->where('jenis','=',1);
 			})->where('tmt','=',$t)->count();
 			
@@ -90,7 +96,9 @@ class KPController extends Controller
 				return $query->where('nama','=','Mutasi Pangkat');
 			})->whereHas('pegawai', function(Builder $query) {
 				return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                    return $query->whereHas('grup', function(Builder $query) {
+                        return $query->where('nama','=','Pegawai Tetap Non ASN');
+                    });
                 })->where('jenis','=',2);
 			})->where('tmt','=',$t)->count();
 

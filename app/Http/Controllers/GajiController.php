@@ -789,47 +789,4 @@ class GajiController extends Controller
             'perubahan_anak_satker' => $perubahan_anak_satker,
         ]);
     }
-
-    /**
-     * Sync
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function sync(Request $request)
-    {
-		ini_set("memory_limit", "-1");
-        ini_set("max_execution_time", "-1");
-
-        // Get gaji
-        $gaji = Gaji::whereDoesntHave('unit')->get();
-        
-        foreach($gaji as $g) {
-            var_dump($g->anak_satker->nama);
-            echo "<br>";
-            // Update
-            // $update = Gaji::find($g->id);
-            // $update->unit_id = $g->pegawai->unit_id;
-            // $update->save();
-        }
-    }
-
-    // public function kdanak_to_unit($kdanak) {
-    //     if($kdanak == "00") $anak = 6;
-    //     elseif($kdanak == "01") $anak = 26;
-    //     elseif($kdanak == "02") $anak = 10;
-    //     elseif($kdanak == "03") $anak = 9;
-    //     elseif($kdanak == "04") $anak = 7;
-    //     elseif($kdanak == "05") $anak = 0;
-    //     elseif($kdanak == "06") $anak = 11;
-    //     elseif($kdanak == "07") $anak = 4;
-    //     elseif($kdanak == "08") $anak = 4;
-    //     elseif($kdanak == "09") $anak = 4;
-    //     elseif($kdanak == "10") $anak = 1;
-    //     elseif($kdanak == "11") $anak = 2;
-    //     elseif($kdanak == "12") $anak = 12;
-    //     else $anak = 0;
-
-    //     return $anak;
-    // }
 }

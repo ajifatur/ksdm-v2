@@ -50,17 +50,19 @@ class MutasiController extends Controller
         if($new == 1) {
             $bulan = 0;
             $tahun = 0;
+            $tanggal = null;
         }
         else {
             $bulan = $request->query('bulan') ?: date('n');
             $tahun = $request->query('tahun') ?: date('Y');
+            $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
         }
 
         // Get mutasi
         if($jenis == 'remun') {
             $mutasi = Mutasi::whereHas('jenis', function(Builder $query) {
                 return $query->where('remun','=',1);
-            })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
+            })->where('proses','=',$tanggal)->orderBy('tmt','desc')->orderBy('remun_penerimaan','desc')->get();
         }
         elseif($jenis == 'serdos') {
             $mutasi = Mutasi::where(function($query) {
@@ -85,7 +87,7 @@ class MutasiController extends Controller
                 });
             })->whereHas('status_kepegawaian', function(Builder $query) {
                 return $query->whereIn('nama',['PNS','Pegawai Tetap Non ASN']);
-            })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->orderBy('tmt','desc')->get();
+            })->where('proses','=',$tanggal)->orderBy('tmt','desc')->get();
 
             foreach($mutasi as $key=>$m) {
                 // Get tunjangan profesi terakhir
@@ -752,12 +754,6 @@ class MutasiController extends Controller
     {
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
-
-        // Get mutasi
-        // $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();
-        // return view('admin/mutasi/sync', [
-        //     'mutasi' => $mutasi,
-        // ]);
 
         // Get mutasi
         $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();

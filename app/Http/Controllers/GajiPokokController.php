@@ -30,12 +30,12 @@ class GajiPokokController extends Controller
         if($request->ajax()) {
             if($request->query('golru') != null) {
                 $golru = $request->query('golru');
-                $gaji_pokok = GajiPokok::where('golru_id','=',$golru)->get();
+                $gaji_pokok = GajiPokok::where('sk_id','=',$request->query('sk'))->where('golru_id','=',$golru)->get();
                 return response()->json($gaji_pokok);
             }
             elseif($request->query('pegawai') != null) {
                 $mutasi = Mutasi::where('pegawai_id','=',$request->query('pegawai'))->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
-                $gaji_pokok = GajiPokok::where('golru_id','=',$mutasi->golru_id)->get();
+                $gaji_pokok = GajiPokok::where('sk_id','=',$request->query('sk'))->where('golru_id','=',$mutasi->golru_id)->get();
                 return response()->json([
                     'id' => $mutasi->gaji_pokok_id,
                     'gaji_pokok' => $gaji_pokok

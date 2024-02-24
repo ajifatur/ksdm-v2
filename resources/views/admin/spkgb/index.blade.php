@@ -46,7 +46,8 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">NIP</th>
+                                <th rowspan="2">Nama</th>
                                 <th rowspan="2">Jenis</th>
                                 <th rowspan="2">Unit</th>
                                 <th rowspan="2">Golru</th>
@@ -64,7 +65,8 @@
                             @foreach($pegawai as $peg)
                                 @foreach($peg as $p)
                                 <tr>
-                                    <td>{{ strtoupper($p->nama) }}<br>{{ $p->nip }}</td>
+                                    <td><a href="{{ route('admin.pegawai.detail' ,['id' => $p->id]) }}">`{{ nip_baru($p) }}</a></td>
+                                    <td>{{ strtoupper($p->nama) }}</td>
                                     <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                     <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>
                                     <td>{{ $p->golru ? $p->golru->nama : '-' }}</td>

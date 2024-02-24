@@ -11,17 +11,12 @@
 	<div class="col-12">
 		<div class="card">
             <div class="card-body">
-                @if(Session::get('message'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <div class="alert-message">{{ Session::get('message') }}</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
                 <div class="table-responsive">
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
                                 <th>Nama</th>
+                                <th>Grup</th>
                                 <th>Persentase</th>
                             </tr>
                         </thead>
@@ -29,6 +24,7 @@
                             @foreach($status_kepegawaian as $s)
                             <tr>
                                 <td>{{ $s->nama }}</td>
+                                <td>{{ $s->grup->nama }}</td>
                                 <td align="right">{{ $s->persentase }}%</td>
                             </tr>
                             @endforeach

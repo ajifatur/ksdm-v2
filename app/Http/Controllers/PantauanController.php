@@ -30,14 +30,18 @@ class PantauanController extends Controller
             $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
                 return $query->where('status','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
-                return $query->whereIn('nama', ['CPNS','PNS']);
+                return $query->whereHas('grup', function(Builder $query) {
+                    return $query->where('nama','=','PNS');
+                });
             })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
         }
         elseif($request->query('tipe') == 2) {
             $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
                 return $query->where('status','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
-                return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN','Non PNS']);
+                return $query->whereHas('grup', function(Builder $query) {
+                    return $query->where('nama','=','Pegawai Tetap Non ASN');
+                });
             })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
         }
 
@@ -113,7 +117,9 @@ class PantauanController extends Controller
         $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
             return $query->where('status','=',1);
         })->whereHas('status_kepegawaian', function(Builder $query) {
-            return $query->whereIn('nama', ['CPNS','PNS']);
+            return $query->whereHas('grup', function(Builder $query) {
+                return $query->where('nama','=','PNS');
+            });
         })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
 		foreach($pegawai as $key=>$p) {
             // Set TMT pensiun
@@ -161,7 +167,9 @@ class PantauanController extends Controller
             $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
                 return $query->where('status','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
-                return $query->whereIn('nama', ['CPNS','PNS']);
+                return $query->whereHas('grup', function(Builder $query) {
+                    return $query->where('nama','=','PNS');
+                });
             })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
             foreach($pegawai as $key=>$p) {
                 // Get gaji pokok terakhir dari mutasi
@@ -172,7 +180,6 @@ class PantauanController extends Controller
                     return $query->where('nama','=','Gaji Induk');
                 })->where('tahun','=',$gaji_terakhir->tahun)->where('bulan','=',$gaji_terakhir->bulan)->first() : null;
                 $gaji_pokok = $gaji_induk ? GajiPokok::whereHas('sk', function(Builder $query) {
-                    // return $query->where('status','=',1)->whereHas('jenis', function(Builder $query) {
                     return $query->whereHas('jenis', function(Builder $query) {
                         return $query->where('nama','=','Gaji Pokok PNS');
                     });
@@ -205,7 +212,9 @@ class PantauanController extends Controller
             $pegawai = Pegawai::whereHas('status_kerja', function(Builder $query) {
                 return $query->where('status','=',1);
             })->whereHas('status_kepegawaian', function(Builder $query) {
-                return $query->whereIn('nama', ['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN','Non PNS']);
+                return $query->whereHas('grup', function(Builder $query) {
+                    return $query->where('nama','=','Pegawai Tetap Non ASN');
+                });
             })->orderBy('tmt_golongan','asc')->orderBy('jenis','asc')->get();
             foreach($pegawai as $key=>$p) {
                 // Get gaji pokok terakhir dari mutasi
@@ -263,7 +272,7 @@ class PantauanController extends Controller
     public function statusKepegawaian(Request $request)
     {
         // Get status kepegawaian
-        $status_kepegawaian = StatusKepegawaian::orderBy('persentase','desc')->get();
+        $status_kepegawaian = StatusKepegawaian::orderBy('grup_id','asc')->orderBy('persentase','desc')->get();
         foreach($status_kepegawaian as $key=>$s) {
             // Count pegawai
             $status_kepegawaian[$key]->dosen = Pegawai::whereHas('status_kerja', function(Builder $query) {

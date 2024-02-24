@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StatusKepegawaian extends Model
+class GrupStatusKepegawaian extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class StatusKepegawaian extends Model
      *
      * @var string
      */
-    protected $table = 'tbl_status_kepegawaian';
+    protected $table = 'tbl_grup_status_kepegawaian';
 
     /**
      * The attributes that are mass assignable.
@@ -23,12 +23,12 @@ class StatusKepegawaian extends Model
      */
     protected $fillable = [
     ];
-    
+
     /**
-     * Grup.
+     * Status Kepegawaian.
      */
-    public function grup()
+    public function status_kepegawaian()
     {
-        return $this->belongsTo(GrupStatusKepegawaian::class, 'grup_id');
+        return $this->hasMany(StatusKepegawaian::class, 'grup_id');
     }
 }

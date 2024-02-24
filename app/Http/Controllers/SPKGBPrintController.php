@@ -73,6 +73,11 @@ class SPKGBPrintController extends Controller
             if($jenis != 0) {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
                     return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
+                        return $query->whereHas('status_kepegawaian', function(Builder $query) {
+                            return $query->whereHas('grup', function(Builder $query) {
+                                return $query->where('nama','=','PNS');
+                            });
+                        });
                         return $query->whereIn('nama',['PNS','CPNS']);
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
@@ -86,7 +91,9 @@ class SPKGBPrintController extends Controller
             else {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                     return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                        return $query->whereIn('nama',['PNS','CPNS']);
+                        return $query->whereHas('grup', function(Builder $query) {
+                            return $query->where('nama','=','PNS');
+                        });
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
@@ -100,7 +107,9 @@ class SPKGBPrintController extends Controller
         elseif($request->query('tipe') == 2) {
             $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                 return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                    return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                    return $query->whereHas('grup', function(Builder $query) {
+                        return $query->where('nama','=','Pegawai Tetap Non ASN');
+                    });
                 });
             })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                 return $query->has('perubahan')->where('tmt','=',$tanggal);
@@ -147,7 +156,9 @@ class SPKGBPrintController extends Controller
             if($jenis != 0) {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
                     return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
-                        return $query->whereIn('nama',['PNS','CPNS']);
+                        return $query->whereHas('grup', function(Builder $query) {
+                            return $query->where('nama','=','PNS');
+                        });
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
@@ -160,7 +171,9 @@ class SPKGBPrintController extends Controller
             else {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                     return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                        return $query->whereIn('nama',['PNS','CPNS']);
+                        return $query->whereHas('grup', function(Builder $query) {
+                            return $query->where('nama','=','PNS');
+                        });
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
@@ -175,7 +188,9 @@ class SPKGBPrintController extends Controller
             if($jenis != 0) {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) use ($jenis) {
                     return $query->where('jenis','=',$jenis)->whereHas('status_kepegawaian', function(Builder $query) {
-                        return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                        return $query->whereHas('grup', function(Builder $query) {
+                            return $query->where('nama','=','Pegawai Tetap Non ASN');
+                        });
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
@@ -188,7 +203,9 @@ class SPKGBPrintController extends Controller
             else {
                 $spkgb = SPKGB::whereHas('pegawai', function(Builder $query) {
                     return $query->whereHas('status_kepegawaian', function(Builder $query) {
-                        return $query->whereIn('nama',['BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']);
+                        return $query->whereHas('grup', function(Builder $query) {
+                            return $query->where('nama','=','Pegawai Tetap Non ASN');
+                        });
                     });
                 })->whereHas('mutasi', function(Builder $query) use ($tanggal) {
                     return $query->has('perubahan')->where('tmt','=',$tanggal);
