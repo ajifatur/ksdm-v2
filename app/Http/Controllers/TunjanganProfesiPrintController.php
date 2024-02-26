@@ -122,12 +122,17 @@ class TunjanganProfesiPrintController extends Controller
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
 		
 		// Set header
-		if($request->bulan == 2) {
-			$header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
-		}
-		elseif($request->bulan == 1) {
-			$header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
-		}
+        if($request->tahun <= 2023) {
+            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+        }
+        else {
+            if($request->bulan > 1) {
+                $header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
+            }
+            elseif($request->bulan == 1) {
+                $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            }
+        }
 
         // Get jenis
         $jenis = JenisTunjanganProfesi::find($id);
@@ -183,12 +188,17 @@ class TunjanganProfesiPrintController extends Controller
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
 		
 		// Set header
-		if($request->bulan == 2) {
-			$header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
-		}
-		elseif($request->bulan == 1) {
-			$header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
-		}
+        if($request->tahun <= 2023) {
+            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+        }
+        else {
+            if($request->bulan > 1) {
+                $header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
+            }
+            elseif($request->bulan == 1) {
+                $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            }
+        }
 
         // PDF
         $pdf = PDF::loadView('admin/tunjangan-profesi/print/single', [
