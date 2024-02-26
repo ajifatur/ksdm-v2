@@ -788,7 +788,7 @@ class MutasiController extends Controller
 
         $mutasi = Mutasi::whereHas('pegawai', function(Builder $query) {
             return $query->where('status_kerja_id','=',1);
-        })->orderBy('pegawai_id','asc')->get();
+        })->orderBy('pegawai_id','asc')->orderByRaw("proses IS NULL DESC")->orderBy('proses','desc')->orderBy('tmt','desc')->orderBy('gaji_pokok_id','desc')->get();
 
         return view('admin/mutasi/sync', [
             'mutasi' => $mutasi
