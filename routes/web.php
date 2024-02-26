@@ -171,6 +171,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     Route::get('/admin/gaji/monthly', 'GajiController@monthly')->name('admin.gaji.monthly');
     Route::get('/admin/gaji/annually', 'GajiController@annually')->name('admin.gaji.annually');
     Route::get('/admin/gaji/print/{id}', 'GajiController@print')->name('admin.gaji.print');
+    Route::get('/admin/gaji/print-monthly', 'GajiController@printMonthly')->name('admin.gaji.print-monthly');
     Route::get('/admin/gaji/export', 'GajiController@export')->name('admin.gaji.export');
     Route::get('/admin/gaji/import', 'GajiController@import')->name('admin.gaji.import');
     Route::post('/admin/gaji/import', 'GajiController@import')->name('admin.gaji.import');

@@ -329,6 +329,45 @@ class GajiController extends Controller
     }
 
     /**
+     * Print.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printMonthly(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+        $bulan = $request->query('bulan') ?: date('n');
+        $tahun = $request->query('tahun') ?: date('Y');
+        $status = $request->query('status');
+
+        // Get jenis
+        $jenis = JenisGaji::findOrFail($request->query('jenis'));
+
+        // Get gaji
+        $gaji = Gaji::whereHas('anak_satker', function(Builder $query) use($status) {
+            return $query->where('jenis','=',$status);
+        })->where('jenis_id','=',$jenis->id)->where('bulan','=',($bulan < 10 ? '0'.$bulan : $bulan))->where('tahun','=',$tahun)->orderBy('anak_satker_id','asc')->get();
+
+        // Set title
+        $title = $jenis->nama.' '.($status == 1 ? 'PNS' : 'PPPK').' ('.$tahun.' '.DateTimeExt::month($bulan).')';
+
+        // PDF
+        $pdf = PDF::loadView('admin/gaji/print-monthly', [
+            'title' => $title,
+            'jenis' => $jenis,
+            'status' => $status,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'gaji' => $gaji,
+        ]);
+        $pdf->setPaper([0, 0 , 935, 612]);
+        return $pdf->stream($title.'.pdf');
+    }
+
+    /**
      * Export to Excel.
      *
      * @param  \Illuminate\Http\Request  $request

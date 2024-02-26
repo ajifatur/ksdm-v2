@@ -139,12 +139,20 @@
                                 <td align="right">{{ number_format($total['dosen_jumlah'] + $total['tendik_jumlah']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_nominal'] + $total['tendik_nominal']) }}</td>
                                 <td align="right">{{ number_format($total['dosen_potongan'] + $total['tendik_potongan']) }}</td>
-                                <td align="center" colspan="3">
+                                <td></td>
+                                <td align="center">
                                     @if($jenis)
                                     <div class="btn-group">
                                         <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'kategori' => 1, 'tahun' => $tahun]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Download Excel Dosen"><i class="bi-file-excel"></i></a>
                                         <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'kategori' => 2, 'tahun' => $tahun]) }}" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Download Excel Tendik"><i class="bi-file-excel"></i></a>
                                         <a href="{{ route('admin.gaji.export', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'tahun' => $tahun]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Excel Semua"><i class="bi-file-excel"></i></a>
+                                    </div>
+                                    @endif
+                                </td>
+                                <td align="center">
+                                    @if($jenis)
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.gaji.print-monthly', ['bulan' => $bulan, 'jenis' => $jenis->id, 'status' => $status, 'tahun' => $tahun]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Download PDF Semua" target="_blank"><i class="bi-file-pdf"></i></a>
                                     </div>
                                     @endif
                                 </td>
