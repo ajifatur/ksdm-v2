@@ -275,6 +275,7 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
     // Route::get('/admin/uang-makan/sync', 'UangMakanController@sync')->name('admin.uang-makan.sync');
     // Route::get('/admin/prodi/import', 'ProdiController@import')->name('admin.prodi.import');
     // Route::get('/admin/mutasi/pgp/import', 'PGPController@import')->name('admin.pgp.import');
+    Route::get('/admin/mutasi/sync', 'MutasiController@sync')->name('admin.mutasi.sync');
     Route::get('/admin/spkgb/import', 'SPKGBController@import')->name('admin.spkgb.import');
     Route::get('/admin/test/export', 'TestController@export')->name('admin.test.export');
     Route::get('/admin/test/import', 'TestController@import')->name('admin.test.import');

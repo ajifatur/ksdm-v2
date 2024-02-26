@@ -7,6 +7,7 @@
  * array_sum_range()
  * nip_baru()
  * jabatan()
+ * ttd()
  */
 
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +16,7 @@ use App\Models\GajiPokok;
 use App\Models\Pegawai;
 use App\Models\Jabatan;
 use App\Models\SK;
+use App\Models\TTD;
 
 // Get pegawai yang SPKGB
 if(!function_exists('pegawai_spkgb')) {
@@ -172,5 +174,18 @@ if(!function_exists('jabatan')) {
         }
         else
             return '-';
+    }
+}
+
+// TTD
+if(!function_exists('ttd')) {
+    function ttd($kode, $tanggal) {
+        $ttd = TTD::where('kode','=',$kode)->where(function($query) use ($tanggal) {
+			$query->where('tanggal_mulai','<=',$tanggal)->orWhereNull('tanggal_mulai');
+		})->where(function($query) use ($tanggal) {
+			$query->where('tanggal_selesai','>=',$tanggal)->orWhereNull('tanggal_selesai');
+		})->first();
+
+        return $ttd;
     }
 }

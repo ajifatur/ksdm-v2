@@ -37,12 +37,12 @@
             <tr>
                 <td width="60">Nama</td>
                 <td width="5">:</td>
-                <td>Prof. Dr. S Martono, M.Si.</td>
+                <td>{{ title_name(ttd('kpa', $tanggal)->pegawai->nama, ttd('kpa', $tanggal)->pegawai->gelar_depan, ttd('kpa', $tanggal)->pegawai->gelar_belakang) }}</td>
             </tr>
             <tr>
                 <td>NIP</td>
                 <td>:</td>
-                <td>196603081989011001</td>
+                <td>{{ ttd('ppk', $tanggal)->pegawai->nip }}</td>
             </tr>
             <tr>
                 <td>Jabatan</td>

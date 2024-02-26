@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Tambah Mutasi Pegawai')
+@section('title', (Request::query('mutasi') == null ? 'Tambah' : 'Edit').' Mutasi Pegawai')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Tambah Mutasi Pegawai</h1>
+    <h1 class="h3 mb-0">{{ Request::query('mutasi') == null ? 'Tambah' : 'Edit' }} Mutasi Pegawai</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -13,7 +13,7 @@
             <div class="card-body">
                 <form method="post" action="{{ route('admin.mutasi.store') }}" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="id" value="0">
+                    <input type="hidden" name="id" value="{{ Request::query('mutasi') == null ? 0 : $mutasi->id }}">
                     <input type="hidden" name="pegawai_id" value="{{ $pegawai->id }}">
                     <input type="hidden" name="sk_id" value="{{ $sk->id }}">
                     <div class="row mb-3">
@@ -28,7 +28,7 @@
                             <select name="jenis_mutasi" class="form-select form-select-sm {{ $errors->has('jenis_mutasi') ? 'border-danger' : '' }}">
                                 <option value="" disabled selected>--Pilih--</option>
                                 @foreach($jenis_mutasi as $j)
-                                <option value="{{ $j->id }}" data-remun="{{ $j->remun }}" data-serdos="{{ $j->serdos }}" data-perubahan="{{ $j->perubahan }}" {{ old('jenis_mutasi') == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
+                                <option value="{{ $j->id }}" data-remun="{{ $j->remun }}" data-serdos="{{ $j->serdos }}" data-perubahan="{{ $j->perubahan }}" {{ (Request::query('mutasi') == null ? old('jenis_mutasi') : $mutasi->jenis_id) == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('jenis_mutasi'))
@@ -36,19 +36,10 @@
                             @endif
                         </div>
                     </div>
-                    <!-- <div class="row mb-3 d-none" id="uraian">
-                        <label class="col-lg-2 col-md-3 col-form-label">Uraian <span class="text-danger">*</span></label>
-                        <div class="col-lg-10 col-md-9">
-                            <textarea name="uraian" class="form-control form-control-sm {{ $errors->has('uraian') ? 'border-danger' : '' }}" rows="3">{{ old('uraian') }}</textarea>
-                            @if($errors->has('uraian'))
-                            <div class="small text-danger">{{ $errors->first('uraian') }}</div>
-                            @endif
-                        </div>
-                    </div> -->
                     <div class="row mb-3" id="jabatan-unit">
                         <label class="col-lg-2 col-md-3 col-form-label">Jabatan dan Unit <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            @if($mutasi)
+                            @if($mutasi && count($mutasi->detail) > 0)
                                 @foreach($mutasi->detail as $key=>$d)
                                 <div class="lists" data-id="{{ $key }}">
                                     <input type="hidden" name="detail_id[]" value="{{ $d->id }}">

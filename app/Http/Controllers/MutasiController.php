@@ -112,25 +112,27 @@ class MutasiController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function create($id)
+    public function create(Request $request, $id)
     {
         // Get pegawai
         $pegawai = Pegawai::findOrFail($id);
 
-        // Get SK
+        // Get mutasi
+        $mutasi = Mutasi::find($request->query('mutasi'));
+        if(!$mutasi) $mutasi = $pegawai->mutasi()->first();
+
+        // Get SK remun
         $sk = SK::whereHas('jenis', function(Builder $query) {
             return $query->where('nama','=','Remunerasi Gaji');
-        })->where('status','=',1)->first();
+        })->orderBy('tanggal','desc')->first();
 
         // Get SK Gaji Pokok PNS
         $sk_gapok_pns = SK::whereHas('jenis', function(Builder $query) {
             return $query->where('nama','=','Gaji Pokok PNS');
-        })->orderBy('awal_tahun','desc')->get();
-
-        // Get mutasi
-        $mutasi = $pegawai->mutasi()->first();
+        })->orderBy('tanggal','desc')->get();
 
         // Get jabatan remun
         if($mutasi->jenis->remun == 0) {
@@ -144,16 +146,12 @@ class MutasiController extends Controller
         // Get jenis mutasi
         $jenis_mutasi = JenisMutasi::orderBy('num_order','asc')->get();
 
-        // Get status kepegawaian
-        $status_kepegawaian = StatusKepegawaian::get();
-
         // Get golru
         $golru = Golru::all();
 
         // Get gaji pokok
-        if($pegawai->status_kepegawaian->golru == 1) {
+        if($pegawai->status_kepegawaian->golru == 1)
             $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok()->where('sk_id','=',$mutasi->gaji_pokok->sk_id)->get();
-        }
         else
             $gaji_pokok = [];
 
@@ -180,15 +178,14 @@ class MutasiController extends Controller
         // View
         return view('admin/mutasi/create', [
             'pegawai' => $pegawai,
+            'mutasi' => $mutasi,
             'sk' => $sk,
             'sk_gapok_pns' => $sk_gapok_pns,
-            'mutasi' => $mutasi,
             'jenis_mutasi' => $jenis_mutasi,
-            'status_kepegawaian' => $status_kepegawaian,
-            'jabatan' => $jabatan,
-            'unit' => $unit,
             'golru' => $golru,
             'gaji_pokok' => $gaji_pokok,
+            'jabatan' => $jabatan,
+            'unit' => $unit,
             'pejabat' => $pejabat,
             'angkatan' => $angkatan,
             'tunjangan_profesi' => $tunjangan_profesi,
@@ -203,11 +200,15 @@ class MutasiController extends Controller
      */
     public function store(Request $request)
     {
-        // Get pegawai
-        $pegawai = Pegawai::find($request->pegawai_id);
-
         // Get jenis mutasi
         $jenis_mutasi = JenisMutasi::find($request->jenis_mutasi);
+        if(!$jenis_mutasi)
+            return redirect()->back()->withErrors([
+                'jenis_mutasi' => 'Wajib diisi!'
+            ])->withInput();
+
+        // Get pegawai
+        $pegawai = Pegawai::find($request->pegawai_id);
 
         // Get mutasi
         $mutasi = Mutasi::find($request->id);
@@ -785,24 +786,32 @@ class MutasiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
-        // Get mutasi
-        $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();
-        foreach($mutasi as $m) {
-            $update = Mutasi::find($m->id);
-            if($m->jenis->remun == 1) {
-                $update->proses_remun = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-                $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-            }
-            if($m->jenis->serdos == 1) {
-                if($m->tahun >= 2024 && $m->bulan <= 2 && $m->pegawai->jenis == 1) {
-                    $update->proses_serdos = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-                }
-                else {
-                    $update->proses_serdos = null;
-                    $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-                }
-            }
-            $update->save();
-        }
+        $mutasi = Mutasi::whereHas('pegawai', function(Builder $query) {
+            return $query->where('status_kerja_id','=',1);
+        })->orderBy('pegawai_id','asc')->get();
+
+        return view('admin/mutasi/sync', [
+            'mutasi' => $mutasi
+        ]);
+
+        // // Get mutasi
+        // $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();
+        // foreach($mutasi as $m) {
+        //     $update = Mutasi::find($m->id);
+        //     if($m->jenis->remun == 1) {
+        //         $update->proses_remun = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+        //         $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+        //     }
+        //     if($m->jenis->serdos == 1) {
+        //         if($m->tahun >= 2024 && $m->bulan <= 2 && $m->pegawai->jenis == 1) {
+        //             $update->proses_serdos = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+        //         }
+        //         else {
+        //             $update->proses_serdos = null;
+        //             $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
+        //         }
+        //     }
+        //     $update->save();
+        // }
     }
 }

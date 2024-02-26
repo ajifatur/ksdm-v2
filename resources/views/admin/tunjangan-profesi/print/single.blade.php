@@ -110,17 +110,17 @@
                                 <br>
                                 Pejabat Pembuat Komitmen
                                 <br><br><br><br>
-                                Siti Mursidah, S.Pd., M.Si.
+                                {{ title_name(ttd('ppk', $tanggal)->pegawai->nama, ttd('ppk', $tanggal)->pegawai->gelar_depan, ttd('ppk', $tanggal)->pegawai->gelar_belakang) }}
                                 <br>
-                                NIP. 197710262005022001
+                                NIP. {{ ttd('ppk', $tanggal)->pegawai->nip }}
                             </td>
                             <td width="30%">
                                 <br><br>
                                 Bendahara Pengeluaran
                                 <br><br><br><br>
-                                {{ title_name($bendahara_pengeluaran->pegawai->nama, $bendahara_pengeluaran->pegawai->gelar_depan, $bendahara_pengeluaran->pegawai->gelar_belakang) }}
+                                {{ title_name(ttd('bpeng', $tanggal)->pegawai->nama, ttd('bpeng', $tanggal)->pegawai->gelar_depan, ttd('bpeng', $tanggal)->pegawai->gelar_belakang) }}
                                 <br>
-                                NIP. {{ $bendahara_pengeluaran->pegawai->nip }}
+                                NIP. {{ ttd('bpeng', $tanggal)->pegawai->nip }}
                             </td>
                             <td width="30%">
                                 <br>
@@ -128,9 +128,9 @@
                                 <br>
                                 Petugas Pengelolaan Administrasi Belanja Pegawai
                                 <br><br><br><br>
-                                Ari Pamungkas, S.E.
+                                {{ title_name(ttd('ppabp_1', $tanggal)->pegawai->nama, ttd('ppabp_1', $tanggal)->pegawai->gelar_depan, ttd('ppabp_1', $tanggal)->pegawai->gelar_belakang) }}
                                 <br>
-                                NIP. 198109242005011001
+                                NIP. {{ ttd('ppabp_1', $tanggal)->pegawai->nip }}
                             </td>
                         </tr>
                     </table>
