@@ -109,7 +109,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         @endif
-                        <a href="{{ route('admin.mutasi.create', ['id' => $pegawai->id]) }}" class="btn btn-sm btn-primary"><i class="bi-plus me-1"></i> Tambah</a>
+                        <a href="{{ route('admin.mutasi.form', ['id' => $pegawai->id]) }}" class="btn btn-sm btn-primary"><i class="bi-plus me-1"></i> Tambah</a>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover table-bordered mt-3">
                                 <thead class="bg-light">
@@ -122,7 +122,6 @@
                                         <th rowspan="2">Jabatan</th>
                                         <th rowspan="2">Unit</th>
                                         <th rowspan="2">TMT</th>
-                                        <!-- <th>Diproses</th> -->
                                         <th colspan="3">Proses</th>
                                         <th rowspan="2" width="20">Opsi</th>
                                     </tr>
@@ -138,8 +137,6 @@
                                             <td>{{ ($key+1) }}</td>
                                             <td>
                                                 {{ $m->jenis->nama }}
-                                                <br>
-                                                {{ $m->uraian != '' ? '('.$m->uraian.')' : '' }}
                                                 @if($m->kolektif == 1)
                                                     <br>
                                                     <span class="badge bg-info">Kolektif</span>
@@ -173,7 +170,7 @@
                                             <td>{{ $m->proses != null ? date('d/m/Y', strtotime($m->proses)) : '-' }}</td>
                                             <td align="center">
                                                 <div class="btn-group">
-                                                    <a href="{{ route('admin.mutasi.create', ['id' => $pegawai->id, 'mutasi' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                    <a href="{{ route('admin.mutasi.form', ['id' => $pegawai->id, 'mutasi' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                     <a href="#" class="btn btn-sm btn-danger btn-delete-mutasi" data-id="{{ $m->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
                                                 </div>
                                             </td>

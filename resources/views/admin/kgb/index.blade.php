@@ -60,7 +60,7 @@
                                         @if($m->spkgb)
 										<a href="{{ route('admin.spkgb.print.single', ['id' => $m->spkgb->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank"><i class="bi-file-pdf"></i></a>
                                         @endif
-										<a href="{{ route('admin.mutasi.edit', ['id' => $m->pegawai_id, 'mutasi_id' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+										<a href="{{ route('admin.mutasi.form', ['id' => $m->pegawai_id, 'mutasi' => $m->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
 										<a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $m->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
 									</div>
 								</td>

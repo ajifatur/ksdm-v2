@@ -110,12 +110,12 @@ class MutasiController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating/updating a new resource.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request, $id)
+    public function form(Request $request, $id)
     {
         // Get pegawai
         $pegawai = Pegawai::findOrFail($id);
@@ -156,9 +156,7 @@ class MutasiController extends Controller
             $gaji_pokok = [];
 
         // Get jabatan
-        $jabatan = Jabatan::whereHas('sk', function(Builder $query) {
-            return $query->where('awal_tahun','=',date('Y'));
-        })->orderBy('nama','asc')->get();
+        $jabatan = Jabatan::where('sk_id','=',$sk->id)->groupBy('grup_id')->orderBy('nama','asc')->get();
 
         // Get unit
         $unit = Unit::orderBy('num_order','asc')->get();
@@ -167,16 +165,12 @@ class MutasiController extends Controller
         $pejabat = Pejabat::orderBy('num_order','asc')->get();
 
         // Get angkatan
-        $angkatan = [];
-        for($i=1; $i<=3; $i++) {
-            $angkatan[$i]['data'] = Angkatan::where('jenis_id','=',$i)->orderBy('nama','asc')->get();
-        }
-
-        // Get tunjangan profesi terakhir
-        $tunjangan_profesi = $pegawai->tunjangan_profesi()->first();
+        $angkatan = Angkatan::whereHas('jenis', function(Builder $query) {
+            return $query->whereIn('nama',['Kehormatan Profesor', 'Profesi GB', 'Profesi Non GB']);
+        })->orderBy('jenis_id','asc')->orderBy('nama','asc')->get();
 
         // View
-        return view('admin/mutasi/create', [
+        return view('admin/mutasi/form', [
             'pegawai' => $pegawai,
             'mutasi' => $mutasi,
             'sk' => $sk,
@@ -187,8 +181,7 @@ class MutasiController extends Controller
             'jabatan' => $jabatan,
             'unit' => $unit,
             'pejabat' => $pejabat,
-            'angkatan' => $angkatan,
-            'tunjangan_profesi' => $tunjangan_profesi,
+            'angkatan' => $angkatan
         ]);
     }
 
@@ -215,7 +208,7 @@ class MutasiController extends Controller
 
         // Validation
         $validator = Validator::make($request->all(), [
-            'uraian' => $jenis_mutasi->nama == 'Mutasi Jabatan' ? 'required' : '',
+            // 'uraian' => $jenis_mutasi->nama == 'Mutasi Jabatan' ? 'required' : '',
             'jenis_mutasi' => 'required',
             'golru' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
             'gaji_pokok' => $pegawai->status_kepegawaian->golru == 1 ? 'required' : '',
@@ -270,7 +263,6 @@ class MutasiController extends Controller
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->bulan = $request->id == 0 ? 0 : $mutasi->bulan;
                 $mutasi->tahun = $request->id == 0 ? 0 : $mutasi->tahun;
-                $mutasi->uraian = $request->uraian;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = mround(($pegawai->status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
                 $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
@@ -301,7 +293,6 @@ class MutasiController extends Controller
                     $mutasi_detail->jabatan_id = $jabatan_mutasi->id;
                     $mutasi_detail->unit_id = $unit_mutasi->id;
                     $mutasi_detail->layer_id = $unit_mutasi->layer_id;
-                    $mutasi_detail->angkatan_id = 0;
                     $mutasi_detail->status = $key == $index ? 1 : 0;
                     $mutasi_detail->save();
 					
@@ -343,7 +334,6 @@ class MutasiController extends Controller
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->bulan = $request->id == 0 ? 0 : $mutasi->bulan;
                 $mutasi->tahun = $request->id == 0 ? 0 : $mutasi->tahun;
-                $mutasi->uraian = $jenis_mutasi->nama;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = mround(($status_kepegawaian->persentase / 100) * $referensi->remun_standar, 1);
                 $mutasi->remun_gaji = mround((30 / 100) * $mutasi->remun_penerimaan, 1);
@@ -368,7 +358,6 @@ class MutasiController extends Controller
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->bulan = date('n', strtotime(DateTimeExt::change($request->tmt)));
                 $mutasi->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt)));
-                $mutasi->uraian = $jenis_mutasi->nama;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = 0;
                 $mutasi->remun_gaji = 0;
@@ -376,6 +365,7 @@ class MutasiController extends Controller
                 $mutasi->save();
 
                 // Update pegawai
+                $pegawai->angkatan_id = $request->angkatan;
                 $pegawai->nama_supplier = $request->nama_supplier;
                 $pegawai->norek_btn = $request->nomor_rekening;
                 $pegawai->nama_btn = $request->nama_rekening;
@@ -393,7 +383,6 @@ class MutasiController extends Controller
                             $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
                             $detail->unit_id = $d->unit_id;
                             $detail->layer_id = $d->layer_id;
-                            $detail->angkatan_id = $request->angkatan;
                             $detail->status = $d->status;
                             $detail->save();
                         }
@@ -418,7 +407,6 @@ class MutasiController extends Controller
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->bulan = date('n', strtotime(DateTimeExt::change($request->tmt)));
                 $mutasi->tahun = date('Y', strtotime(DateTimeExt::change($request->tmt)));
-                $mutasi->uraian = $jenis_mutasi->nama.' '.$golru->nama.' '.$request->mk_tahun.' tahun '.$request->mk_bulan.' bulan';
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = 0;
                 $mutasi->remun_gaji = 0;
@@ -480,7 +468,6 @@ class MutasiController extends Controller
                 $mutasi->gaji_pokok_id = $request->gaji_pokok;
                 $mutasi->bulan = $request->id == 0 ? 0 : $mutasi->bulan;
                 $mutasi->tahun = $request->id == 0 ? 0 : $mutasi->tahun;
-                $mutasi->uraian = $jenis_mutasi->nama;
                 $mutasi->tmt = $request->tmt != '' ? DateTimeExt::change($request->tmt) : null;
                 $mutasi->remun_penerimaan = 0;
                 $mutasi->remun_gaji = 0;
@@ -499,7 +486,6 @@ class MutasiController extends Controller
                             $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
                             $detail->unit_id = $d->unit_id;
                             $detail->layer_id = $d->layer_id;
-                            $detail->angkatan_id = 0;
                             $detail->status = $d->status;
                             $detail->save();
                         }
@@ -519,82 +505,6 @@ class MutasiController extends Controller
             // Redirect
             return redirect()->route('admin.pegawai.detail', ['id' => $request->pegawai_id, 'mutasi' => 1])->with(['message' => 'Berhasil menambah data.']);
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @param  int  $mutasi_id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id, $mutasi_id)
-    {
-        // Check the access
-        // has_access(__METHOD__, Auth::user()->role_id);
-
-        // Get mutasi
-        $mutasi = Mutasi::findOrFail($mutasi_id);
-
-        // Get pegawai
-        $pegawai = Pegawai::findOrFail($id);
-
-        // Get SK
-        $sk = SK::find($mutasi->sk_id);
-
-        // Get jenis mutasi
-        $jenis_mutasi = JenisMutasi::orderBy('num_order','asc')->get();
-
-        // Get jabatan remun
-        if($mutasi->jenis->remun == 0) {
-            foreach($mutasi->detail as $key=>$d) {
-                // Get grup
-                $grup = $d->jabatan->grup()->first();
-                $mutasi->detail[$key]->jabatan_remun = $grup->jabatan()->where('sk_id','=',$sk->id)->first() ? $grup->jabatan()->where('sk_id','=',$sk->id)->first()->id : 0;
-            }
-        }
-
-        // Get status kepegawaian
-        $status_kepegawaian = StatusKepegawaian::get();
-
-        // Get golru
-        $golru = Golru::all();
-
-        // Get gaji pokok
-        if($pegawai->status_kepegawaian->golru == 1)
-            $gaji_pokok = Golru::find($pegawai->golru_id)->gaji_pokok;
-        else
-            $gaji_pokok = [];
-
-        // Get jabatan
-        $jabatan = $sk ? Jabatan::where('sk_id','=',$sk->id)->orderBy('nama','asc')->get() : Jabatan::orderBy('nama','asc')->get();
-
-        // Get unit
-        $unit = Unit::where('nama','!=','-')->orderBy('num_order','asc')->get();
-
-        // Get pejabat
-        $pejabat = Pejabat::orderBy('num_order','asc')->get();
-
-        // Get angkatan
-        $angkatan = [];
-        for($i=1; $i<=3; $i++) {
-            $angkatan[$i]['data'] = Angkatan::where('jenis_id','=',$i)->orderBy('nama','asc')->get();
-        }
-
-        // View
-        return view('admin/mutasi/edit', [
-            'pegawai' => $pegawai,
-            'sk' => $sk,
-            'mutasi' => $mutasi,
-            'jenis_mutasi' => $jenis_mutasi,
-            'jabatan' => $jabatan,
-            'unit' => $unit,
-            'status_kepegawaian' => $status_kepegawaian,
-            'golru' => $golru,
-            'gaji_pokok' => $gaji_pokok,
-            'pejabat' => $pejabat,
-            'angkatan' => $angkatan,
-        ]);
     }
     
     /**
@@ -793,25 +703,5 @@ class MutasiController extends Controller
         return view('admin/mutasi/sync', [
             'mutasi' => $mutasi
         ]);
-
-        // // Get mutasi
-        // $mutasi = Mutasi::where('bulan','!=',0)->where('tahun','!=',0)->get();
-        // foreach($mutasi as $m) {
-        //     $update = Mutasi::find($m->id);
-        //     if($m->jenis->remun == 1) {
-        //         $update->proses_remun = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-        //         $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-        //     }
-        //     if($m->jenis->serdos == 1) {
-        //         if($m->tahun >= 2024 && $m->bulan <= 2 && $m->pegawai->jenis == 1) {
-        //             $update->proses_serdos = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-        //         }
-        //         else {
-        //             $update->proses_serdos = null;
-        //             $update->proses = $m->tahun.'-'.($m->bulan < 10 ? '0'.$m->bulan : $m->bulan).'-01';
-        //         }
-        //     }
-        //     $update->save();
-        // }
     }
 }

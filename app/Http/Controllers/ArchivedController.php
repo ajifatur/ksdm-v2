@@ -12,6 +12,7 @@
  * importKonversiNPU()
  * updateUpahGajiNonASN()
  * importUangMakanNonASN()
+ * importMKGPegawaiTetap()
  */
 
 namespace App\Http\Controllers;
@@ -1012,6 +1013,44 @@ class ArchivedController extends Controller
                     else {
                         array_push($error, $data[1]);
                     }
+                }
+            }
+        }
+        var_dump($error);
+        return;
+    }
+
+    /**
+     * Import
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function importMKGPegawaiTetap(Request $request)
+    {
+		ini_set("memory_limit", "-1");
+		ini_set("max_execution_time", "-1");
+
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/MKG_Pegawai_Tetap.xlsx'));
+
+        $error = [];
+        if(count($array)>0) {
+            foreach($array[0] as $key=>$data) {
+                if($data[0] != null) {
+                    // Get gaji pokok
+                    $gaji_pokok = GajiPokok::where('sk_id','=','14')->where('nama','=',$data[2])->first();
+
+                    // Get pegawai
+                    $pegawai = Pegawai::where('nip','=',$data[0])->orWhere('npu','=',$data[0])->first();
+                    $pegawai->golongan_id = $gaji_pokok->golru->golongan->id;
+                    $pegawai->golru_id = $gaji_pokok->golru->id;
+                    $pegawai->save();
+
+                    // Get mutasi terakhir
+                    $mutasi = $pegawai->mutasi()->first();
+                    $mutasi->golru_id = $gaji_pokok->golru->id;
+                    $mutasi->gaji_pokok_id = $gaji_pokok->id;
+                    $mutasi->save();
                 }
             }
         }

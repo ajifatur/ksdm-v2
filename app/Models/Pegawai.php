@@ -79,6 +79,14 @@ class Pegawai extends Model
     {
         return $this->belongsTo(Unit::class, 'unit_id');
     }
+    
+    /**
+     * Angkatan.
+     */
+    public function angkatan()
+    {
+        return $this->belongsTo(Angkatan::class, 'angkatan_id');
+    }
 
     /**
      * Mutasi.

@@ -38,10 +38,8 @@ Route::group(['middleware' => ['faturhelper.admin']], function() {
 
     // Mutasi
     Route::get('/admin/mutasi', 'MutasiController@index')->name('admin.mutasi.index');
-    Route::get('/admin/mutasi/{id}/create', 'MutasiController@create')->name('admin.mutasi.create');
+    Route::get('/admin/mutasi/{id}/form', 'MutasiController@form')->name('admin.mutasi.form');
     Route::post('/admin/mutasi/store', 'MutasiController@store')->name('admin.mutasi.store');
-    Route::get('/admin/mutasi/{id}/edit/{mutasi_id}', 'MutasiController@edit')->name('admin.mutasi.edit');
-    Route::post('/admin/mutasi/update', 'MutasiController@update')->name('admin.mutasi.update');
     Route::post('/admin/mutasi/delete', 'MutasiController@delete')->name('admin.mutasi.delete');
 
     // KP

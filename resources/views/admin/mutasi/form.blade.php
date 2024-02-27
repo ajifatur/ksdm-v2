@@ -1,11 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Tambah Mutasi Pegawai')
+@section('title', (Request::query('mutasi') == null ? 'Tambah' : 'Edit').' Mutasi Pegawai')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Tambah Mutasi Pegawai</h1>
+    <h1 class="h3 mb-0">{{ Request::query('mutasi') == null ? 'Tambah' : 'Edit' }} Mutasi Pegawai</h1>
 </div>
 <div class="row">
 	<div class="col-12">
@@ -13,13 +13,13 @@
             <div class="card-body">
                 <form method="post" action="{{ route('admin.mutasi.store') }}" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="id" value="0">
+                    <input type="hidden" name="id" value="{{ Request::query('mutasi') == null ? 0 : $mutasi->id }}">
                     <input type="hidden" name="pegawai_id" value="{{ $pegawai->id }}">
                     <input type="hidden" name="sk_id" value="{{ $sk->id }}">
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Nama</label>
                         <div class="col-lg-10 col-md-9">
-                            <input type="text" name="nama" class="form-control form-control-sm" value="{{ $pegawai->nama }} - {{ nip_baru($pegawai) }}" disabled>
+                            <input type="text" name="nama" class="form-control form-control-sm" value="{{ title_name($pegawai->nama, $pegawai->gelar_depan, $pegawai->gelar_belakang) }} - {{ nip_baru($pegawai) }}" disabled>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -28,7 +28,7 @@
                             <select name="jenis_mutasi" class="form-select form-select-sm {{ $errors->has('jenis_mutasi') ? 'border-danger' : '' }}">
                                 <option value="" disabled selected>--Pilih--</option>
                                 @foreach($jenis_mutasi as $j)
-                                <option value="{{ $j->id }}" data-remun="{{ $j->remun }}" data-serdos="{{ $j->serdos }}" data-perubahan="{{ $j->perubahan }}" {{ old('jenis_mutasi') == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
+                                <option value="{{ $j->id }}" data-remun="{{ $j->remun }}" data-serdos="{{ $j->serdos }}" data-perubahan="{{ $j->perubahan }}" {{ (Request::query('mutasi') == null ? old('jenis_mutasi') : $mutasi->jenis_id) == $j->id ? 'selected' : '' }}>{{ $j->nama }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('jenis_mutasi'))
@@ -36,19 +36,10 @@
                             @endif
                         </div>
                     </div>
-                    <!-- <div class="row mb-3 d-none" id="uraian">
-                        <label class="col-lg-2 col-md-3 col-form-label">Uraian <span class="text-danger">*</span></label>
-                        <div class="col-lg-10 col-md-9">
-                            <textarea name="uraian" class="form-control form-control-sm {{ $errors->has('uraian') ? 'border-danger' : '' }}" rows="3">{{ old('uraian') }}</textarea>
-                            @if($errors->has('uraian'))
-                            <div class="small text-danger">{{ $errors->first('uraian') }}</div>
-                            @endif
-                        </div>
-                    </div> -->
                     <div class="row mb-3" id="jabatan-unit">
                         <label class="col-lg-2 col-md-3 col-form-label">Jabatan dan Unit <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            @if($mutasi)
+                            @if($mutasi && count($mutasi->detail) > 0)
                                 @foreach($mutasi->detail as $key=>$d)
                                 <div class="lists" data-id="{{ $key }}">
                                     <input type="hidden" name="detail_id[]" value="{{ $d->id }}">
@@ -56,8 +47,7 @@
                                     <input type="hidden" name="unit_id[]" value="{{ $d->unit_id }}">
                                     <div class="mb-2">
                                         <div class="input-group">
-                                            <input type="text" class="form-control form-control-sm" value="{{ $d->jabatan->sub != '-' ? $d->jabatan->sub : $d->jabatan->nama }}" disabled>
-                                            <input type="text" class="form-control form-control-sm" value="{{ $d->unit->nama }}" disabled>
+                                            <input type="text" class="form-control form-control-sm" value="{{ jabatan($d->jabatan) }} - {{ $d->unit->nama }}" disabled>
                                             <button class="btn btn-outline-primary btn-add" title="Tambah"><i class="bi-plus"></i></button>
                                             <button class="btn btn-outline-warning btn-edit" title="Edit" data-id="{{ $key }}" data-detail="{{ $d->id }}" data-jabatan="{{ $d->jabatan_id }}" data-jabatanremun="{{ $d->jabatan_remun }}" data-unit="{{ $d->unit_id }}"><i class="bi-pencil"></i></button>
                                             @if(count($mutasi->detail) <= 1)
@@ -82,7 +72,7 @@
                             <select name="golru" class="form-select form-select-sm {{ $errors->has('golru') ? 'border-danger' : '' }}">
                                 <option value="" disabled selected>--Pilih--</option>
                                 @foreach($golru as $g)
-                                <option value="{{ $g->id }}" {{ $mutasi && $mutasi->golru_id == $g->id ? 'selected' : '' }}>{{ $g->nama }}</option>
+                                <option value="{{ $g->id }}" {{ $mutasi && $mutasi->golru_id == $g->id ? 'selected' : '' }}>{{ $g->indonesia }}, {{ $g->nama }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('golru'))
@@ -117,7 +107,7 @@
                         <label class="col-lg-2 col-md-3 col-form-label">TMT <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <div class="input-group">
-                                <input type="text" name="tmt" class="form-control form-control-sm {{ $errors->has('tmt') ? 'border-danger' : '' }}" value="{{ old('tmt') }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
+                                <input type="text" name="tmt" class="form-control form-control-sm {{ $errors->has('tmt') ? 'border-danger' : '' }}" value="{{ Request::query('mutasi') != null && $mutasi->tmt != null ? date('d/m/Y', strtotime($mutasi->tmt)) : old('tmt') }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
                                 <span class="input-group-text"><i class="bi-calendar2"></i></span>
                             </div>
                             @if($errors->has('tmt'))
@@ -130,7 +120,7 @@
                         <div class="row mb-3">
                             <label class="col-lg-2 col-md-3 col-form-label">No. SK <span class="text-danger">*</span></label>
                             <div class="col-lg-10 col-md-9">
-                                <input type="text" name="no_sk" class="form-control form-control-sm" value="{{ old('no_sk') }}">
+                                <input type="text" name="no_sk" class="form-control form-control-sm" value="{{ Request::query('mutasi') != null && $mutasi->perubahan ? $mutasi->perubahan->no_sk : old('no_sk') }}">
                                 @if($errors->has('no_sk'))
                                 <div class="small text-danger">{{ $errors->first('no_sk') }}</div>
                                 @endif
@@ -140,7 +130,7 @@
                             <label class="col-lg-2 col-md-3 col-form-label">Tanggal SK <span class="text-danger">*</span></label>
                             <div class="col-lg-10 col-md-9">
                                 <div class="input-group">
-                                    <input type="text" name="tanggal_sk" class="form-control form-control-sm {{ $errors->has('tanggal_sk') ? 'border-danger' : '' }}" value="{{ old('tanggal_sk') }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
+                                    <input type="text" name="tanggal_sk" class="form-control form-control-sm {{ $errors->has('tanggal_sk') ? 'border-danger' : '' }}" value="{{ Request::query('mutasi') != null && $mutasi->perubahan ? date('d/m/Y', strtotime($mutasi->perubahan->tanggal_sk)) : old('tanggal_sk') }}" autocomplete="off" placeholder="Format: dd/mm/yyyy">
                                     <span class="input-group-text"><i class="bi-calendar2"></i></span>
                                 </div>
                                 @if($errors->has('tanggal_sk'))
@@ -155,14 +145,14 @@
                                     <select name="mk_tahun" class="form-select form-select-sm {{ $errors->has('mk_tahun') ? 'border-danger' : '' }}" style="width: 45%;">
                                         <option value="" disabled selected>--Pilih Masa Kerja Tahun--</option>
                                         @for($i=0; $i<=50; $i++)
-                                        <option value="{{ $i }}" {{ old('mk_tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ (Request::query('mutasi') != null && $mutasi->perubahan ? $mutasi->perubahan->mk_tahun : old('mk_tahun')) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                     <span class="input-group-text" style="width: 5%;">Tahun</span>
                                     <select name="mk_bulan" class="form-select form-select-sm {{ $errors->has('mk_bulan') ? 'border-danger' : '' }}" style="width: 45%;">
                                         <option value="" disabled selected>--Pilih Masa Kerja Bulan--</option>
                                         @for($i=0; $i<=11; $i++)
-                                        <option value="{{ $i }}" {{ old('mk_bulan') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ (Request::query('mutasi') != null && $mutasi->perubahan ? $mutasi->perubahan->mk_bulan : old('mk_bulan')) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                         @endfor
                                     </select>
                                     <span class="input-group-text" style="width: 5%;">Bulan</span>
@@ -179,7 +169,7 @@
                                 <select name="pejabat" class="form-select form-select-sm {{ $errors->has('pejabat') ? 'border-danger' : '' }}">
                                     <option value="" disabled selected>--Pilih Pejabat--</option>
                                     @foreach($pejabat as $p)
-                                    <option value="{{ $p->id }}" {{ old('pejabat') == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                                    <option value="{{ $p->id }}" {{ (Request::query('mutasi') != null && $mutasi->perubahan ? $mutasi->perubahan->pejabat_id : old('pejabat')) == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
                                     @endforeach
                                 </select>
                                 @if($errors->has('pejabat'))
@@ -188,6 +178,7 @@
                             </div>
                         </div>
                     </div>
+                    @if($pegawai->jenis == 1)
                     <hr>
                     <div class="" id="serdos">
                         <div class="row mb-3">
@@ -195,12 +186,9 @@
                             <div class="col-lg-10 col-md-9">
                                 <select name="angkatan" class="form-select form-select-sm {{ $errors->has('angkatan') ? 'border-danger' : '' }}">
                                     <option value="" disabled selected>--Pilih--</option>
-                                    @for($i=1; $i<=3; $i++)
-                                        <?php $label = ['', 'Kehormatan Profesor', 'Profesi GB', 'Profesi Non GB']; ?>
-                                        @foreach($angkatan[$i]['data'] as $a)
-                                        <option value="{{ $a->id }}" {{ $tunjangan_profesi && $tunjangan_profesi->angkatan_id == $a->id ? 'selected' : '' }}>{{ $label[$i] }} - {{ $a->nama }}</option>
-                                        @endforeach
-                                    @endfor
+                                    @foreach($angkatan as $a)
+                                        <option value="{{ $a->id }}" {{ $pegawai->angkatan_id == $a->id ? 'selected' : '' }}>{{ $a->jenis->nama }} - {{ $a->nama }}</option>
+                                    @endforeach
                                 </select>
                                 @if($errors->has('angkatan'))
                                 <div class="small text-danger">{{ $errors->first('angkatan') }}</div>
@@ -235,6 +223,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                     <hr>
                     <div class="row">
                         <div class="col-lg-2 col-md-3"></div>
@@ -264,7 +253,7 @@
                         <select name="jabatan" class="form-select form-select-sm {{ $errors->has('jabatan') ? 'border-danger' : '' }}">
                             <option value="" disabled selected>--Pilih--</option>
                             @foreach($jabatan as $j)
-                            <option value="{{ $j->id }}">{{ $j->sub != '-' ? $j->sub : $j->nama }}</option>
+                            <option value="{{ $j->id }}">{{ jabatan($j) }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -294,6 +283,11 @@
 @section('js')
 
 <script>
+    // Disabled
+    $(window).on("load", function() {
+        disabledForm($("select[name=jenis_mutasi]").val());
+    });
+
     // Select2
     Spandiv.Select2("select[name=jenis_mutasi]");
     Spandiv.Select2("select[name=golru]");
@@ -306,33 +300,7 @@
 
     // Jenis Mutasi
     $(document).on("change", "select[name=jenis_mutasi]", function(e) {
-        var remun = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("remun");
-        var serdos = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("serdos");
-        var perubahan = $("select[name=jenis_mutasi]").find("option[value=" + $(this).val() + "]").data("perubahan");
-        if($(this).val() == 1) {
-            // $("#jabatan-unit").removeClass("d-none");
-            $("#uraian").removeClass("d-none");
-            $("#perubahan").addClass("d-none");
-            $("#serdos").addClass("d-none");
-        }
-        else if(perubahan == 1) {
-            // $("#jabatan-unit").addClass("d-none");
-            $("#uraian").addClass("d-none");
-            $("#perubahan").removeClass("d-none");
-            $("#serdos").addClass("d-none");
-        }
-        else if(remun == 0 && serdos == 1 && perubahan == 0) {
-            // $("#jabatan-unit").addClass("d-none");
-            $("#uraian").addClass("d-none");
-            $("#perubahan").addClass("d-none");
-            $("#serdos").removeClass("d-none");
-        }
-        else {
-            // $("#jabatan-unit").addClass("d-none");
-            $("#uraian").addClass("d-none");
-            $("#perubahan").addClass("d-none");
-            $("#serdos").addClass("d-none");
-        }
+        disabledForm($(this).val());
     });
 
     // Golru
@@ -435,8 +403,7 @@
         html += '<input type="hidden" name="unit_id[]" value="' + unit + '">';
         html += '<div class="mb-2">';
         html += '<div class="input-group">';
-        html += '<input type="text" class="form-control form-control-sm" value="' + jabatan_nama + '" disabled>';
-        html += '<input type="text" class="form-control form-control-sm" value="' + unit_nama + '" disabled>';
+        html += '<input type="text" class="form-control form-control-sm" value="' + jabatan_nama + ' - ' + unit_nama + '" disabled>';
         html += '<button class="btn btn-outline-primary btn-add" title="Tambah"><i class="bi-plus"></i></button>';
         html += '<button class="btn btn-outline-warning btn-edit" title="Edit" data-id="" data-detail="' + id + '" data-jabatan="' + jabatan + '" data-unit="' + unit + '"><i class="bi-pencil"></i></button>';
         html += '<button class="btn btn-outline-danger btn-delete" title="Hapus"><i class="bi-trash"></i></button>';
@@ -462,6 +429,29 @@
         $("#jabatan-unit .lists[data-id=" + id + "]").remove();
         refreshLists();
     });
+
+    function disabledForm(value) {
+        var remun = $("select[name=jenis_mutasi]").find("option[value=" + value + "]").data("remun");
+        var serdos = $("select[name=jenis_mutasi]").find("option[value=" + value + "]").data("serdos");
+        var perubahan = $("select[name=jenis_mutasi]").find("option[value=" + value + "]").data("perubahan");
+        if(value == 1) {
+            $("#perubahan").find("input:text, select").attr("disabled","disabled");
+            $("#serdos").find("input:text, select").attr("disabled","disabled");
+        }
+        else if(perubahan == 1) {
+            $("#perubahan").find("input:text, select").removeAttr("disabled");
+            $("#serdos").find("input:text, select").attr("disabled","disabled");
+        }
+        else if(remun == 0 && serdos == 1 && perubahan == 0) {
+            $("#perubahan").find("input:text, select").attr("disabled","disabled");
+            $("#serdos").find("input:text, select").removeAttr("disabled");
+        }
+        else {
+            $("#perubahan").find("input:text, select").attr("disabled","disabled");
+            $("#serdos").find("input:text, select").attr("disabled","disabled");
+        }
+
+    }
 
     function refreshLists() {
         $("#jabatan-unit .lists").each(function(key,elem) {
