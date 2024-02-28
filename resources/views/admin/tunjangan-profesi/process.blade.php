@@ -102,19 +102,6 @@
                             @endif
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Gaji Pokok<span class="text-danger">*</span></label>
-                        <div class="col-lg-10 col-md-9">
-                            <select name="kategori" class="form-select form-select-sm {{ $errors->has('kategori') ? 'border-danger' : '' }}" required>
-                                <option value="" disabled selected>--Pilih--</option>
-                                <option value="1" {{ old('kategori') == '1' ? 'selected' : '' }}>Disesuaikan dengan gaji pokok terbaru</option>
-                                <option value="2" {{ old('kategori') == '2' ? 'selected' : '' }}>Disamakan dengan bulan sebelumnya</option>
-                            </select>
-                            @if($errors->has('kategori'))
-                            <div class="small text-danger">{{ $errors->first('kategori') }}</div>
-                            @endif
-                        </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-sm btn-primary" type="submit">Submit</button>

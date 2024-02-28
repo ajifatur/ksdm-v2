@@ -204,126 +204,155 @@ class TunjanganProfesiController extends Controller
             ]);
         }
         elseif($request->method() == "POST") {
+            // Get SK
+            $sk_1 = 19;
+            $sk_2 = 20;
+
             // Set tanggal proses
             $tanggal = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-'.$request->tanggal; // Maks tanggal 14
+            $tanggal_1 = $request->tahun.'-'.($request->bulan < 10 ? '0'.$request->bulan : $request->bulan).'-01';
 
             // Set tanggal periode sebelumnya
             $tanggal_sebelum = date('Y-m-d', strtotime("-1 month", strtotime($tanggal)));
-
+            
             // Get mutasi serdos nonaktif
-            $mutasi_serdos_nonaktif = MutasiSerdos::whereHas('jenis', function(Builder $query) {
-                return $query->where('status','=',0);
-            })->where('tmt','<=',$tanggal)->where('bulan','=',0)->where('tahun','=',0)->get();
-            if(count($mutasi_serdos_nonaktif) <= 0) {
-                $mutasi_serdos_nonaktif = MutasiSerdos::whereHas('jenis', function(Builder $query) {
-                    return $query->where('status','=',0);
-                })->where('tmt','<=',$tanggal)->where('bulan','=',date('n', strtotime($tanggal)))->where('tahun','=',date('Y', strtotime($tanggal)))->get();
+            $mutasi_nonaktif = collect();
+            $mutasi_nonaktif_1 = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1)->where('status','=',0);
+            })->where('tmt','<=',$tanggal)->whereNull('proses_serdos')->whereNull('proses')->get();
+            $mutasi_nonaktif_2 = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1)->where('status','=',0);
+            })->where('tmt','<=',$tanggal)->where('proses_serdos','=',$tanggal_1)->get();
+            $mutasi_nonaktif = $mutasi_nonaktif->merge($mutasi_nonaktif_1)->merge($mutasi_nonaktif_2);
+
+            foreach($mutasi_nonaktif as $m) {
+                // Update proses serdos
+                $update = Mutasi::find($m->id);
+                $update->proses_serdos = $tanggal_1;
+                $update->proses = $tanggal_1;
+                $update->save();
             }
             
             // Get tunjangan profesi bulan sebelumnya
-            $tunjangan_sebelum = TunjanganProfesi::whereNotIn('pegawai_id',$mutasi_serdos_nonaktif->pluck('pegawai_id')->toArray())->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->get();
+            $tunjangan_sebelum = TunjanganProfesi::whereNotIn('pegawai_id',$mutasi_nonaktif->pluck('pegawai_id')->toArray())->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('kekurangan','=',0)->get();
 
             foreach($tunjangan_sebelum as $t) {
                 // Get mutasi
-                $mutasi = Mutasi::whereHas('pegawai', function (Builder $query) use ($t) {
+                $mutasi = $t->pegawai->mutasi()->whereHas('pegawai', function (Builder $query) {
                     return $query->whereHas('status_kerja', function (Builder $query) {
                         return $query->where('status','=',1);
-                    })->where('id','=',$t->pegawai_id);
-                })->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+                    });
+                })->where('tmt','<=',$tanggal_1)->first();
 
                 if($mutasi) {
+                    // Get gaji pokok 2024
+                    $gaji_pokok = GajiPokok::where('sk_id','=',14)->where('nama','=',$mutasi->gaji_pokok->nama)->first();
+
                     // Simpan tunjangan baru
-                    $tunjangan = TunjanganProfesi::where('pegawai_id','=',$t->pegawai_id)->where('angkatan_id','=',$t->angkatan_id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->first();
+                    $tunjangan = TunjanganProfesi::where('pegawai_id','=',$t->pegawai_id)->where('angkatan_id','=',$t->angkatan_id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0)->first();
                     if(!$tunjangan) $tunjangan = new TunjanganProfesi;
                     $tunjangan->pegawai_id = $t->pegawai_id;
+                    $tunjangan->sk_id = $t->sk_id;
                     $tunjangan->angkatan_id = $t->angkatan_id;
                     $tunjangan->unit_id = $t->pegawai->unit_id;
                     $tunjangan->golongan_id = $mutasi->golru->golongan_id;
+                    $tunjangan->gaji_pokok_id = $gaji_pokok->id;
                     $tunjangan->nip = $t->nip;
                     $tunjangan->nama = $t->nama;
                     $tunjangan->nomor_rekening = $t->nomor_rekening;
                     $tunjangan->nama_rekening = $t->nama_rekening;
+                    $tunjangan->tunjangan = $t->angkatan->jenis_id == 1 ? 2 * $gaji_pokok->gaji_pokok : $gaji_pokok->gaji_pokok;
+                    $tunjangan->pph = $mutasi->golru->golongan_id == 4 ? (15/100) * $tunjangan->tunjangan : (5/100) * $tunjangan->tunjangan;
+                    $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
                     $tunjangan->bulan = $request->bulan;
                     $tunjangan->tahun = $request->tahun;
-
-                    // Jika disesuaikan dengan gaji pokok terbaru
-                    if($request->kategori == 1) {
-                        $tunjangan->tunjangan = $t->tunjangan;
-                        $tunjangan->pph = $t->pph;
-                        $tunjangan->diterimakan = $t->diterimakan;
-                    }
-                    // Jika disamakan dengan bulan sebelumnya
-                    else {
-                        $tunjangan->tunjangan = $t->angkatan->jenis_id == 1 ? 2 * $mutasi->gaji_pokok->gaji_pokok : $mutasi->gaji_pokok->gaji_pokok;
-                        $tunjangan->pph = $mutasi->golru->golongan_id == 4 ? (15/100) * $tunjangan->tunjangan : (5/100) * $tunjangan->tunjangan;
-                        $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
-                    }
+                    $tunjangan->kekurangan = 0;
+                    $tunjangan->bulan_kurang = 0;
+                    $tunjangan->tahun_kurang = 0;
                     $tunjangan->save();
                 }
-            }
-
-            foreach($mutasi_serdos_nonaktif as $m) {
-                // Update bulan dan tahun proses
-                $ms = MutasiSerdos::find($m->id);
-                $ms->bulan = date('n', strtotime($tanggal));
-                $ms->tahun = date('Y', strtotime($tanggal));
-                $ms->save();
             }
 
             // Get mutasi serdos aktif
-            $mutasi_serdos = MutasiSerdos::whereHas('jenis', function(Builder $query) {
-                return $query->where('status','=',1);
-            })->where('tmt','<=',$tanggal)->where('bulan','=',0)->where('tahun','=',0)->get();
-            if(count($mutasi_serdos) <= 0) {
-                $mutasi_serdos = MutasiSerdos::whereHas('jenis', function(Builder $query) {
-                    return $query->where('status','=',1);
-                })->where('tmt','<=',$tanggal)->where('bulan','=',date('n', strtotime($tanggal)))->where('tahun','=',date('Y', strtotime($tanggal)))->get();
-            }
+            $mutasi_aktif = collect();
+            $mutasi_aktif_1 = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1)->where('status','=',1);
+            })->where('tmt','<=',$tanggal)->whereNull('proses_serdos')->whereNull('proses')->get();
+            $mutasi_aktif_2 = Mutasi::whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1)->where('status','=',1);
+            })->where('tmt','<=',$tanggal)->where('proses_serdos','=',$tanggal_1)->get();
+            $mutasi_aktif = $mutasi_aktif->merge($mutasi_aktif_1)->merge($mutasi_aktif_2);
             
-            foreach($mutasi_serdos as $m) {
-                // Get mutasi
-                $mutasi = Mutasi::whereHas('pegawai', function (Builder $query) use ($m) {
-                    return $query->whereHas('status_kerja', function (Builder $query) {
-                        return $query->where('status','=',1);
-                    })->where('id','=',$m->pegawai_id);
-                })->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
+            foreach($mutasi_aktif as $m) {
+                // Get tunjangan profesi sebelum
+                $tunjangan_sebelum = TunjanganProfesi::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('kekurangan','=',0)->get();
+                
+                if(count($tunjangan_sebelum) > 0) {
+                    foreach($tunjangan_sebelum as $t) {
+                        // Get gaji pokok 2024
+                        $gaji_pokok = GajiPokok::where('sk_id','=',14)->where('nama','=',$m->gaji_pokok->nama)->first();
 
-                if($mutasi) {
-                    // Cek apakah pegawai sudah punya tunjangan kehormatan profesor
-                    $cek = $m->pegawai()->whereHas('tunjangan_profesi', function(Builder $query) {
-                        return $query->whereHas('angkatan', function(Builder $query) {
-                            return $query->where('jenis_id','=',1);
-                        });
-                    })->get();
+                        // Simpan tunjangan baru
+                        $tunjangan = TunjanganProfesi::where('pegawai_id','=',$t->pegawai_id)->where('angkatan_id','=',$t->angkatan_id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0)->first();
+                        if(!$tunjangan) $tunjangan = new TunjanganProfesi;
+                        $tunjangan->pegawai_id = $t->pegawai_id;
+                        $tunjangan->sk_id = $t->angkatan->jenis_id == 1 ? $sk_1 : $sk_2;
+                        $tunjangan->angkatan_id = $t->angkatan_id;
+                        $tunjangan->unit_id = $t->pegawai->unit_id;
+                        $tunjangan->golongan_id = $m->golru->golongan_id;
+                        $tunjangan->gaji_pokok_id = $gaji_pokok->id;
+                        $tunjangan->nip = $t->nip;
+                        $tunjangan->nama = $t->nama;
+                        $tunjangan->nomor_rekening = $t->nomor_rekening;
+                        $tunjangan->nama_rekening = $t->nama_rekening;
+                        $tunjangan->tunjangan = $t->angkatan->jenis_id == 1 ? 2 * $gaji_pokok->gaji_pokok : $gaji_pokok->gaji_pokok;
+                        $tunjangan->pph = $m->golru->golongan_id == 4 ? (15/100) * $tunjangan->tunjangan : (5/100) * $tunjangan->tunjangan;
+                        $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
+                        $tunjangan->bulan = $request->bulan;
+                        $tunjangan->tahun = $request->tahun;
+                        $tunjangan->kekurangan = 0;
+                        $tunjangan->bulan_kurang = 0;
+                        $tunjangan->tahun_kurang = 0;
+                        $tunjangan->save();
+                    }
+                }
+                else {
+                    if(in_array($m->jenis->nama, ['Serdos Baru','Pengaktifan Kembali Serdos','Inpassing Serdos'])) {
+                        // Get gaji pokok 2024
+                        $gaji_pokok = GajiPokok::where('sk_id','=',14)->where('nama','=',$m->gaji_pokok->nama)->first();
 
-                    // Simpan tunjangan baru
-                    $tunjangan = TunjanganProfesi::where('pegawai_id','=',$m->pegawai_id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->first();
-                    if(!$tunjangan) $tunjangan = new TunjanganProfesi;
-                    $tunjangan->pegawai_id = $m->pegawai_id;
-                    $tunjangan->angkatan_id = $m->angkatan_id;
-                    $tunjangan->unit_id = $m->unit_id;
-                    $tunjangan->golongan_id = $mutasi->golru->golongan_id;
-                    $tunjangan->nip = $mutasi->pegawai->nip;
-                    $tunjangan->nama = $m->nama_supplier;
-                    $tunjangan->nomor_rekening = $m->nomor_rekening;
-                    $tunjangan->nama_rekening = $m->nama_rekening;
-                    $tunjangan->bulan = $request->bulan;
-                    $tunjangan->tahun = $request->tahun;
-                    $tunjangan->tunjangan = count($cek) > 0 ? 2 * $m->gaji_pokok->gaji_pokok : $m->gaji_pokok->gaji_pokok;
-                    $tunjangan->pph = $mutasi->golru->golongan_id == 4 ? (15/100) * $tunjangan->tunjangan : (5/100) * $tunjangan->tunjangan;
-                    $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
-                    $tunjangan->save();
+                        // Simpan tunjangan baru
+                        $tunjangan = TunjanganProfesi::where('pegawai_id','=',$m->pegawai_id)->where('angkatan_id','=',$m->pegawai->angkatan_id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0)->first();
+                        if(!$tunjangan) $tunjangan = new TunjanganProfesi;
+                        $tunjangan->pegawai_id = $m->pegawai_id;
+                        $tunjangan->sk_id = $m->pegawai->angkatan->jenis_id == 1 ? $sk_1 : $sk_2;
+                        $tunjangan->angkatan_id = $m->pegawai->angkatan_id;
+                        $tunjangan->unit_id = $m->pegawai->unit_id;
+                        $tunjangan->golongan_id = $m->golru->golongan_id;
+                        $tunjangan->gaji_pokok_id = $gaji_pokok->id;
+                        $tunjangan->nip = $m->pegawai->nip;
+                        $tunjangan->nama = $m->pegawai->nama_supplier;
+                        $tunjangan->nomor_rekening = $m->pegawai->norek_btn;
+                        $tunjangan->nama_rekening = $m->pegawai->nama_btn;
+                        $tunjangan->tunjangan = $t->angkatan->jenis_id == 1 ? 2 * $gaji_pokok->gaji_pokok : $gaji_pokok->gaji_pokok;
+                        $tunjangan->pph = $m->golru->golongan_id == 4 ? (15/100) * $tunjangan->tunjangan : (5/100) * $tunjangan->tunjangan;
+                        $tunjangan->diterimakan = $tunjangan->tunjangan - $tunjangan->pph;
+                        $tunjangan->bulan = $request->bulan;
+                        $tunjangan->tahun = $request->tahun;
+                        $tunjangan->kekurangan = 0;
+                        $tunjangan->bulan_kurang = 0;
+                        $tunjangan->tahun_kurang = 0;
+                        $tunjangan->save();
+                    }
                 }
 
-                // Update mutasi serdos
-                foreach($mutasi_serdos as $m) {
-                    // Update bulan dan tahun proses
-                    $ms = MutasiSerdos::find($m->id);
-                    $ms->bulan = date('n', strtotime($tanggal));
-                    $ms->tahun = date('Y', strtotime($tanggal));
-                    $ms->save();
-                }
+                // Update proses serdos
+                $update = Mutasi::find($m->id);
+                $update->proses_serdos = $tanggal_1;
+                $update->proses = $tanggal_1;
+                $update->save();
             }
+            return;
 
             // Simpan proses
             $proses = Proses::where('jenis','=',3)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->first();
