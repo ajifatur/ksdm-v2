@@ -596,7 +596,8 @@ class SPKGBController extends Controller
      */
     public function import(Request $request)
     {
-		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/SPKGB_2024_04.xlsx'));
+		// $array = Excel::toArray(new ByStartRowImport(2), public_path('storage/SPKGB_2024_04.xlsx'));
+		$array = Excel::toArray(new ByStartRowImport(2), public_path('storage/SPKGB_2024_03_Perbaikan.xlsx'));
 
         $error = [];
         if(count($array)>0) {
@@ -604,13 +605,15 @@ class SPKGBController extends Controller
                 if($data[2] != null) {
                     // Get pegawai
                     $pegawai = Pegawai::where('nip','=',$data[2])->first();
+                    if(!$pegawai) array_push($error, $data[0]);
 
                     // Get perubahan
                     $perubahan = Perubahan::whereHas('mutasi', function(Builder $query) use ($pegawai) {
                         return $query->where('pegawai_id','=',$pegawai->id);
-                    })->where('tmt','=','2024-04-01')->first();
+                    })->where('tmt','=','2024-03-01')->first();
                     if($perubahan) {
                         $perubahan->no_sk = $data[1];
+                        $perubahan->tanggal_sk = '2024-02-28';
                         $perubahan->save();
                     }
                 }

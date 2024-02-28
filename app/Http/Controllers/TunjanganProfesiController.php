@@ -95,8 +95,8 @@ class TunjanganProfesiController extends Controller
 
                 // Get pegawai non aktif
                 $pegawai_non_aktif = TunjanganProfesi::where('angkatan_id','=',$a->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->whereHas('pegawai', function (Builder $query) use ($tanggal) {
-                    return $query->whereDoesntHave('status_kerja', function (Builder $query2) {
-                        return $query2->where('status','=',1);
+                    return $query->whereDoesntHave('status_kerja', function (Builder $query) {
+                        return $query->where('status','=',1);
                     })->where('tmt_non_aktif','<=',$tanggal);
                 })->get();
 
@@ -134,8 +134,8 @@ class TunjanganProfesiController extends Controller
             $pegawai_non_aktif = TunjanganProfesi::whereHas('angkatan', function (Builder $query) {
                 return $query->where('jenis_id','=',4);
             })->where('bulan','=',$bulan)->where('tahun','=',$tahun)->whereHas('pegawai', function (Builder $query) use ($tanggal) {
-                return $query->whereDoesntHave('status_kerja', function (Builder $query2) {
-                    return $query2->where('status','=',1);
+                return $query->whereDoesntHave('status_kerja', function (Builder $query) {
+                    return $query->where('status','=',1);
                 })->where('tmt_non_aktif','<=',$tanggal);
             })->get();
 
@@ -226,8 +226,8 @@ class TunjanganProfesiController extends Controller
             foreach($tunjangan_sebelum as $t) {
                 // Get mutasi
                 $mutasi = Mutasi::whereHas('pegawai', function (Builder $query) use ($t) {
-                    return $query->whereHas('status_kerja', function (Builder $query2) {
-                        return $query2->where('status','=',1);
+                    return $query->whereHas('status_kerja', function (Builder $query) {
+                        return $query->where('status','=',1);
                     })->where('id','=',$t->pegawai_id);
                 })->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
 
@@ -283,16 +283,16 @@ class TunjanganProfesiController extends Controller
             foreach($mutasi_serdos as $m) {
                 // Get mutasi
                 $mutasi = Mutasi::whereHas('pegawai', function (Builder $query) use ($m) {
-                    return $query->whereHas('status_kerja', function (Builder $query2) {
-                        return $query2->where('status','=',1);
+                    return $query->whereHas('status_kerja', function (Builder $query) {
+                        return $query->where('status','=',1);
                     })->where('id','=',$m->pegawai_id);
                 })->orderBy('tahun','desc')->orderBy('bulan','desc')->first();
 
                 if($mutasi) {
                     // Cek apakah pegawai sudah punya tunjangan kehormatan profesor
                     $cek = $m->pegawai()->whereHas('tunjangan_profesi', function(Builder $query) {
-                        return $query->whereHas('angkatan', function(Builder $query2) {
-                            return $query2->where('jenis_id','=',1);
+                        return $query->whereHas('angkatan', function(Builder $query) {
+                            return $query->where('jenis_id','=',1);
                         });
                     })->get();
 
@@ -618,6 +618,11 @@ class TunjanganProfesiController extends Controller
             }
         }
 		$pegawai_on = Pegawai::whereIn('id', $cek_bulan_ini)->get();
+        foreach($pegawai_on as $key=>$p) {
+            $pegawai_on[$key]->mutasi_serdos = $p->mutasi()->whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1);
+            })->where('proses_serdos','=',$tanggal)->first();
+        }
 
         // Pegawai keluar
         $cek_bulan_sebelumnya = [];
@@ -628,6 +633,11 @@ class TunjanganProfesiController extends Controller
             }
         }
 		$pegawai_off = Pegawai::whereIn('id', $cek_bulan_sebelumnya)->get();
+        foreach($pegawai_off as $key=>$p) {
+            $pegawai_off[$key]->mutasi_serdos = $p->mutasi()->whereHas('jenis', function(Builder $query) {
+                return $query->where('serdos','=',1);
+            })->where('proses_serdos','=',$tanggal)->first();
+        }
 
         // Perubahan tunjangan
         $perubahan_tunjangan = [];
@@ -635,7 +645,14 @@ class TunjanganProfesiController extends Controller
             // Get tunjangan bulan sebelumnya
             $ts = TunjanganProfesi::where('pegawai_id','=',$t->pegawai_id)->where('angkatan_id','=',$t->angkatan_id)->where('bulan','=',date('n', strtotime($tanggal_sebelum)))->where('tahun','=',date('Y', strtotime($tanggal_sebelum)))->where('kekurangan','=',0)->first();
             if($ts) {
-                if($t->tunjangan != $ts->tunjangan) array_push($perubahan_tunjangan, ['pegawai' => $t->pegawai, 'sebelum' => $ts->tunjangan, 'sesudah' => $t->tunjangan]);
+                if($t->tunjangan != $ts->tunjangan) {
+                    // Get mutasi serdos
+                    $mutasi_serdos = $t->pegawai->mutasi()->whereHas('jenis', function(Builder $query) {
+                        return $query->where('serdos','=',1);
+                    })->where('proses_serdos','=',$tanggal)->first();
+
+                    array_push($perubahan_tunjangan, ['pegawai' => $t->pegawai, 'mutasi_serdos' => $mutasi_serdos, 'sebelum' => $ts->tunjangan, 'sesudah' => $t->tunjangan]);
+                }
             }
         }
 		

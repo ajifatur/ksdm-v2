@@ -44,7 +44,7 @@
                                     <th>Nama</th>
                                     <th>Jabatan</th>
                                     <th>Unit</th>
-                                    <th>Status Pegawai</th>
+                                    <th>Status<br>Kepegawaian</th>
                                     <th>Angkatan</th>
                                     <th class="notexport">TMT</th>
                                     <th class="d-none">TMT</th>
@@ -55,11 +55,6 @@
                             </thead>
                             <tbody>
                                 @foreach($pegawai_on as $p)
-                                    <?php
-                                        $mutasi_serdos = $p->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
-                                            return $query->where('serdos','=',1);
-                                        })->where('pegawai_id','=',$p->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
-                                    ?>
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
                                         <td>{{ strtoupper($p->nama) }}</td>
@@ -68,21 +63,16 @@
                                         <td>{{ $p->status_kepegawaian->nama }}</td>
                                         <td>{{ $p->tunjangan_profesi()->first()->angkatan->nama }}</td>
                                         <td>
-                                            <span class="d-none">{{ $tanggal }}</span>
-                                            {{ date('d/m/Y', strtotime($tanggal)) }}
+                                            <span class="d-none">{{ $p->mutasi_serdos ? $p->mutasi_serdos->tmt : '-' }}</span>
+                                            {{ $p->mutasi_serdos ? date('d/m/Y', strtotime($p->mutasi_serdos->tmt)) : '-' }}
                                         </td>
-                                        <td class="d-none">{{ date('d/m/Y', strtotime($tanggal)) }}</td>
-                                        <td>{{ $mutasi_serdos ? $mutasi_serdos->jenis->nama : '' }}</td>
+                                        <td class="d-none">{{ $p->mutasi_serdos ? date('d/m/Y', strtotime($p->mutasi_serdos->tmt)) : '-' }}</td>
+                                        <td>{{ $p->mutasi_serdos ? $p->mutasi_serdos->jenis->nama : '' }}</td>
                                         <td>-</td>
                                         <td>-</td>
                                     </tr>
                                 @endforeach
                                 @foreach($pegawai_off as $p)
-                                    <?php
-                                        $mutasi_serdos = $p->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
-                                            return $query->where('serdos','=',1);
-                                        })->where('pegawai_id','=',$p->id)->where('bulan','=',$bulan)->where('tahun','=',$tahun)->first();
-                                    ?>
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p->id]) }}">'{{ $p->nip }}</a></td>
                                         <td>{{ strtoupper($p->nama) }}</td>
@@ -91,21 +81,16 @@
                                         <td>{{ $p->status_kepegawaian->nama }}</td>
                                         <td>{{ $p->tunjangan_profesi()->first()->angkatan->nama }}</td>
                                         <td>
-                                            <span class="d-none">{{ $mutasi_serdos ? $mutasi_serdos->tmt : $p->tmt_non_aktif }}</span>
-                                            {{ $mutasi_serdos ? date('d/m/Y', strtotime($mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p->tmt_non_aktif)) }}
+                                            <span class="d-none">{{ $p->mutasi_serdos ? $p->mutasi_serdos->tmt : $p->tmt_non_aktif }}</span>
+                                            {{ $p->mutasi_serdos ? date('d/m/Y', strtotime($p->mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p->tmt_non_aktif)) }}
                                         </td>
-                                        <td class="d-none">{{ $mutasi_serdos ? date('d/m/Y', strtotime($mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p->tmt_non_aktif)) }}</td>
-                                        <td>{{ $mutasi_serdos ? $mutasi_serdos->jenis->nama : $p->status_kerja->nama }}</td>
+                                        <td class="d-none">{{ $p->mutasi_serdos ? date('d/m/Y', strtotime($p->mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p->tmt_non_aktif)) }}</td>
+                                        <td>{{ $p->mutasi_serdos ? $p->mutasi_serdos->jenis->nama : $p->status_kerja->nama }}</td>
                                         <td>-</td>
                                         <td>-</td>
                                     </tr>
                                 @endforeach
                                 @foreach($perubahan_tunjangan as $p)
-                                    <?php
-                                        $mutasi_serdos = $p['pegawai']->mutasi()->whereHas('jenis', function(\Illuminate\Database\Eloquent\Builder $query) {
-                                            return $query->where('serdos','=',1);
-                                        })->where('pegawai_id','=',$p['pegawai']->id)->first();
-                                    ?>
                                     <tr>
                                         <td><a href="{{ route('admin.pegawai.detail', ['id' => $p['pegawai']->id]) }}">'{{ $p['pegawai']->nip }}</a></td>
                                         <td>{{ strtoupper($p['pegawai']->nama) }}</td>
@@ -114,11 +99,11 @@
                                         <td>{{ $p['pegawai']->status_kepegawaian->nama }}</td>
                                         <td>{{ $p['pegawai']->tunjangan_profesi()->first()->angkatan->nama }}</td>
                                         <td>
-                                            <span class="d-none">{{ $mutasi_serdos ? $mutasi_serdos->tmt : $p['pegawai']->tmt_non_aktif }}</span>
-                                            {{ $mutasi_serdos ? date('d/m/Y', strtotime($mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p['pegawai']->tmt_non_aktif)) }}
+                                            <span class="d-none">{{ $p['mutasi_serdos'] ? $p['mutasi_serdos']->tmt : $p['pegawai']->tmt_non_aktif }}</span>
+                                            {{ $p['mutasi_serdos'] ? date('d/m/Y', strtotime($p['mutasi_serdos']->tmt)) : date('d/m/Y', strtotime($p['pegawai']->tmt_non_aktif)) }}
                                         </td>
-                                        <td class="d-none">{{ $mutasi_serdos ? date('d/m/Y', strtotime($mutasi_serdos->tmt)) : date('d/m/Y', strtotime($p['pegawai']->tmt_non_aktif)) }}</td>
-                                        <td>{{ $mutasi_serdos ? $mutasi_serdos->jenis->nama : '' }}</td>
+                                        <td class="d-none">{{ $p['mutasi_serdos'] ? date('d/m/Y', strtotime($p['mutasi_serdos']->tmt)) : date('d/m/Y', strtotime($p['pegawai']->tmt_non_aktif)) }}</td>
+                                        <td>{{ $p['mutasi_serdos'] ? $p['mutasi_serdos']->jenis->nama : '' }}</td>
 										<td>{{ number_format($p['sebelum'],0,',',',') }}</td>
 										<td>{{ number_format($p['sesudah'],0,',',',') }}</td>
                                     </tr>
