@@ -31,20 +31,4 @@ class LebihKurang extends Model
     {
         return $this->belongsTo(Pegawai::class, 'pegawai_id');
     }
-    
-    /**
-     * Jabatan Terbayar.
-     */
-    public function jabatan_terbayar()
-    {
-        return $this->belongsTo(Jabatan::class, 'jabatan_terbayar_id');
-    }
-    
-    /**
-     * Jabatan Seharusnya.
-     */
-    public function jabatan_seharusnya()
-    {
-        return $this->belongsTo(Jabatan::class, 'jabatan_seharusnya_id');
-    }
 }

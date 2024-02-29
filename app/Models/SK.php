@@ -31,4 +31,12 @@ class SK extends Model
     {
         return $this->belongsTo(JenisSK::class, 'jenis_id');
     }
+
+    /**
+     * Tunjangan Profesi.
+     */
+    public function tunjangan_profesi()
+    {
+        return $this->hasMany(TunjanganProfesi::class, 'sk_id');
+    }
 }

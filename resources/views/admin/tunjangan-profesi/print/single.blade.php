@@ -60,11 +60,12 @@
                 <th align="center"><b>Nama</b></th>
                 <th align="center" width="60"><b>NIP</b></th>
                 <th align="center" width="30"><b>Gol.</b></th>
-                <th align="center" width="100"><b>Unit Kerja</b></th>
+                <th align="center" width="80"><b>Unit Kerja</b></th>
                 @if(!isset($angkatan))
                 <th align="center" width="60"><b>Angkatan</b></th>
                 @endif
                 <th align="center" width="60"><b>Gaji Pokok</b></th>
+                <th align="center" width="40"><b>Frekuensi</b></th>
                 <th align="center" width="60"><b>Tunjangan</b></th>
                 <th align="center" width="60"><b>PPh Ps. 21</b></th>
                 <th align="center" width="60"><b>Diterimakan</b></th>
@@ -73,6 +74,10 @@
         </thead>
         <tbody>
             @foreach($tunjangan as $key=>$t)
+                <?php
+                    $gaji_pokok = $t->gaji_pokok ? $t->gaji_pokok->gaji_pokok : ($t->angkatan->jenis_id == 1 ? $t->tunjangan / 2 : $t->tunjangan);
+                    $frekuensi = $t->angkatan->jenis_id == 1 ? $t->tunjangan / $gaji_pokok / 2 : $t->tunjangan / $gaji_pokok;
+                ?>
                 <tr>
                     <td align="center" height="20">{{ ($key+1) }}</td>
                     <td>{{ strtoupper($t->nama) }}</td>
@@ -82,7 +87,8 @@
                     @if(!isset($angkatan))
                     <td>{{ $t->angkatan->nama }}</td>
                     @endif
-                    <td align="right">{{ $t->angkatan->jenis_id == 1 ? number_format($t->tunjangan / 2,0,'.','.') : number_format($t->tunjangan,0,'.','.') }}</td>
+                    <td align="right">{{ number_format($gaji_pokok,0,'.','.') }}</td>
+                    <td align="right">{{ number_format($frekuensi,0,'.','.') }}</td>
                     <td align="right">{{ number_format($t->tunjangan,0,'.','.') }}</td>
                     <td align="right">{{ number_format($t->pph,0,'.','.') }}</td>
                     <td align="right">{{ number_format($t->diterimakan,0,'.','.') }}</td>
@@ -92,15 +98,15 @@
         </tbody>
         <tfoot>
             <tr>
-                <td align="center" colspan="{{ !isset($angkatan) ? 6 : 5 }}" height="20"><b>Jumlah</b></td>
-                <td align="right"><b>{{ $t->angkatan->jenis_id == 1 ? number_format($tunjangan->sum('tunjangan') / 2,0,'.','.') : number_format($tunjangan->sum('tunjangan'),0,'.','.') }}</b></td>
+                <td align="center" colspan="{{ !isset($angkatan) ? 8 : 7 }}" height="20"><b>Jumlah</b></td>
+                <!-- <td align="right"><b>{{ $t->angkatan->jenis_id == 1 ? number_format($tunjangan->sum('tunjangan') / 2,0,'.','.') : number_format($tunjangan->sum('tunjangan'),0,'.','.') }}</b></td> -->
                 <td align="right"><b>{{ number_format($tunjangan->sum('tunjangan'),0,'.','.') }}</b></td>
                 <td align="right"><b>{{ number_format($tunjangan->sum('pph'),0,'.','.') }}</b></td>
                 <td align="right"><b>{{ number_format($tunjangan->sum('diterimakan'),0,'.','.') }}</b></td>
                 <td></td>
             </tr>
             <tr id="sign">
-                <td colspan="{{ !isset($angkatan) ? 11 : 10 }}" height="80" valign="top">
+                <td colspan="{{ !isset($angkatan) ? 12 : 11 }}" height="80" valign="top">
                     <table width="100%" id="sign-content">
                         <tr>
                             <td width="40%">

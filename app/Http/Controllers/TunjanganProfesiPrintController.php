@@ -48,21 +48,26 @@ class TunjanganProfesiPrintController extends Controller
         $jenis = $angkatan ? JenisTunjanganProfesi::find($angkatan->jenis_id) : null;
 
         // Get tunjangan profesi
-        $tunjangan = TunjanganProfesi::where('angkatan_id','=',$angkatan->id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
+        $tunjangan = TunjanganProfesi::where('angkatan_id','=',$angkatan->id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0)->get();
+
+        // Get SK dasar
+        $sk_dasar = SK::whereHas('tunjangan_profesi', function(Builder $query) use ($request, $angkatan) {
+            return $query->where('angkatan_id','=',$angkatan->id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0);
+        })->groupBy('id')->get();
 
         // Set title
         $title = 'Tunjangan '.$angkatan->jenis->nama.' - '.$angkatan->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
 		
 		// Set header
         if($request->tahun <= 2023) {
-            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(DateTimeExt::full($sk_awal->tanggal));
         }
         else {
-            if($request->bulan > 1) {
-                $header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
-            }
-            elseif($request->bulan == 1) {
-                $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            $header = '';
+            foreach($sk_dasar as $key=>$s) {
+                $header .= strtoupper($s->nama).' TANGGAL '.strtoupper(DateTimeExt::full($s->tanggal));
+                if(count($sk_dasar) > 2 && $key < count($sk_dasar)-1) $header .= ', ';
+                if(count($sk_dasar) > 1 && $key == count($sk_dasar)-2) $header .= ' DAN ';
             }
         }
 
@@ -112,19 +117,25 @@ class TunjanganProfesiPrintController extends Controller
             return $query->where('jenis_id','=',$id);
         })->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
 
+        // Get SK dasar
+        $angkatan = $tunjangan->pluck('angkatan_id')->toArray();
+        $sk_dasar = SK::whereHas('tunjangan_profesi', function(Builder $query) use ($request, $angkatan) {
+            return $query->whereIn('angkatan_id',$angkatan)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0);
+        })->groupBy('id')->get();
+
         // Set title
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
 		
 		// Set header
         if($request->tahun <= 2023) {
-            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(DateTimeExt::full($sk_awal->tanggal));
         }
         else {
-            if($request->bulan > 1) {
-                $header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
-            }
-            elseif($request->bulan == 1) {
-                $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            $header = '';
+            foreach($sk_dasar as $key=>$s) {
+                $header .= strtoupper($s->nama).' TANGGAL '.strtoupper(DateTimeExt::full($s->tanggal));
+                if(count($sk_dasar) > 2 && $key < count($sk_dasar)-1) $header .= ', ';
+                if(count($sk_dasar) > 1 && $key == count($sk_dasar)-2) $header .= ' DAN ';
             }
         }
 
@@ -141,6 +152,7 @@ class TunjanganProfesiPrintController extends Controller
             'sk_awal' => $sk_awal,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
+            'tanggal' => $tanggal,
             'tunjangan' => $tunjangan
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);
@@ -174,19 +186,25 @@ class TunjanganProfesiPrintController extends Controller
             return $query->where('jenis_id','=',4);
         })->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->get();
 
+        // Get SK dasar
+        $angkatan = $tunjangan[0]->angkatan;
+        $sk_dasar = SK::whereHas('tunjangan_profesi', function(Builder $query) use ($request, $angkatan) {
+            return $query->where('angkatan_id','=',$angkatan->id)->where('bulan','=',$request->bulan)->where('tahun','=',$request->tahun)->where('kekurangan','=',0);
+        })->groupBy('id')->get();
+
         // Set title
         $title = 'Tunjangan '.$tunjangan[0]->angkatan->jenis->nama.' ('.$request->tahun.' '.DateTimeExt::month($request->bulan).')';
 		
 		// Set header
         if($request->tahun <= 2023) {
-            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(DateTimeExt::full($sk_awal->tanggal));
         }
         else {
-            if($request->bulan > 1) {
-                $header = strtoupper($sk->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk->tanggal)))).' '.strtoupper(date('Y', strtotime($sk->tanggal)));
-            }
-            elseif($request->bulan == 1) {
-                $header = strtoupper($sk_awal->nama).' TANGGAL '.strtoupper(date('j', strtotime($sk_awal->tanggal))).' '.strtoupper(DateTimeExt::month(date('n', strtotime($sk_awal->tanggal)))).' '.strtoupper(date('Y', strtotime($sk_awal->tanggal)));
+            $header = '';
+            foreach($sk_dasar as $key=>$s) {
+                $header .= strtoupper($s->nama).' TANGGAL '.strtoupper(DateTimeExt::full($s->tanggal));
+                if(count($sk_dasar) > 2 && $key < count($sk_dasar)-1) $header .= ', ';
+                if(count($sk_dasar) > 1 && $key == count($sk_dasar)-2) $header .= ' DAN ';
             }
         }
 
@@ -200,6 +218,7 @@ class TunjanganProfesiPrintController extends Controller
             'sk_awal' => $sk_awal,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
+            'tanggal' => $tanggal,
             'tunjangan' => $tunjangan
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);

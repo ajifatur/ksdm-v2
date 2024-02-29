@@ -33,6 +33,14 @@ class TunjanganProfesi extends Model
     }
     
     /**
+     * SK.
+     */
+    public function sk()
+    {
+        return $this->belongsTo(SK::class, 'sk_id');
+    }
+    
+    /**
      * Angkatan.
      */
     public function angkatan()
@@ -54,5 +62,13 @@ class TunjanganProfesi extends Model
     public function golongan()
     {
         return $this->belongsTo(Golongan::class, 'golongan_id');
+    }
+    
+    /**
+     * Gaji Pokok.
+     */
+    public function gaji_pokok()
+    {
+        return $this->belongsTo(GajiPokok::class, 'gaji_pokok_id');
     }
 }
