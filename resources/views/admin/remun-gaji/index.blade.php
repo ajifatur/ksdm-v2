@@ -216,34 +216,6 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan Terbayar</label>
-                        <div class="col-lg-10 col-md-9">
-                            <select name="jabatan_terbayar" class="form-select form-select-sm {{ $errors->has('jabatan_terbayar') ? 'border-danger' : '' }}">
-                                <option value="0">--Pilih--</option>
-                                @foreach($jabatan as $j)
-                                <option value="{{ $j->id }}" {{ old('jabatan_terbayar') == $j->id ? 'selected' : '' }}>{{ $j->nama }} {{ $j->sub != '-' ? '('.$j->sub.')' : '' }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('jabatan_terbayar'))
-                            <div class="small text-danger">{{ $errors->first('jabatan_terbayar') }}</div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan Seharusnya</label>
-                        <div class="col-lg-10 col-md-9">
-                            <select name="jabatan_seharusnya" class="form-select form-select-sm {{ $errors->has('jabatan_seharusnya') ? 'border-danger' : '' }}">
-                                <option value="0">--Pilih--</option>
-                                @foreach($jabatan as $j)
-                                <option value="{{ $j->id }}" {{ old('jabatan_seharusnya') == $j->id ? 'selected' : '' }}>{{ $j->nama }} {{ $j->sub != '-' ? '('.$j->sub.')' : '' }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('jabatan_seharusnya'))
-                            <div class="small text-danger">{{ $errors->first('jabatan_seharusnya') }}</div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Bulan<span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <select name="bulan" class="form-select form-select-sm {{ $errors->has('bulan') ? 'border-danger' : '' }}" required>
@@ -262,7 +234,7 @@
                         <div class="col-lg-10 col-md-9">
                             <select name="tahun" class="form-select form-select-sm {{ $errors->has('tahun') ? 'border-danger' : '' }}" required>
                                 <option value="" disabled selected>--Pilih--</option>
-                                @for($y=2023; $y>=2023; $y--)
+                                @for($y=date('Y'); $y>=2023; $y--)
                                 <option value="{{ $y }}" {{ old('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
                             </select>

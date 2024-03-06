@@ -45,7 +45,7 @@
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.pegawai.detail', ['id' => $p->id, 'mutasi' => true]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="List Mutasi"><i class="bi-list"></i></a>
-                                        <a href="{{ route('admin.mutasi.create', ['id' => $p->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Tambah Mutasi"><i class="bi-plus"></i></a>
+                                        <a href="{{ route('admin.mutasi.form', ['id' => $p->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Tambah Mutasi"><i class="bi-plus"></i></a>
                                     </div>
                                 </td>
                             </tr>

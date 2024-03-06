@@ -24,8 +24,6 @@ class LebihKurangController extends Controller
         $lebih_kurang = LebihKurang::find($request->id);
         if(!$lebih_kurang) $lebih_kurang = new LebihKurang;
         $lebih_kurang->pegawai_id = $request->pegawai;
-        $lebih_kurang->jabatan_terbayar_id = $request->jabatan_terbayar;
-        $lebih_kurang->jabatan_seharusnya_id = $request->jabatan_seharusnya;
         $lebih_kurang->bulan = $request->bulan;
         $lebih_kurang->tahun = $request->tahun;
         $lebih_kurang->bulan_proses = $request->bulan_proses;
