@@ -56,7 +56,8 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2" width="5">No</th>
-                                <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">NIP / NPU</th>
+                                <th rowspan="2">Nama</th>
                                 <th rowspan="2">Unit</th>
                                 <th colspan="{{ $kategori && $kategori->kategori == 1 ? 5 : 4 }}">Penghasilan</th>
                                 <th colspan="2">Potongan</th>
@@ -78,7 +79,8 @@
                             @foreach($gaji as $key=>$g)
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
-                                <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $g->pegawai->id]) }}">'{{ nip_baru($g->pegawai) }}</a></td>
+                                <td>{{ strtoupper($g->pegawai->nama) }}</td>
                                 <td>{{ $g->unit ? $g->unit->nama : ($g->kategori->nama == 'Tendik Labschool' ? 'LP2M' : '-') }}</td>
                                 <td align="right">{{ number_format($g->gjpokok) }}</td>
                                 @if($kategori && $kategori->kategori == 1)
@@ -95,7 +97,7 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="3" align="center">Total</td>
+                                <td colspan="4" align="center">Total</td>
                                 <td align="right" valign="top">{{ number_format($gaji->sum('gjpokok')) }}</td>
                                 @if($kategori && $kategori->kategori == 1)
                                 <td align="right" valign="top">{{ number_format($gaji->sum('tjdosen')) }}</td>
@@ -127,7 +129,6 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable", {
-        pageLength: -1,
         orderAll: true,
         fixedHeader: true
     });

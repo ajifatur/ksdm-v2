@@ -56,7 +56,8 @@
                         <thead class="bg-light">
                             <tr>
                                 <th width="5">No</th>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 @if($jenis == 2)
                                 <th>Unit</th>
                                 @endif
@@ -71,7 +72,8 @@
                             @foreach($uang_makan as $key=>$um)
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
-                                <td>{{ strtoupper($um->pegawai->nama) }}<br>{{ $um->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $um->pegawai->id]) }}">'{{ $um->pegawai->nip }}</a></td>
+                                <td>{{ strtoupper($um->pegawai->nama) }}</td>
                                 @if($jenis == 2)
                                 <td>{{ $um->unit->nama }}</td>
                                 @endif
@@ -85,7 +87,7 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="{{ $jenis == 2 ? 4 : 3 }}" align="center">Total</td>
+                                <td colspan="{{ $jenis == 2 ? 5 : 4 }}" align="center">Total</td>
                                 <td align="right">{{ number_format($uang_makan->sum('jmlhari')) }}</td>
                                 <td align="right">{{ number_format($uang_makan->sum('kotor')) }}</td>
                                 <td align="right">{{ number_format($uang_makan->sum('potongan')) }}</td>
@@ -111,7 +113,6 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable", {
-        pageLength: -1,
         orderAll: true,
         fixedHeader: true
     });

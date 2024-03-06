@@ -65,7 +65,7 @@
                             @foreach($pegawai as $peg)
                                 @foreach($peg as $p)
                                 <tr>
-                                    <td><a href="{{ route('admin.pegawai.detail' ,['id' => $p->id]) }}">`{{ nip_baru($p) }}</a></td>
+                                    <td><a href="{{ route('admin.pegawai.detail' ,['id' => $p->id]) }}">'{{ nip_baru($p) }}</a></td>
                                     <td>{{ strtoupper($p->nama) }}</td>
                                     <td>{{ $p->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                     <td>{{ $p->unit ? $p->unit->nama : '-' }}</td>

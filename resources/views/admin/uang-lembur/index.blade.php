@@ -55,7 +55,8 @@
                         <thead class="bg-light">
                             <tr>
                                 <th width="5">No</th>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 <th>Unit</th>
                                 <th>Jenis</th>
                                 <th width="80">Jam Lembur Hari Kerja</th>
@@ -72,7 +73,8 @@
                             @foreach($uang_lembur as $key=>$ul)
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
-                                <td>{{ strtoupper($ul->pegawai->nama) }}<br>{{ $ul->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $ul->pegawai->id]) }}">'{{ $ul->pegawai->nip }}</a></td>
+                                <td>{{ strtoupper($ul->pegawai->nama) }}</td>
                                 <td>{{ $ul->unit->nama }}</td>
                                 <td>{{ $ul->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($ul->jamlemburharikerja) }}</td>
@@ -88,7 +90,7 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="4" align="center">Total</td>
+                                <td colspan="5" align="center">Total</td>
                                 <td align="right">{{ number_format($uang_lembur->sum('jamlemburharikerja')) }}</td>
                                 <td align="right">{{ number_format($uang_lembur->sum('jamlemburharilibur')) }}</td>
                                 <td align="right">{{ number_format($uang_lembur->sum('totalhari')) }}</td>

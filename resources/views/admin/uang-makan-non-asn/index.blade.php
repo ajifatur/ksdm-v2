@@ -66,7 +66,7 @@
                             @foreach($uang_makan as $key=>$um)
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
-                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $um->pegawai->id]) }}">{{ nip_baru($um->pegawai) }}</a></td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $um->pegawai->id]) }}">'{{ nip_baru($um->pegawai) }}</a></td>
                                 <td>{{ strtoupper($um->pegawai->nama) }}</td>
                                 <td>{{ $um->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($um->nominal) }}</td>

@@ -55,7 +55,8 @@
                         <thead class="bg-light">
                             <tr>
                                 <th rowspan="2" width="5">No</th>
-                                <th rowspan="2">Nama / NIP</th>
+                                <th rowspan="2">NIP / NPU</th>
+                                <th rowspan="2">Nama</th>
                                 <th rowspan="2">Jenis</th>
                                 <th colspan="3">Penghasilan</th>
                                 <th colspan="3">Iuran</th>
@@ -74,7 +75,8 @@
                             @foreach($gaji as $key=>$g)
                             <tr>
                                 <td align="right">{{ ($key+1) }}</td>
-                                <td>{{ strtoupper($g->pegawai->nama) }}<br>{{ $g->pegawai->npu != null ? $g->pegawai->npu : $g->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $g->pegawai->id]) }}">'{{ nip_baru($g->pegawai) }}</a></td>
+                                <td>{{ strtoupper($g->pegawai->nama) }}</td>
                                 <td>{{ $g->pegawai->jenis == 1 ? 'Dosen' : 'Tendik' }}</td>
                                 <td align="right">{{ number_format($g->gjpokok) }}<br>{{ number_format($g->tjistri) }}<br>{{ number_format($g->tjanak) }}</td>
                                 <td align="right">{{ number_format($g->tjfungs) }}<br>{{ number_format($g->tjumum) }}<br>{{ number_format($g->tjberas) }}<br>{{ number_format($g->pembul) }}</td>
@@ -88,9 +90,12 @@
                         </tbody>
                         <tfoot class="bg-light fw-bold">
                             <tr>
-                                <td colspan="5" align="center">Total</td>
+                                <td colspan="4" align="center">Total</td>
+                                <td align="right">{{ number_format($gaji->sum('gjpokok')) }}<br>{{ number_format($gaji->sum('tjistri')) }}<br>{{ number_format($gaji->sum('tjanak')) }}</td>
+                                <td align="right">{{ number_format($gaji->sum('tjfungs')) }}<br>{{ number_format($gaji->sum('tjumum')) }}<br>{{ number_format($gaji->sum('tjberas')) }}<br>{{ number_format($gaji->sum('pembul')) }}</td>
                                 <td align="right">{{ number_format($gaji->sum('nominal') + $gaji->sum('pembul')) }}</td>
-                                <td colspan="2"></td>
+                                <td align="right">{{ number_format($gaji->sum('bpjskes1')) }}</td>
+                                <td align="right">{{ number_format($gaji->sum('bpjsket3')) }}</td>
                                 <td align="right">{{ number_format($gaji->sum('bpjskes1') + $gaji->sum('bpjsket3')) }}</td>
                                 <td align="right">{{ number_format($gaji->sum('bersih')) }}</td>
                             </tr>
@@ -114,7 +119,6 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable", {
-        pageLength: -1,
         orderAll: true,
         fixedHeader: true
     });

@@ -45,6 +45,7 @@
                                 </td>
                                 <td align="center">
                                     <div class="btn-group">
+                                        <a href="{{ asset('assets/txt/'.\Ajifatur\Helpers\FileExt::info($file)['nameWithoutExtension'].'.txt') }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Download" target="_blank"><i class="bi-download"></i></a>
                                         <a href="{{ route('admin.presensi.delete') }}" class="btn btn-sm btn-danger btn-delete" data-id="{{ \Ajifatur\Helpers\FileExt::info($file)['nameWithoutExtension'].'.txt' }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
                                     </div>
                                 </td>

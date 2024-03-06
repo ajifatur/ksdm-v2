@@ -24,27 +24,31 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th width="100">Tanggal</th>
-                                <th width="150">Bulan, Tahun</th>
                                 <th>NIP</th>
                                 <th>Nama</th>
-                                <th width="30">Cetak</th>
-                                <th width="30">Opsi</th>
+                                <th width="100" class="notexport">Tanggal Slip Gaji</th>
+                                <th width="100" class="d-none">Tanggal Slip Gaji</th>
+                                <th width="150" class="notexport">Periode Gaji</th>
+                                <th width="150" class="d-none">Periode Gaji</th>
+                                <th width="30" class="notexport">Cetak</th>
+                                <th width="30" class="notexport">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($slip_gaji as $s)
                             <tr>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $s->pegawai->id]) }}">'{{ $s->pegawai->nip }}</a></td>
+                                <td>{{ strtoupper($s->pegawai->nama) }}</td>
                                 <td>
                                     <span class="d-none">{{ $s->tanggal }}</span>
                                     {{ $s->tanggal != null ? date('d/m/Y', strtotime($s->tanggal)) : '' }}
                                 </td>
+                                <td class="d-none">{{ $s->tanggal }}</td>
                                 <td>
                                     <span class="d-none">{{ $s->tahun }} {{ $s->bulan }}</span>
                                     {{ \Ajifatur\Helpers\DateTimeExt::month($s->bulan) }} {{ $s->tahun }}
                                 </td>
-                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $s->pegawai->id]) }}">{{ $s->pegawai->nip }}</a></td>
-                                <td>{{ strtoupper($s->pegawai->nama) }}</td>
+                                <td class="d-none">{{ \Ajifatur\Helpers\DateTimeExt::month($s->bulan) }} {{ $s->tahun }}</td>
                                 <td align="center">
                                     <div class="btn-group">
                                         <a href="{{ route('admin.slip-gaji.print', ['id' => $s->id, 'lang' => 'id']) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Cetak PDF" target="_blank">ID</a>
@@ -80,7 +84,8 @@
     // DataTable
     Spandiv.DataTable("#datatable", {
         orderAll: true,
-        fixedHeader: true
+        fixedHeader: true,
+        buttons: true
     });
 
     // Button Delete
@@ -93,6 +98,7 @@
 
 <style>
     #datatable tr td {vertical-align: top;}
+    div.dt-buttons .dt-button {border: 2px solid #bebebe!important;}
 </style>
 
 @endsection

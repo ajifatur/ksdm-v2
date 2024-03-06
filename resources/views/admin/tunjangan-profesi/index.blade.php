@@ -58,7 +58,8 @@
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 <th>Gol</th>
                                 <th>Unit</th>
                                 <th>Tunjangan</th>
@@ -69,7 +70,8 @@
                         <tbody>
                             @foreach($tunjangan as $key=>$t)
                             <tr>
-                                <td>{{ strtoupper($t->pegawai->nama) }}<br>{{ $t->pegawai->nip }}</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $t->pegawai->id]) }}">'{{ nip_baru($t->pegawai) }}</a></td>
+                                <td>{{ strtoupper($t->pegawai->nama) }}</td>
                                 <td align="center">{{ $jenis->id != 4 ? $t->golongan->nama : $t->golongan->id }}</td>
                                 <td>{{ $t->unit->nama }}</td>
                                 <td align="right">{{ number_format($t->tunjangan) }}</td>

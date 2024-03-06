@@ -144,7 +144,15 @@
                                             </td>
                                             <td>{{ $m->status_kepegawaian ? $m->status_kepegawaian->nama : '-' }}</td>
                                             <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
-                                            <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
+                                            <td>
+                                                @if($m->gaji_pokok)
+                                                    {{ $m->gaji_pokok->nama }}
+                                                    <br>
+                                                    <span class="text-success">({{ date('Y', strtotime($m->gaji_pokok->sk->tmt)) }})</span>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                             <td>
                                                 @foreach($m->detail()->get() as $key2=>$d)
                                                     {{ jabatan($d->jabatan) }}

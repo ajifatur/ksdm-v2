@@ -80,7 +80,7 @@
                         <tbody>
                             @foreach($mutasi as $m)
                             <tr class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'bg-secondary text-white' : '' }}">
-                                <td><a class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'text-white' : '' }}" href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">'{{ $m->pegawai->npu != null ? $m->pegawai->npu : $m->pegawai->nip }}</a></td>
+                                <td><a class="{{ ($jenis == 'remun' && $m->remun_gaji == 0) || ($jenis == 'serdos' && $m->jenis->status == 0) ? 'text-white' : '' }}" href="{{ route('admin.pegawai.detail', ['id' => $m->pegawai->id]) }}">'{{ nip_baru($m->pegawai) }}</a></td>
                                 <td>{{ strtoupper($m->pegawai->nama) }}</td>
                                 <td>
                                     {{ $m->jenis->nama }}
@@ -91,7 +91,15 @@
                                 </td>
                                 <td>{{ $m->status_kepegawaian ? $m->status_kepegawaian->nama : '-' }}</td>
                                 <td>{{ $m->golru ? $m->golru->nama : '-' }}</td>
-                                <td>{{ $m->gaji_pokok ? $m->gaji_pokok->nama : '-' }}</td>
+                                <td>
+                                    @if($m->gaji_pokok)
+                                        {{ $m->gaji_pokok->nama }}
+                                        <br>
+                                        <span class="text-success">({{ date('Y', strtotime($m->gaji_pokok->sk->tmt)) }})</span>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td>
                                     @if($jenis == 'remun')
                                         @if(count($m->detail) > 0)

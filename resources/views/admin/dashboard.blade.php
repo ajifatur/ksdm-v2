@@ -160,7 +160,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col mt-0">
-                        <h5 class="card-title">Tunjangan Profesi {{ date('Y') }}</h5>
+                        <h5 class="card-title">Tunjangan Profesi Dosen {{ date('Y') }}</h5>
                     </div>
                     <div class="col-auto">
                         <div class="stat text-primary">Rp</div>
