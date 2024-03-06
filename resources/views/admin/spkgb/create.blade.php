@@ -130,12 +130,20 @@
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Gaji Pokok <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            <select name="gaji_pokok" class="form-select form-select-sm {{ $errors->has('gaji_pokok') ? 'border-danger' : '' }}">
-                                <option value="" disabled selected>--Pilih--</option>
-                                @foreach($gaji_pokok as $gp)
-                                <option value="{{ $gp->id }}" {{ $mutasi && $mutasi->gaji_pokok_id == $gp->id ? 'selected' : '' }}>{{ $gp->nama }} - Rp {{ number_format($gp->gaji_pokok) }}</option>
-                                @endforeach
-                            </select>
+                            <div class="input-group">
+                                <select name="sk_gapok_pns" class="form-select form-select-sm {{ $errors->has('sk_gapok_pns') ? 'border-danger' : '' }}" style="width: 50%;">
+                                    <option value="" disabled selected>--Pilih--</option>
+                                    @foreach($sk_gapok_pns as $s)
+                                    <option value="{{ $s->id }}" {{ $mutasi && $mutasi->gaji_pokok->sk_id == $s->id ? 'selected' : '' }}>{{ $s->awal_tahun }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="gaji_pokok" class="form-select form-select-sm {{ $errors->has('gaji_pokok') ? 'border-danger' : '' }}" style="width: 50%;">
+                                    <option value="" disabled selected>--Pilih--</option>
+                                    @foreach($gaji_pokok as $gp)
+                                    <option value="{{ $gp->id }}" {{ $mutasi && $mutasi->gaji_pokok_id == $gp->id ? 'selected' : '' }}>{{ $gp->nama }} - Rp {{ number_format($gp->gaji_pokok) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             @if($errors->has('gaji_pokok'))
                             <div class="small text-danger">{{ $errors->first('gaji_pokok') }}</div>
                             @endif
@@ -177,29 +185,21 @@
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Masa Kerja Tahun, Bulan <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <select name="mk_tahun" class="form-select form-select-sm {{ $errors->has('mk_tahun') ? 'border-danger' : '' }}">
-                                            <option value="" disabled selected>--Pilih Masa Kerja Tahun--</option>
-                                            @for($i=0; $i<=50; $i++)
-                                            <option value="{{ $i }}" {{ old('mk_tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                            @endfor
-                                        </select>
-                                        <span class="input-group-text">Tahun</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <select name="mk_bulan" class="form-select form-select-sm {{ $errors->has('mk_bulan') ? 'border-danger' : '' }}">
-                                            <option value="" disabled selected>--Pilih Masa Kerja Bulan--</option>
-                                            @for($i=0; $i<=11; $i++)
-                                            <option value="{{ $i }}" {{ old('mk_bulan') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                                            @endfor
-                                        </select>
-                                        <span class="input-group-text">Bulan</span>
-                                    </div>
-                                </div>
+                            <div class="input-group">
+                                <select name="mk_tahun" class="form-select form-select-sm {{ $errors->has('mk_tahun') ? 'border-danger' : '' }}" style="width: 45%;">
+                                    <option value="" disabled selected>--Pilih Masa Kerja Tahun--</option>
+                                    @for($i=0; $i<=50; $i++)
+                                    <option value="{{ $i }}" {{ old('mk_tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                    @endfor
+                                </select>
+                                <span class="input-group-text" style="width: 5%;">Tahun</span>
+                                <select name="mk_bulan" class="form-select form-select-sm {{ $errors->has('mk_bulan') ? 'border-danger' : '' }}" style="width: 45%;">
+                                    <option value="" disabled selected>--Pilih Masa Kerja Bulan--</option>
+                                    @for($i=0; $i<=11; $i++)
+                                    <option value="{{ $i }}" {{ old('mk_bulan') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                    @endfor
+                                </select>
+                                <span class="input-group-text" style="width: 5%;">Bulan</span>
                             </div>
                             @if($errors->has('mk_bulan') || $errors->has('mk_tahun'))
                             <div class="small text-danger">{{ $errors->first('mk_bulan') }}</div>
@@ -260,13 +260,21 @@
 @section('js')
 
 <script>
-    // Golru
+    // Select2
     Spandiv.Select2("select[name=golru]");
-    $(document).on("change", "select[name=golru]", function() {
-        var golru = $(this).val();
+    Spandiv.Select2("select[name=jenis_mutasi]");
+    Spandiv.Select2("select[name=gaji_pokok]");
+    Spandiv.Select2("select[name=pejabat]");
+    Spandiv.Select2("select[name=mk_tahun]");
+    Spandiv.Select2("select[name=mk_bulan]");
+
+    // Golru
+    $(document).on("change", "select[name=sk_gapok_pns], select[name=golru]", function() {
+        var golru = $("select[name=golru]").val();
+        var sk = $("select[name=sk_gapok_pns]").val();
         $.ajax({
             type: "get",
-            url: Spandiv.URL("{{ route('api.gaji-pokok.index') }}", {golru: golru}),
+            url: Spandiv.URL("{{ route('api.gaji-pokok.index') }}", {golru: golru, sk: sk}),
             success: function(response) {
                 var html = '';
                 html += '<option value="" selected">--Pilih--</option>';
@@ -277,13 +285,6 @@
             }
         })
     });
-
-    // Select2
-    Spandiv.Select2("select[name=jenis_mutasi]");
-    Spandiv.Select2("select[name=gaji_pokok]");
-    Spandiv.Select2("select[name=pejabat]");
-    Spandiv.Select2("select[name=mk_tahun]");
-    Spandiv.Select2("select[name=mk_bulan]");
 
     // DatePicker
     Spandiv.DatePicker("input[name=tanggal_sk_baru]");

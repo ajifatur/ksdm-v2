@@ -108,6 +108,11 @@ class SPKGBController extends Controller
         // Get golru
         $golru = Golru::all();
 
+        // Get SK Gaji Pokok PNS
+        $sk_gapok_pns = SK::whereHas('jenis', function(Builder $query) {
+            return $query->where('nama','=','Gaji Pokok PNS');
+        })->orderBy('tanggal','desc')->get();
+
         // Get gaji pokok
         if($tipe == 1) {
             if($pegawai->status_kepegawaian->grup->nama == 'PNS')
@@ -150,6 +155,7 @@ class SPKGBController extends Controller
             'pegawai' => $pegawai,
             'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
+            'sk_gapok_pns' => $sk_gapok_pns,
             'gaji_pokok' => $gaji_pokok,
             'pejabat' => $pejabat,
             'mutasi' => $mutasi,
@@ -269,7 +275,6 @@ class SPKGBController extends Controller
                     $detail->jabatan_dasar_id = $d->jabatan_dasar_id;
                     $detail->unit_id = $d->unit_id;
                     $detail->layer_id = $d->layer_id;
-                    $detail->angkatan_id = $d->angkatan_id;
                     $detail->status = $d->status;
                     $detail->save();
                 }
@@ -333,6 +338,11 @@ class SPKGBController extends Controller
         // Get golru
         $golru = Golru::all();
 
+        // Get SK Gaji Pokok PNS
+        $sk_gapok_pns = SK::whereHas('jenis', function(Builder $query) {
+            return $query->where('nama','=','Gaji Pokok PNS');
+        })->orderBy('tanggal','desc')->get();
+
         // Get gaji pokok
         if(in_array($spkgb->pegawai->status_kepegawaian->nama, ['CPNS','PNS','BLU','Calon Pegawai Tetap','Pegawai Tetap Non ASN']))
             $gaji_pokok = Golru::find($spkgb->mutasi->golru_id)->gaji_pokok()->whereHas('sk', function(Builder $query) {
@@ -349,6 +359,7 @@ class SPKGBController extends Controller
             'spkgb' => $spkgb,
             'jenis_mutasi' => $jenis_mutasi,
             'golru' => $golru,
+            'sk_gapok_pns' => $sk_gapok_pns,
             'gaji_pokok' => $gaji_pokok,
             'pejabat' => $pejabat,
         ]);
