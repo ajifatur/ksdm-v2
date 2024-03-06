@@ -72,7 +72,7 @@
                             <tr>
                                 <td><a href="{{ route('admin.pegawai.detail', ['id' => $t->pegawai->id]) }}">'{{ nip_baru($t->pegawai) }}</a></td>
                                 <td>{{ strtoupper($t->pegawai->nama) }}</td>
-                                <td align="center">{{ $jenis->id != 4 ? $t->golongan->nama : $t->golongan->id }}</td>
+                                <td align="center">{{ $t->golongan->nama }}</td>
                                 <td>{{ $t->unit->nama }}</td>
                                 <td align="right">{{ number_format($t->tunjangan) }}</td>
                                 <td align="right">{{ number_format($t->pph) }}</td>
