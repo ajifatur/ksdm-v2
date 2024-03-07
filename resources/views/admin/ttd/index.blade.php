@@ -15,8 +15,10 @@
                     <table class="table table-sm table-hover table-striped table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
-                                <th>Nama / NIP</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
                                 <th>Jabatan</th>
+                                <th>Kode</th>
                                 <th width="80">Tanggal Mulai</th>
                                 <th width="80">Tanggal Selesai</th>
                                 <th width="80">Status</th>
@@ -25,8 +27,10 @@
                         <tbody>
                             @foreach($ttd as $t)
                             <tr>
-                                <td>{{ strtoupper($t->pegawai->nama) }}<br>{{ $t->pegawai->nip }}</td>
-                                <td>{{ $t->nama }}<br>({{ $t->kode }})</td>
+                                <td><a href="{{ route('admin.pegawai.detail', ['id' => $t->pegawai->id]) }}">'{{ nip_baru($t->pegawai) }}</a></td>
+                                <td>{{ strtoupper($t->pegawai->nama) }}</td>
+                                <td>{{ $t->nama }}</td>
+                                <td>{{ $t->kode }}</td>
                                 <td>
                                     <span class="d-none">{{ $t->tanggal_mulai }}</span>
                                     {{ date('d/m/Y', strtotime($t->tanggal_mulai)) }}
