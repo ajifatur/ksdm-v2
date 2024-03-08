@@ -46,7 +46,7 @@
                                     <span class="d-none">{{ $s->tmt }}</span>
                                     {{ date('d/m/Y', strtotime($s->tmt)) }}
                                 </td>
-                                <td><span class="{{ $s->status == 1 ? 'text-success' : 'text-danger' }}">{{ $s->status == 1 ? 'Aktif' : 'Tidak Aktif' }}</span></td>
+                                <td><span class="{{ $s->status == 'Aktif' ? 'text-success' : 'text-danger' }}">{{ $s->status }}</span></td>
                             </tr>
                             @endforeach
                         </tbody>

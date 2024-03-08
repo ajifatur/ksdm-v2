@@ -63,4 +63,20 @@ class GajiKontrak extends Model
     {
         return $this->belongsTo(KategoriKontrak::class, 'kategori_id');
     }
+    
+    /**
+     * Status Kawin.
+     */
+    public function status_kawin()
+    {
+        return $this->belongsTo(StatusKawin::class, 'status_kawin_id');
+    }
+    
+    /**
+     * Status Pajak.
+     */
+    public function status_pajak()
+    {
+        return $this->belongsTo(StatusKawin::class, 'status_pajak_id');
+    }
 }

@@ -25,7 +25,15 @@ class SKController extends Controller
         $jenis_sk = JenisSK::all();
 
         // Get SK
-        $sk = SK::where('jenis_id','=',$jenis)->orderBy('status','desc')->orderBy('tanggal','desc')->get();
+        $sk = SK::where('jenis_id','=',$jenis)->orderBy('tmt','desc')->get();
+        foreach($sk as $key=>$s) {
+            if($s->tmt <= date('Y-m-d') && $s->tmt_non_aktif == null)
+                $sk[$key]->status = 'Aktif';
+            elseif($s->tmt <= date('Y-m-d') && $s->tmt_non_aktif >= date('Y-m-d'))
+                $sk[$key]->status = 'Aktif';
+            else
+                $sk[$key]->status = 'Tidak Aktif';
+        }
 		
 		// View
 		return view('admin/sk/index', [

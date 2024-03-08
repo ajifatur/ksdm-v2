@@ -16,6 +16,7 @@ use App\Models\JenisGaji;
 use App\Models\KategoriKontrak;
 use App\Models\Pegawai;
 use App\Models\SKKontrak;
+use App\Models\StatusKawin;
 use App\Models\Unit;
 
 class GajiKontrakController extends Controller
@@ -163,6 +164,17 @@ class GajiKontrakController extends Controller
     {
         ini_set("memory_limit", "-1");
         ini_set("max_execution_time", "-1");
+
+        // $gaji = GajiKontrak::all();
+        // foreach($gaji as $g) {
+        //     $update = GajiKontrak::find($g->id);
+        //     $update->status_kawin_id = StatusKawin::where('kode','=',$g->status_kawin)->first()->id;
+        //     $update->status_pajak_id = StatusKawin::where('kode','=',$g->status_pajak)->first()->id;
+        //     $update->nik = $g->pegawai->nik;
+        //     $update->npwp = $g->pegawai->npwp;
+        //     $update->save();
+        // }
+        // return;
 
         $bulan = 1;
         $tahun = 2024;

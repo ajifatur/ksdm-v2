@@ -61,9 +61,9 @@
     @foreach($data['gaji'] as $key=>$d)
     <tr>
         <td align="center" valign="middle" height="45">{{ $key+1 }}</td>
-        <td valign="middle">{{ strtoupper($d->pegawai->nama) }}<br>{{ $d->pegawai->nik }}<br>{{ $d->pegawai->npwp }}</td>
-        <td valign="middle">{{ $d->pegawai->npu != null ? $d->pegawai->npu : $d->pegawai->nip }}</td>
-        <td align="center" valign="middle">{{ $d->status_kawin }}<br>{{ $d->status_pajak }}</td>
+        <td valign="middle">{{ strtoupper($d->pegawai->nama) }}<br>{{ $d->nik }}<br>{{ $d->npwp }}</td>
+        <td valign="middle">{{ nip_baru($d->pegawai) }}</td>
+        <td align="center" valign="middle">{{ $d->status_kawin->kode }}<br>{{ $d->status_pajak->kode }}</td>
         <td valign="middle">{{ $d->sk->no_sk }}</td>
         <td align="right" valign="middle">{{ $d->gjpokok }}</td>
         @if(($data['kategori'] && $data['kategori']->kategori == 1) || $data['kategori'] == null)
