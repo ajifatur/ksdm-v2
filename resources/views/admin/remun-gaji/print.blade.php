@@ -17,7 +17,7 @@
 <body>
     <div id="title">
         DAFTAR PERHITUNGAN PEMBAYARAN REMUNERASI KOMPONEN GAJI UNSUR TENAGA {{ $kategori == 1 ? 'PENDIDIK' : 'KEPENDIDIKAN' }} UNNES<br>
-        BERDASAR {{ $sk->nama }} TANGGAL {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($sk->tanggal)) }} {{ $count_sk > 1 && $bulan > 1 ? 'BESERTA PERUBAHANNYA' : '' }}<br>
+        BERDASAR {{ $sk->nama }} TANGGAL {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::full($sk->tanggal)) }} {{ $bulan > 1 ? 'BESERTA PERUBAHANNYA' : '' }}<br>
         BULAN {{ strtoupper(\Ajifatur\Helpers\DateTimeExt::month($bulan)) }} {{ $tahun }} PADA {{ strtoupper($unit->nama) }}
     </div>
     <table style="width: 100%">

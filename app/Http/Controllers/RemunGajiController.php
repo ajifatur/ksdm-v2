@@ -327,6 +327,9 @@ class RemunGajiController extends Controller
         $tahun = $request->query('tahun') ?: date('Y');
         $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
+        // Count remun gaji
+        $count = RemunGaji::where('bulan','=',$bulan)->where('tahun','=',$tahun)->count();
+
         // Get unit
         $unit = Unit::where(function($query) use ($tanggal) {
 			$query->where('start_date','<=',$tanggal)->orWhereNull('start_date');
@@ -409,6 +412,7 @@ class RemunGajiController extends Controller
 
         // View
         return view('admin/remun-gaji/monitoring', [
+            'count' => $count,
             'unit' => $unit,
             'bulan' => $bulan,
             'tahun' => $tahun,
@@ -519,16 +523,17 @@ class RemunGajiController extends Controller
 		ini_set("memory_limit", "-1");
 		ini_set("max_execution_time", "-1");
 
+        // Get kategori, unit, bulan, tahun, dan tanggal
         $kategori = $request->query('kategori');
         $unit = $request->query('unit');
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
+        $tanggal = $tahun.'-'.($bulan < 10 ? '0'.$bulan : $bulan).'-01';
 
         // Get SK
-        $sk = SK::where('jenis_id','=',1)->where('awal_tahun','=',$tahun)->first();
-        
-        // Count SK pada tahun berjalan
-        $count_sk = SK::where('jenis_id','=',1)->whereYear('tanggal',$tahun)->count();
+        $sk = SK::whereHas('jenis', function(Builder $query) {
+            return $query->where('nama','=','Remunerasi Gaji');
+        })->whereYear('tmt',$tahun)->first();
 
         // Get unit
         $unit = Unit::findOrFail($request->query('unit'));
@@ -543,7 +548,7 @@ class RemunGajiController extends Controller
             $remun_gaji = RemunGaji::where('unit_id','=',$request->query('unit'))->where('bulan','=',$bulan)->where('tahun','=',$tahun)->where('kategori','=',$kategori)->orderBy('num_order','asc')->get();
 
         // Set title
-        $title = 'Remun Gaji '.$unit->nama.' '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).')';
+        $title = 'Remunerasi Gaji '.$unit->nama.' '.$get_kategori.' ('.$tahun.' '.DateTimeExt::month($bulan).')';
 
         // PDF
         $pdf = PDF::loadView('admin/remun-gaji/print', [
@@ -553,7 +558,6 @@ class RemunGajiController extends Controller
             'bulan' => $bulan,
             'tahun' => $tahun,
             'sk' => $sk,
-            'count_sk' => $count_sk,
             'remun_gaji' => $remun_gaji
         ]);
         $pdf->setPaper([0, 0 , 935, 612]);

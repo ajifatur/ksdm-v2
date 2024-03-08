@@ -23,6 +23,10 @@
         #content {position: absolute; top: 200px; left: 120px; right: 70px; line-height: 18px; text-align: justify;}
         #content ol {margin-top: 0px; padding-left: 18px;}
 
+        /* Footer */
+        #footer {position: absolute; font-family: 'sans-serif'; font-size: 10.5px; line-height: 12px; bottom: 5px; left: 120px; right: 70px; padding-top: 0.5px; border-top: 1px solid black;}
+        #footer img {width: 80px;}
+
         /* Sign */
         #sign {line-height: 14px;}
     </style>
@@ -73,5 +77,13 @@
             </tr>
         </table>
     </div>
+    <div id="footer">
+		<table>
+			<tr>
+				<td width="75"><img src="{{ public_path('assets/images/default/BSrE.png') }}"></td>
+				<td>Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh Balai Sertifikasi Elektronik (BSrE)</td>
+			</tr>
+		</table>
+	</div>
 </body>
 </html>
